@@ -1,0 +1,16 @@
+version: '2'
+services:
+  mongo:
+    image: mongo
+  bot:
+    build: .
+    command: ./scripts/start.sh
+    environment:
+      - API_PORT=8080
+      - PYTHONPATH=/usr/src/app
+    ports:
+      - "80:8080"
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - mongo
