@@ -1,19 +1,21 @@
-Boilerplate-bot
----------------
+Todo-bot
+--------
 
-.. image:: https://travis-ci.org/botstory/boilerplate-bot.svg?branch=develop
-    :target: https://travis-ci.org/botstory/boilerplate-bot
+.. image:: https://travis-ci.org/botstory/todo-bot.svg?branch=develop
+    :target: https://travis-ci.org/botstory/todo-bot
 
-.. image:: https://coveralls.io/repos/github/botstory/boilerplate-bot/badge.svg?branch=develop
-    :target: https://coveralls.io/github/botstory/boilerplate-bot?branch=develop
+.. image:: https://coveralls.io/repos/github/botstory/todo-bot/badge.svg?branch=develop
+    :target: https://coveralls.io/github/botstory/todo-bot?branch=develop
 
 
-Good place to start your bot based on `BotStory framework <https://github.com/botstory/bot-story>`_.
+Simple example of using bot-story framework, inspired by http://todomvc.com
+
+Based on `BotStory framework <https://github.com/botstory/bot-story>`_.
 
 Stack
 ~~~~~
 
-`:rocket:` auto deploying `landing page <https://botstory.github.io/boilerplate-bot/>`_ (`sources <https://github.com/botstory/boilerplate-bot-landing>`_)
+`:rocket:` auto deploying `landing page <https://botstory.github.io/todo-bot/>`_ (`sources <https://github.com/botstory/todo-bot-landing>`_)
 
 `:snake:` `AsyncIO <https://docs.python.org/3/library/asyncio.html>`_ and `AioHTTP <http://aiohttp.readthedocs.io/en/stable/>`_
 
