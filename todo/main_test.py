@@ -80,13 +80,13 @@ def test_show_help_if_no_any_arguments():
 
 def test_setup_bot_on_setup_argument(mocker):
     main.sys.argv = ['', '--setup']
-    handler = mocker.patch('boilerplate.main.setup')
+    handler = mocker.patch('todo.main.setup')
     main.main()
     assert handler.called is True
 
 
 def test_start_bot_on_setup_argument(mocker):
     main.sys.argv = ['', '--start']
-    handler = mocker.patch('boilerplate.main.start')
+    handler = mocker.patch('todo.main.start')
     main.main()
     assert handler.called is True

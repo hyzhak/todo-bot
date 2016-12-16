@@ -11,7 +11,7 @@ echo " Setup"
 echo ""
 echo "====================================================="
 
-python ./boilerplate/main.py --setup
+python ./${PROJECT_NAME}/main.py --setup
 
 echo "====================================================="
 echo ""
@@ -19,4 +19,4 @@ echo " Start"
 echo ""
 echo "====================================================="
 
-gunicorn boilerplate.wsgi:app --bind 0.0.0.0:${API_PORT} --log-file - --reload --worker-class aiohttp.worker.GunicornWebWorker
+gunicorn ${PROJECT_NAME}.wsgi:app --bind 0.0.0.0:${API_PORT} --log-file - --reload --worker-class aiohttp.worker.GunicornWebWorker

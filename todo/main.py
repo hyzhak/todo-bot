@@ -7,11 +7,11 @@ import logging
 import os
 import sys
 
-from boilerplate import stories
+from todo import stories
 
-BOT_NAME = 'boiledplate'
+BOT_NAME = 'todo-bot'
 
-logger = logging.getLogger('boilerplate-bot')
+logger = logging.getLogger('todo-bot')
 logger.setLevel(logging.DEBUG)
 
 
