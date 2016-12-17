@@ -6,7 +6,7 @@ services:
     build: .
     command: ./scripts/start.sh
     environment:
-      - API_PORT=8080
+      - PORT=8080
       - PROJECT_NAME=todo
       - PYTHONPATH=/usr/src/app
     ports:

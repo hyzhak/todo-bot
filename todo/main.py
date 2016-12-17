@@ -44,7 +44,7 @@ class Bot:
 
         # Interface for HTTP
         http = self.story.use(aiohttp.AioHttpInterface(
-            port=int(os.environ.get('API_PORT', 8080)),
+            port=int(os.environ.get('PORT', 8080)),
             auto_start=auto_start,
         ))
 
