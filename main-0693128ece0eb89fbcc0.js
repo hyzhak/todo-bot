@@ -72,7 +72,7 @@
 
 __webpack_require__(4);
 
-console.log('Boilerplate bot!');
+console.log('todo bot!');
 
 
 /***/ },
@@ -432,4 +432,4 @@ module.exports = __webpack_require__(0);
 
 /***/ }
 /******/ ]);
-//# sourceMappingURL=main-5edc763dd560ae5714ef.js.map
+//# sourceMappingURL=main-0693128ece0eb89fbcc0.js.map
