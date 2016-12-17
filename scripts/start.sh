@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+export PROJECT_NAME=todo
 export PYTHONPATH=${PYTHONPATH}:$(pwd)
 
 echo "PYTHONPATH"
