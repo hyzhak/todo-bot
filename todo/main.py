@@ -51,7 +51,7 @@ class Bot:
         # User and Session storage
         self.story.use(mongodb.MongodbInterface(
             uri=os.environ.get('MONGODB_URI', 'mongo'),
-            db_name=os.environ.get('MONGODB_DB_NAME', 'echobot'),
+            db_name=os.environ.get('MONGODB_DB_NAME', 'todobot'),
         ))
 
         self.story.use(tracker.GAStatistics(
