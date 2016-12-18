@@ -13,6 +13,7 @@ BOT_NAME = 'todo-bot'
 
 logger = logging.getLogger('todo-bot')
 logger.setLevel(logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 
 class Bot:
@@ -44,14 +45,14 @@ class Bot:
 
         # Interface for HTTP
         http = self.story.use(aiohttp.AioHttpInterface(
-            port=int(os.environ.get('API_PORT', 8080)),
+            port=int(os.environ.get('PORT', 8080)),
             auto_start=auto_start,
         ))
 
         # User and Session storage
         self.story.use(mongodb.MongodbInterface(
             uri=os.environ.get('MONGODB_URI', 'mongo'),
-            db_name=os.environ.get('MONGODB_DB_NAME', 'echobot'),
+            db_name=os.environ.get('MONGODB_DB_NAME', 'todobot'),
         ))
 
         self.story.use(tracker.GAStatistics(
