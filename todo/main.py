@@ -13,6 +13,7 @@ BOT_NAME = 'todo-bot'
 
 logger = logging.getLogger('todo-bot')
 logger.setLevel(logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 
 class Bot:
