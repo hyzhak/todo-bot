@@ -24,8 +24,6 @@ def setup(story):
         React on any text message
         """
 
-        logger.debug('parse echo story')
-
         @story.part()
         async def echo(message):
             logger.info('echo')
