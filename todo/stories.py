@@ -1,9 +1,19 @@
+import botstory
 from botstory.middlewares import any, text
+import datetime
 import logging
 
 logger = logging.getLogger(__name__)
 
 logger.debug('parse stories')
+
+# mongo = None
+#
+#
+# @botstory.di.inject()
+# def set_mongo(storage):
+#     global mongo
+#     mongo = storage
 
 
 def setup(story):
@@ -19,15 +29,31 @@ def setup(story):
             await story.say('<Motivate user to act>', message['user'])
 
     @story.on(receive=text.Any())
-    def text_story():
+    def new_task_story():
         """
-        React on any text message
+        Any text that doesn't match specific cases
+        consider as new task
         """
 
         @story.part()
-        async def echo(message):
-            logger.info('echo')
-            await story.say('<React on text message>', message['user'])
+        async def add_new_task(message):
+            logger.info('new task')
+            task_description = message['data']['text']['raw']
+            # TODO:
+            # 1) get db
+            # tasks = mongo.db.get_collection('tasks')
+            #
+            # # 2) store to db
+            # tasks.insert({
+            #     'list': 'list_1',
+            #     'description': task_description,
+            #     'state': 'new',
+            #     'created_at': datetime.datetime.now(),
+            #     'updated_at': datetime.datetime.now(),
+            # })
+
+            # 3) send message that task was added
+            await story.say('Task `{}` was added to the job list.'.format(task_description), message['user'])
 
     @story.on(receive=any.Any())
     def any_story():
