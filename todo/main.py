@@ -19,7 +19,6 @@ logging.basicConfig(level=logging.DEBUG)
 class Bot:
     def __init__(self):
         self.story = botstory.Story()
-        stories.setup(self.story)
 
     def init(self, auto_start, fake_http_session):
         self.story.use(fb.FBInterface(
@@ -70,7 +69,9 @@ class Bot:
         ))
 
         # for test purpose
-        http.session = fake_http_session
+        http.session = fake_http_sessionf
+
+        stories.setup(self.story)
         return http
 
     async def setup(self, fake_http_session=None):
