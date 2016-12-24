@@ -69,7 +69,7 @@ class Bot:
         ))
 
         # for test purpose
-        http.session = fake_http_sessionf
+        http.session = fake_http_session
 
         stories.setup(self.story)
         return http
