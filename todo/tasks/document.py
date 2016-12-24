@@ -1,4 +1,4 @@
-from ..db import base_document
+from ..orm import base_document
 
 
 class TaskDocument(base_document.BaseDocument):
