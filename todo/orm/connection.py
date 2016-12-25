@@ -1,6 +1,6 @@
 class Connection:
     def __init__(self):
-        pass
+        self.collections = {}
 
     @classmethod
     def wrap(cls, db):
@@ -11,4 +11,9 @@ class Connection:
     def document(self, document=None, cls=None):
         if document is None:
             document = cls.__name__
-        pass
+
+        col = self.db.get_collection(document)
+        self.collections[cls] = col
+
+    def get_collection_by_document_class(self, cls=None):
+        return self.collections[cls]
