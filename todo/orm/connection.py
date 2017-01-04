@@ -1,3 +1,6 @@
+import inflection
+
+
 class Connection:
     def __init__(self):
         self.collections = {}
@@ -10,9 +13,10 @@ class Connection:
 
     def document(self, document=None, cls=None):
         if document is None:
-            document = cls.__name__
+            document = inflection.tableize(cls.__name__)
 
         col = self.db.get_collection(document)
+        cls.connection = self
         self.collections[cls] = col
 
     def get_collection_by_document_class(self, cls=None):

@@ -12,7 +12,7 @@ def build_db():
     def builder():
         cx = motor_asyncio.AsyncIOMotorClient(os.environ.get('TEST_MONGODB_URL', 'mongo'),
                                               io_loop=asyncio.get_event_loop())
-        db = cx.get_database('test')
+        db = cx.get_database(os.environ.get('TEST_MONGODB_DB', 'test'))
         return db
 
     return builder
