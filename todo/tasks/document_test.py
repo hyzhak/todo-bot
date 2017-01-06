@@ -14,18 +14,16 @@ def build_mock_db():
             self.cx = motor_asyncio.AsyncIOMotorClient(os.environ.get('TEST_MONGODB_URL', 'mongo'),
                                                        io_loop=asyncio.get_event_loop())
             self.db = self.cx.get_database(os.environ.get('TEST_MONGODB_DB', 'test'))
-            self.characters = self.db.get_collection('characters')
+            self.tasks = self.db.get_collection('tasks')
 
-            await self.characters.insert({'name': 'hamlet', 'gender': 'male'})
-            await self.characters.insert({'name': 'claudius', 'gender': 'male'})
-            await self.characters.insert({'name': 'gertrude', 'gender': 'female'})
-            await self.characters.insert({'name': 'polonius', 'gender': 'male'})
+            await self.tasks.insert({'description': 'monkey business'})
+            await self.tasks.insert({'description': 'hokey-pokey'})
 
             return self.db
 
         async def __aexit__(self, exc_type, exc_val, exc_tb):
-            await self.characters.drop()
-            self.characters = None
+            await self.tasks.drop()
+            self.tasks = None
             self.db = None
             self.cx.close()
             self.cx = None
@@ -47,8 +45,17 @@ async def test_create_and_save(build_mock_db):
         assert id is not None
 
 
-def test_read():
-    pass
+@pytest.mark.asyncio
+async def test_read(build_mock_db):
+    async with build_mock_db() as db:
+        document.setup(db)
+        task = await document.TaskDocument.objects.find({
+            'description': 'monkey business',
+        })
+        assert task is not None
+        assert isinstance(task, list)
+        assert len(task) == 1
+        assert task[0]['description'] == 'monkey business'
 
 
 def test_update():

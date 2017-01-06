@@ -1,6 +1,9 @@
 class Query:
-    def find(self):
-        pass
+    def __init__(self, collection):
+        self.collection = collection
+
+    async def find(self, query):
+        return await self.collection.find(query).to_list(None)
 
 
 class TaskDocument:
@@ -20,3 +23,4 @@ class TaskDocument:
 
 def setup(db):
     TaskDocument.collection = db.get_collection('tasks')
+    TaskDocument.objects = Query(TaskDocument.collection)
