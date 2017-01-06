@@ -1,9 +1,10 @@
-from ..orm import base_document
+class TaskDocument:
+    collection = None
+
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
 
-class TaskDocument(base_document.BaseDocument):
-    pass
-
-
-def setup(connection):
-    connection.document(name='tasks', cls=TaskDocument)
+def setup(db):
+    TaskDocument.collection = db.get_collection('tasks')
