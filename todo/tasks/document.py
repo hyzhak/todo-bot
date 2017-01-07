@@ -12,6 +12,7 @@ class Query:
 
 
 class TaskDocument:
+    __slots__ = ('fields',)
     collection = None
 
     def __init__(self, **kwargs):
@@ -20,10 +21,18 @@ class TaskDocument:
     def __getattr__(self, item):
         if item in self.fields.keys():
             return self.fields[item]
-        return super(TaskDocument, self).__getattr__(item)
+        raise AttributeError(item)
+
+    def __setattr__(self, key, value):
+        if key in self.__slots__:
+            return super().__setattr__(key, value)
+        self.fields[key] = value
 
     async def save(self):
-        return await TaskDocument.collection.insert(self.fields)
+        if self._id:
+            return await TaskDocument.collection.update({'_id': self._id}, self.fields)
+        else:
+            return await TaskDocument.collection.insert(self.fields)
 
 
 def setup(db):

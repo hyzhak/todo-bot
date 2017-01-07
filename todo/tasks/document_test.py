@@ -72,8 +72,22 @@ async def test_read_one(build_mock_db):
         assert task.description == 'monkey business'
 
 
-def test_update():
-    pass
+@pytest.mark.asyncio
+async def test_update(build_mock_db):
+    async with build_mock_db() as db:
+        document.setup(db)
+        old_task = await document.TaskDocument.objects.find_one({
+            'description': 'monkey business',
+        })
+        with pytest.raises(AttributeError):
+            assert old_task.status == 'done'
+        old_task.status = 'done'
+
+        await old_task.save()
+        new_task = await document.TaskDocument.objects.find_one({
+            'description': 'monkey business',
+        })
+        assert new_task.status == 'done'
 
 
 def test_delete():
