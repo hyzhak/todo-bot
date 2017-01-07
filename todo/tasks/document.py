@@ -29,9 +29,9 @@ class TaskDocument:
         self.fields[key] = value
 
     async def save(self):
-        if self._id:
+        try:
             return await TaskDocument.collection.update({'_id': self._id}, self.fields)
-        else:
+        except AttributeError:
             return await TaskDocument.collection.insert(self.fields)
 
 
