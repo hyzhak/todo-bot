@@ -16,8 +16,10 @@ def build_mock_db():
             self.db = self.cx.get_database(os.environ.get('TEST_MONGODB_DB', 'test'))
             self.tasks = self.db.get_collection('tasks')
 
-            await self.tasks.insert({'description': 'monkey business'})
+            await self.tasks.insert({'description': 'chicane'})
+            await self.tasks.insert({'description': 'fooling around'})
             await self.tasks.insert({'description': 'hokey-pokey'})
+            await self.tasks.insert({'description': 'monkey business'})
 
             return self.db
 
@@ -55,7 +57,7 @@ async def test_read(build_mock_db):
         assert task is not None
         assert isinstance(task, list)
         assert len(task) == 1
-        assert task[0]['description'] == 'monkey business'
+        assert task[0].description == 'monkey business'
 
 
 def test_update():

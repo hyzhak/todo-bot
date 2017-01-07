@@ -3,7 +3,8 @@ class Query:
         self.collection = collection
 
     async def find(self, query):
-        return await self.collection.find(query).to_list(None)
+        l = await self.collection.find(query).to_list(None)
+        return [TaskDocument(**i) for i in l]
 
 
 class TaskDocument:
