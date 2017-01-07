@@ -6,6 +6,10 @@ class Query:
         l = await self.collection.find(query).to_list(None)
         return [TaskDocument(**i) for i in l]
 
+    async def find_one(self, query):
+        l = await self.find(query)
+        return len(l) > 0 and l[0]
+
 
 class TaskDocument:
     collection = None

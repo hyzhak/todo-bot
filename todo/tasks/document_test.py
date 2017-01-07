@@ -51,13 +51,25 @@ async def test_create_and_save(build_mock_db):
 async def test_read(build_mock_db):
     async with build_mock_db() as db:
         document.setup(db)
-        task = await document.TaskDocument.objects.find({
+        tasks = await document.TaskDocument.objects.find({
+            'description': 'monkey business',
+        })
+        assert tasks is not None
+        assert isinstance(tasks, list)
+        assert len(tasks) == 1
+        assert tasks[0].description == 'monkey business'
+
+
+@pytest.mark.asyncio
+async def test_read_one(build_mock_db):
+    async with build_mock_db() as db:
+        document.setup(db)
+        task = await document.TaskDocument.objects.find_one({
             'description': 'monkey business',
         })
         assert task is not None
-        assert isinstance(task, list)
-        assert len(task) == 1
-        assert task[0].description == 'monkey business'
+        assert isinstance(task, document.TaskDocument)
+        assert task.description == 'monkey business'
 
 
 def test_update():
