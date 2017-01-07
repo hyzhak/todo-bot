@@ -21,6 +21,7 @@ def build_mock_db():
             await self.tasks.insert({'description': 'hokey-pokey'})
             await self.tasks.insert({'description': 'monkey business'})
 
+            document.setup(self.db)
             return self.db
 
         async def __aexit__(self, exc_type, exc_val, exc_tb):
@@ -41,7 +42,6 @@ def test_create():
 @pytest.mark.asyncio
 async def test_create_and_save(build_mock_db):
     async with build_mock_db() as db:
-        document.setup(db)
         task = document.TaskDocument(description='one description')
         id = await task.save()
         assert id is not None
@@ -50,7 +50,6 @@ async def test_create_and_save(build_mock_db):
 @pytest.mark.asyncio
 async def test_read(build_mock_db):
     async with build_mock_db() as db:
-        document.setup(db)
         tasks = await document.TaskDocument.objects.find({
             'description': 'monkey business',
         })
@@ -63,7 +62,6 @@ async def test_read(build_mock_db):
 @pytest.mark.asyncio
 async def test_read_one(build_mock_db):
     async with build_mock_db() as db:
-        document.setup(db)
         task = await document.TaskDocument.objects.find_one({
             'description': 'monkey business',
         })
@@ -75,7 +73,6 @@ async def test_read_one(build_mock_db):
 @pytest.mark.asyncio
 async def test_update(build_mock_db):
     async with build_mock_db() as db:
-        document.setup(db)
         old_task = await document.TaskDocument.objects.find_one({
             'description': 'monkey business',
         })
@@ -90,5 +87,19 @@ async def test_update(build_mock_db):
         assert new_task.status == 'done'
 
 
-def test_delete():
-    pass
+@pytest.mark.asyncio
+async def test_delete(build_mock_db):
+    async with build_mock_db() as db:
+        tasks = await document.TaskDocument.objects.find()
+        assert len(tasks) == 4
+        assert await document.TaskDocument.objects({
+            'description': 'monkey business',
+        }).delete() == 1
+
+        with pytest.raises(document.DoesNotExist):
+            await document.TaskDocument.objects.find_one({
+                'description': 'monkey business',
+            })
+
+        tasks = await document.TaskDocument.objects.find()
+        assert len(tasks) == 3
