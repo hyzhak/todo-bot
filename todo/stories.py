@@ -9,14 +9,6 @@ logger = logging.getLogger(__name__)
 
 logger.debug('parse stories')
 
-# mongo = None
-#
-#
-# @botstory.di.inject()
-# def set_mongo(storage):
-#     global mongo
-#     mongo = storage
-
 
 def setup(story):
     @story.on_start()
