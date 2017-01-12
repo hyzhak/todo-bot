@@ -7,6 +7,7 @@ services:
     command: ./scripts/start.sh
     environment:
       - MONGODB_URI=mongo
+      - MONGODB_TEST_DB=test
       - PORT=8080
       - PROJECT_NAME=todo
       - PYTHONPATH=/usr/src/app

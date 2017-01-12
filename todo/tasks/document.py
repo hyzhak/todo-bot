@@ -52,4 +52,6 @@ class TaskDocument:
 
 def setup(db):
     TaskDocument.collection = db.get_collection('tasks')
+    print('TaskDocument.collection')
+    print(TaskDocument.collection)
     TaskDocument.objects = Query(TaskDocument.collection)

@@ -13,7 +13,7 @@ def build_mock_db():
         async def __aenter__(self):
             self.cx = motor_asyncio.AsyncIOMotorClient(os.environ.get('MONGODB_URI'),
                                                        io_loop=asyncio.get_event_loop())
-            self.db = self.cx.get_database(os.environ.get('MONGODB_DB_NAME', 'test'))
+            self.db = self.cx.get_database(os.environ.get('MONGODB_TEST_DB', 'test'))
             self.tasks = self.db.get_collection('tasks')
 
             await self.tasks.insert({'description': 'chicane'})

@@ -3,7 +3,7 @@ from botstory.middlewares import any, text
 import datetime
 import logging
 
-from .tasks import document
+from todo.tasks import document
 
 logger = logging.getLogger(__name__)
 
@@ -46,13 +46,13 @@ def setup(story):
             #     'updated_at': datetime.datetime.now(),
             # })
 
-            # await document.TaskDocument({
-            #     'list': 'list_1',
-            #     'description': task_description,
-            #     'state': 'new',
-            #     'created_at': datetime.datetime.now(),
-            #     'updated_at': datetime.datetime.now(),
-            # }).save()
+            await document.TaskDocument(**{
+                'list': 'list_1',
+                'description': task_description,
+                'state': 'new',
+                'created_at': datetime.datetime.now(),
+                'updated_at': datetime.datetime.now(),
+            }).save()
 
             # 3) send message that task was added
             await story.say('Task `{}` was added to the job list.'.format(task_description), message['user'])

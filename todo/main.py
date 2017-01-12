@@ -6,6 +6,7 @@ from botstory.integrations.ga import tracker
 import logging
 import os
 import sys
+from todo.tasks import document
 
 from todo import stories
 
@@ -59,7 +60,7 @@ class Bot:
         ))
 
         # User and Session storage
-        self.story.use(mongodb.MongodbInterface(
+        db = self.story.use(mongodb.MongodbInterface(
             uri=os.environ.get('MONGODB_URI', 'mongo'),
             db_name=os.environ.get('MONGODB_DB_NAME', 'todobot'),
         ))
@@ -72,7 +73,7 @@ class Bot:
         http.session = fake_http_session
 
         stories.setup(self.story)
-        return http
+        return http, db
 
     async def setup(self, fake_http_session=None):
         logger.info('setup')
@@ -81,8 +82,9 @@ class Bot:
 
     async def start(self, auto_start=True, fake_http_session=None):
         logger.info('start')
-        http = self.init(auto_start, fake_http_session)
+        http, db_integration = self.init(auto_start, fake_http_session)
         await self.story.start()
+        document.setup(db_integration.db)
         return http.app
 
     async def stop(self):
