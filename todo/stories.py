@@ -22,6 +22,19 @@ def setup(story):
             logger.info('greetings')
             await story.say('<Motivate user to act>', message['user'])
 
+    @story.on(receive=text.Match('list'))
+    def list_of_stories():
+        @story.part()
+        async def show_list_of_stories(message):
+            logger.info('list of tasks')
+            # TODO: should filter the last one
+            # TODO: should have pagination
+            tasks = await document.TaskDocument.objects.find({
+                'user_id': message['user']['_id'],
+            })
+            tasks_page = '\n'.join('* {}'.format(t.description) for t in tasks)
+            await story.say('List of actual tasks:\n{}'.format(tasks_page), user=message['user'])
+
     @story.on(receive=text.Any())
     def new_task_story():
         """
@@ -35,6 +48,7 @@ def setup(story):
             task_description = message['data']['text']['raw']
 
             await document.TaskDocument(**{
+                'user_id': message['user']['_id'],
                 'list': 'list_1',
                 'description': task_description,
                 'state': 'new',

@@ -30,6 +30,7 @@ class TaskDocument:
     __slots__ = ('fields',)
     collection = None
 
+    # TODO: should be able to process dictionary
     def __init__(self, **kwargs):
         self.fields = kwargs
 
@@ -52,6 +53,4 @@ class TaskDocument:
 
 def setup(db):
     TaskDocument.collection = db.get_collection('tasks')
-    print('TaskDocument.collection')
-    print(TaskDocument.collection)
     TaskDocument.objects = Query(TaskDocument.collection)

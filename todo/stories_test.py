@@ -1,9 +1,12 @@
 import aiohttp
+import asyncio
 import botstory
-from botstory.integrations import fb, mongodb, mockdb, mockhttp
+from botstory.integrations import fb, mongodb, mockhttp
+from botstory.integrations.tests import fake_server
 import datetime
 import os
 import pytest
+from todo import tasks
 from unittest import mock
 from . import stories
 
@@ -18,24 +21,50 @@ def build_context():
             self.story = botstory.Story()
             self.fb_interface = self.story.use(
                 fb.FBInterface(page_access_token='qwerty'))
-            # self.db_interface = self.story.use(
-            #     mongodb.MongodbInterface(uri=os.environ.get('MONGODB_URI', 'mongo'),
-            #                              db_name=os.environ.get('MONGODB_TEST_DB', 'test')))
-            self.db_interface = self.story.use(mockdb.MockDB())
+            self.db_interface = self.story.use(mongodb.MongodbInterface(
+                uri=os.environ.get('MONGODB_URI', 'mongo'),
+                db_name=os.environ.get('MONGODB_TEST_DB', 'test'),
+            ))
             self.http_interface = self.story.use(mockhttp.MockHttpInterface())
 
             stories.setup(self.story)
             await self.story.start()
-            # return fb_interface, story
-            # await self.db_interface.start()
-            # await self.db_interface.clear_collections()
-            # return self.db_interface
+            self.user = await self.db_interface.new_user(
+                facebook_user_id='facebook_user_id',
+            )
+            tasks.document.setup(self.db_interface.db)
             return self
 
         async def __aexit__(self, exc_type, exc_val, exc_tb):
+            await self.db_interface.clear_collections()
             await self.story.stop()
-            # await self.db_interface.clear_collections()
+            if hasattr(self, 'tasks_collection'):
+                await self.tasks_collection.drop()
             self.db_interface = None
+
+        async def add_tasks(self, tasks):
+            if hasattr(self, 'tasks_collection'):
+                await self.tasks_collection.drop()
+
+            self.tasks_collection = self.db_interface.db.get_collection('tasks')
+
+            for t in tasks:
+                await self.tasks_collection.insert(t)
+
+        async def receive_answer(self, message):
+            # assert len(server.history) > 0
+            # req = server.history[-1]['request']
+            assert self.http_interface.post.call_count == 1
+            _, obj = self.http_interface.post.call_args
+
+            assert obj['json'] == {
+                'recipient': {
+                    'id': self.user['facebook_user_id'],
+                },
+                'message': {
+                    'text': message
+                }
+            }
 
     return AsyncContext
 
@@ -69,7 +98,6 @@ async def test_new_task_story(build_context, mocker):
     async with build_context() as context:
         facebook = context.fb_interface
 
-        # TODO: mock task document
         task = mock.Mock()
         task.save = aiohttp.test_utils.make_mocked_coro()
         mocker.patch.object(stories.document, 'TaskDocument', return_value=task)
@@ -88,3 +116,29 @@ async def test_new_task_story(build_context, mocker):
         assert 'updated_at' in obj
 
         task.save.assert_called_with()
+
+
+@pytest.mark.asyncio
+async def test_list_of_active_tasks(build_context):
+    async with build_context() as context:
+        facebook = context.fb_interface
+
+        await context.add_tasks([{
+            'description': 'fry toasts',
+            'user_id': context.user['_id'],
+        }, {
+            'description': 'fry eggs',
+            'user_id': context.user['_id'],
+        }, {
+            'description': 'drop cheese',
+            'user_id': context.user['_id'],
+        }, ])
+
+        await facebook.handle(build_message({
+            'text': 'list'
+        }))
+
+        await context.receive_answer('List of actual tasks:\n'
+                                     '* fry toasts\n'
+                                     '* fry eggs\n'
+                                     '* drop cheese')
