@@ -33,18 +33,6 @@ def setup(story):
         async def add_new_task(message):
             logger.info('new task')
             task_description = message['data']['text']['raw']
-            # TODO:
-            # 1) get db
-            # tasks = mongo.db.get_collection('tasks')
-            #
-            # # 2) store to db
-            # tasks.insert({
-            #     'list': 'list_1',
-            #     'description': task_description,
-            #     'state': 'new',
-            #     'created_at': datetime.datetime.now(),
-            #     'updated_at': datetime.datetime.now(),
-            # })
 
             await document.TaskDocument(**{
                 'list': 'list_1',
@@ -54,7 +42,6 @@ def setup(story):
                 'updated_at': datetime.datetime.now(),
             }).save()
 
-            # 3) send message that task was added
             await story.say('Task `{}` was added to the job list.'.format(task_description), message['user'])
 
     @story.on(receive=any.Any())
