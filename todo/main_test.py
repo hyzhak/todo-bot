@@ -43,7 +43,7 @@ async def test_text_echo(event_loop):
         assert len(sandbox.fb.history) == 1
         assert await sandbox.fb.history[0]['request'].json() == {
             'message': {
-                'text': '<React on text message>'
+                'text': 'Task `hello, world!` was added to the job list.'
             },
             'recipient': {'id': 'USER_ID'},
         }

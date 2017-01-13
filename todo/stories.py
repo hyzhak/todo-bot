@@ -1,5 +1,9 @@
+import botstory
 from botstory.middlewares import any, text
+import datetime
 import logging
+
+from todo.tasks import document
 
 logger = logging.getLogger(__name__)
 
@@ -19,17 +23,26 @@ def setup(story):
             await story.say('<Motivate user to act>', message['user'])
 
     @story.on(receive=text.Any())
-    def text_story():
+    def new_task_story():
         """
-        React on any text message
+        Any text that doesn't match specific cases
+        consider as new task
         """
-
-        logger.debug('parse echo story')
 
         @story.part()
-        async def echo(message):
-            logger.info('echo')
-            await story.say('<React on text message>', message['user'])
+        async def add_new_task(message):
+            logger.info('new task')
+            task_description = message['data']['text']['raw']
+
+            await document.TaskDocument(**{
+                'list': 'list_1',
+                'description': task_description,
+                'state': 'new',
+                'created_at': datetime.datetime.now(),
+                'updated_at': datetime.datetime.now(),
+            }).save()
+
+            await story.say('Task `{}` was added to the job list.'.format(task_description), message['user'])
 
     @story.on(receive=any.Any())
     def any_story():

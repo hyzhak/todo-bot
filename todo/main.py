@@ -6,6 +6,7 @@ from botstory.integrations.ga import tracker
 import logging
 import os
 import sys
+from todo.tasks import document
 
 from todo import stories
 
@@ -19,20 +20,29 @@ logging.basicConfig(level=logging.DEBUG)
 class Bot:
     def __init__(self):
         self.story = botstory.Story()
-        stories.setup(self.story)
 
     def init(self, auto_start, fake_http_session):
         self.story.use(fb.FBInterface(
             # will show on initial screen
             greeting_text='Hello dear {{user_first_name}}! '
-                          'I'' m demo bot of BotStory framework.',
+                          'I''m TODO bot base on BotStory framework.'
+                          'I will help you to make things done'
+                          'and focus on current issues.',
             # you should get on admin panel for the Messenger Product in Token Generation section
             page_access_token=os.environ.get('FB_ACCESS_TOKEN', 'TEST_TOKEN'),
             # menu of the bot that user has access all the time
             persistent_menu=[{
                 'type': 'postback',
-                'title': 'Monkey Business',
-                'payload': 'MONKEY_BUSINESS'
+                'title': 'All Tasks',
+                'payload': 'ALL_TASKS'
+            }, {
+                'type': 'postback',
+                'title': 'Current Tasks',
+                'payload': 'CURRENT_TASKS'
+            }, {
+                'type': 'postback',
+                'title': 'Add Task',
+                'payload': 'ADD_TASK'
             }, {
                 'type': 'web_url',
                 'title': 'Source Code',
@@ -50,7 +60,7 @@ class Bot:
         ))
 
         # User and Session storage
-        self.story.use(mongodb.MongodbInterface(
+        db = self.story.use(mongodb.MongodbInterface(
             uri=os.environ.get('MONGODB_URI', 'mongo'),
             db_name=os.environ.get('MONGODB_DB_NAME', 'todobot'),
         ))
@@ -61,7 +71,9 @@ class Bot:
 
         # for test purpose
         http.session = fake_http_session
-        return http
+
+        stories.setup(self.story)
+        return http, db
 
     async def setup(self, fake_http_session=None):
         logger.info('setup')
@@ -70,8 +82,9 @@ class Bot:
 
     async def start(self, auto_start=True, fake_http_session=None):
         logger.info('start')
-        http = self.init(auto_start, fake_http_session)
+        http, db_integration = self.init(auto_start, fake_http_session)
         await self.story.start()
+        document.setup(db_integration.db)
         return http.app
 
     async def stop(self):
