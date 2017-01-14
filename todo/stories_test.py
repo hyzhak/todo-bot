@@ -119,7 +119,7 @@ async def test_new_task_story(build_context, mocker):
 
 
 @pytest.mark.asyncio
-async def test_list_of_active_tasks(build_context):
+async def test_list_of_active_tasks_on_list(build_context):
     async with build_context() as context:
         facebook = context.fb_interface
 
@@ -136,6 +136,32 @@ async def test_list_of_active_tasks(build_context):
 
         await facebook.handle(build_message({
             'text': 'list'
+        }))
+
+        await context.receive_answer('List of actual tasks:\n'
+                                     '* fry toasts\n'
+                                     '* fry eggs\n'
+                                     '* drop cheese')
+
+
+@pytest.mark.asyncio
+async def test_list_of_active_tasks_on_todo(build_context):
+    async with build_context() as context:
+        facebook = context.fb_interface
+
+        await context.add_tasks([{
+            'description': 'fry toasts',
+            'user_id': context.user['_id'],
+        }, {
+            'description': 'fry eggs',
+            'user_id': context.user['_id'],
+        }, {
+            'description': 'drop cheese',
+            'user_id': context.user['_id'],
+        }, ])
+
+        await facebook.handle(build_message({
+            'text': 'todo'
         }))
 
         await context.receive_answer('List of actual tasks:\n'

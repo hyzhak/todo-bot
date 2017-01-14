@@ -23,6 +23,7 @@ def setup(story):
             await story.say('<Motivate user to act>', message['user'])
 
     @story.on(receive=text.Match('list'))
+    @story.on(receive=text.Match('todo'))
     def list_of_stories():
         @story.part()
         async def show_list_of_stories(message):
