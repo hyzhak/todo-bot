@@ -2,8 +2,8 @@ from todo.orm import errors
 
 
 class Query:
-    def __init__(self, collection, item_cls):
-        self.collection = collection
+    def __init__(self, item_cls):
+        self.collection = item_cls.collection
         self.item_cls = item_cls
 
     def __call__(self, *args, **kwargs):

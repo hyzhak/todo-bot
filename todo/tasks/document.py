@@ -6,5 +6,4 @@ class TaskDocument(document.BaseDocument):
 
 
 def setup(db):
-    TaskDocument.collection = db.get_collection('tasks')
-    TaskDocument.objects = query.Query(TaskDocument.collection, TaskDocument)
+    TaskDocument.set_collection(db.get_collection('tasks'))

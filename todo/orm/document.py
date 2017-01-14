@@ -1,6 +1,15 @@
+from todo.orm import query
+
+
 class BaseDocument:
     __slots__ = ('fields',)
     collection = None
+    objects = None
+
+    @classmethod
+    def set_collection(cls, collection):
+        cls.collection = collection
+        cls.objects = query.Query(cls)
 
     # TODO: should be able to process dictionary
     def __init__(self, **kwargs):
@@ -21,4 +30,3 @@ class BaseDocument:
             return await self.collection.update({'_id': self._id}, self.fields)
         except AttributeError:
             return await self.collection.insert(self.fields)
-
