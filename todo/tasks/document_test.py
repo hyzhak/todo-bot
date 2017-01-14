@@ -2,6 +2,7 @@ import asyncio
 from motor import motor_asyncio
 import os
 import pytest
+from todo.orm import errors
 
 from . import document
 
@@ -96,7 +97,7 @@ async def test_delete(build_mock_db):
             'description': 'monkey business',
         }).delete() == 1
 
-        with pytest.raises(document.DoesNotExist):
+        with pytest.raises(errors.DoesNotExist):
             await document.TaskDocument.objects.find_one({
                 'description': 'monkey business',
             })
