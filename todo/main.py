@@ -6,11 +6,14 @@ from botstory.integrations.ga import tracker
 import logging
 import os
 import sys
+from todo.lists import lists_document
 from todo.tasks import tasks_document
 
 from todo import stories
 
 BOT_NAME = 'todo-bot'
+
+DOCUMENTS = (lists_document, tasks_document, )
 
 logger = logging.getLogger('todo-bot')
 logger.setLevel(logging.DEBUG)
@@ -84,7 +87,8 @@ class Bot:
         logger.info('start')
         http, db_integration = self.init(auto_start, fake_http_session)
         await self.story.start()
-        tasks_document.setup(db_integration.db)
+        for document in DOCUMENTS:
+            document.setup(db_integration.db)
         return http.app
 
     async def stop(self):
