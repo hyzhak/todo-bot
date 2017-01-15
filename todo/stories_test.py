@@ -32,7 +32,7 @@ def build_context():
             self.user = await self.db_interface.new_user(
                 facebook_user_id='facebook_user_id',
             )
-            tasks.document.setup(self.db_interface.db)
+            tasks.tasks_document.setup(self.db_interface.db)
             return self
 
         async def __aexit__(self, exc_type, exc_val, exc_tb):
@@ -100,14 +100,14 @@ async def test_new_task_story(build_context, mocker):
 
         task = mock.Mock()
         task.save = aiohttp.test_utils.make_mocked_coro()
-        mocker.patch.object(stories.document, 'TaskDocument', return_value=task)
+        mocker.patch.object(stories.tasks_document, 'TaskDocument', return_value=task)
 
         await facebook.handle(build_message({
             'text': 'hello, world!'
         }))
 
-        assert stories.document.TaskDocument.called
-        _, obj = stories.document.TaskDocument.call_args
+        assert stories.tasks_document.TaskDocument.called
+        _, obj = stories.tasks_document.TaskDocument.call_args
 
         assert obj['list'] == 'list_1'
         assert obj['description'] == 'hello, world!'

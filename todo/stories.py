@@ -3,7 +3,7 @@ from botstory.middlewares import any, text
 import datetime
 import logging
 
-from todo.tasks import document
+from todo.tasks import tasks_document
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ def setup(story):
             logger.info('list of tasks')
             # TODO: should filter the last one
             # TODO: should have pagination
-            tasks = await document.TaskDocument.objects.find({
+            tasks = await tasks_document.TaskDocument.objects.find({
                 'user_id': message['user']['_id'],
             })
             tasks_page = '\n'.join('* {}'.format(t.description) for t in tasks)
@@ -48,7 +48,7 @@ def setup(story):
             logger.info('new task')
             task_description = message['data']['text']['raw']
 
-            await document.TaskDocument(**{
+            await tasks_document.TaskDocument(**{
                 'user_id': message['user']['_id'],
                 'list': 'list_1',
                 'description': task_description,
