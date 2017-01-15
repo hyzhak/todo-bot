@@ -168,3 +168,15 @@ async def test_list_of_active_tasks_on_todo(build_context):
                                      '* fry toasts\n'
                                      '* fry eggs\n'
                                      '* drop cheese')
+
+
+@pytest.mark.asyncio
+async def test_list_of_active_tasks_on_new_list(build_context):
+    async with build_context() as context:
+        facebook = context.fb_interface
+
+        await facebook.handle(build_message({
+            'text': 'new list'
+        }))
+
+        await context.receive_answer('You are about to create new list of tasks.\nWhat is the name of it?')

@@ -36,6 +36,16 @@ def setup(story):
             tasks_page = '\n'.join('* {}'.format(t.description) for t in tasks)
             await story.say('List of actual tasks:\n{}'.format(tasks_page), user=message['user'])
 
+    @story.on(receive=text.Match('new list'))
+    def new_list_story():
+        @story.part()
+        async def ask_name(message):
+            logger.info('new list')
+            await story.ask(
+                'You are about to create new list of tasks.\nWhat is the name of it?',
+                user=message['user'],
+            )
+
     @story.on(receive=text.Any())
     def new_task_story():
         """
