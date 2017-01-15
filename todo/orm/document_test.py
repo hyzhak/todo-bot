@@ -4,7 +4,11 @@ import os
 import pytest
 from todo.orm import errors
 
-from . import tasks_document
+from . import document
+
+
+class TaskDocument(document.BaseDocument):
+    pass
 
 
 @pytest.fixture
@@ -22,7 +26,7 @@ def build_mock_db():
             await self.tasks.insert({'description': 'hokey-pokey'})
             await self.tasks.insert({'description': 'monkey business'})
 
-            tasks_document.setup(self.db)
+            TaskDocument.set_collection(self.tasks)
             return self.db
 
         async def __aexit__(self, exc_type, exc_val, exc_tb):
@@ -36,14 +40,14 @@ def build_mock_db():
 
 
 def test_create():
-    task = tasks_document.TaskDocument(description='one description')
+    task = TaskDocument(description='one description')
     assert task.description == 'one description'
 
 
 @pytest.mark.asyncio
 async def test_create_and_save(build_mock_db):
     async with build_mock_db() as db:
-        task = tasks_document.TaskDocument(description='one description')
+        task = TaskDocument(description='one description')
         id = await task.save()
         assert id is not None
 
@@ -51,7 +55,7 @@ async def test_create_and_save(build_mock_db):
 @pytest.mark.asyncio
 async def test_read(build_mock_db):
     async with build_mock_db() as db:
-        tasks = await tasks_document.TaskDocument.objects.find({
+        tasks = await TaskDocument.objects.find({
             'description': 'monkey business',
         })
         assert tasks is not None
@@ -63,18 +67,18 @@ async def test_read(build_mock_db):
 @pytest.mark.asyncio
 async def test_read_one(build_mock_db):
     async with build_mock_db() as db:
-        task = await tasks_document.TaskDocument.objects.find_one({
+        task = await TaskDocument.objects.find_one({
             'description': 'monkey business',
         })
         assert task is not None
-        assert isinstance(task, tasks_document.TaskDocument)
+        assert isinstance(task, TaskDocument)
         assert task.description == 'monkey business'
 
 
 @pytest.mark.asyncio
 async def test_update(build_mock_db):
     async with build_mock_db() as db:
-        old_task = await tasks_document.TaskDocument.objects.find_one({
+        old_task = await TaskDocument.objects.find_one({
             'description': 'monkey business',
         })
         with pytest.raises(AttributeError):
@@ -82,7 +86,7 @@ async def test_update(build_mock_db):
         old_task.status = 'done'
 
         await old_task.save()
-        new_task = await tasks_document.TaskDocument.objects.find_one({
+        new_task = await TaskDocument.objects.find_one({
             'description': 'monkey business',
         })
         assert new_task.status == 'done'
@@ -91,16 +95,16 @@ async def test_update(build_mock_db):
 @pytest.mark.asyncio
 async def test_delete(build_mock_db):
     async with build_mock_db() as db:
-        tasks = await tasks_document.TaskDocument.objects.find()
+        tasks = await TaskDocument.objects.find()
         assert len(tasks) == 4
-        assert await tasks_document.TaskDocument.objects({
+        assert await TaskDocument.objects({
             'description': 'monkey business',
         }).delete() == 1
 
         with pytest.raises(errors.DoesNotExist):
-            await tasks_document.TaskDocument.objects.find_one({
+            await TaskDocument.objects.find_one({
                 'description': 'monkey business',
             })
 
-        tasks = await tasks_document.TaskDocument.objects.find()
+        tasks = await TaskDocument.objects.find()
         assert len(tasks) == 3
