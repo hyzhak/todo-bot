@@ -3,6 +3,7 @@ from botstory.middlewares import any, text
 import datetime
 import logging
 
+from todo.lists import lists_document
 from todo.tasks import tasks_document
 
 logger = logging.getLogger(__name__)
@@ -41,10 +42,24 @@ def setup(story):
         @story.part()
         async def ask_name(message):
             logger.info('new list')
-            await story.ask(
+            return await story.ask(
                 'You are about to create new list of tasks.\nWhat is the name of it?',
                 user=message['user'],
             )
+
+        @story.part()
+        async def create_list(message):
+            logger.info('create list')
+            list_name = message['data']['text']['raw']
+            new_list = await lists_document.ListDocument(**{
+                'user_id': message['user']['_id'],
+                'name': list_name,
+                'created_at': datetime.datetime.now(),
+                'updated_at': datetime.datetime.now(),
+            }).save()
+            await story.say('You\'ve just created list of tasks: '
+                            '`{}`.\n'
+                            'Now you can add tasks to it.'.format(list_name), user=message['user'])
 
     @story.on(receive=text.Any())
     def new_task_story():

@@ -6,7 +6,7 @@ from botstory.integrations.tests import fake_server
 import datetime
 import os
 import pytest
-from todo import tasks
+from todo import lists, tasks
 from unittest import mock
 from . import stories
 
@@ -32,14 +32,16 @@ def build_context():
             self.user = await self.db_interface.new_user(
                 facebook_user_id='facebook_user_id',
             )
+            lists.lists_document.setup(self.db_interface.db)
             tasks.tasks_document.setup(self.db_interface.db)
             return self
 
         async def __aexit__(self, exc_type, exc_val, exc_tb):
             await self.db_interface.clear_collections()
-            await self.story.stop()
             if hasattr(self, 'tasks_collection'):
                 await self.tasks_collection.drop()
+                await self.db_interface.db.get_collection('lists').drop()
+            await self.story.stop()
             self.db_interface = None
 
         async def add_tasks(self, tasks):
@@ -54,7 +56,7 @@ def build_context():
         async def receive_answer(self, message):
             # assert len(server.history) > 0
             # req = server.history[-1]['request']
-            assert self.http_interface.post.call_count == 1
+            assert self.http_interface.post.call_count > 0
             _, obj = self.http_interface.post.call_args
 
             assert obj['json'] == {
@@ -180,3 +182,9 @@ async def test_list_of_active_tasks_on_new_list(build_context):
         }))
 
         await context.receive_answer('You are about to create new list of tasks.\nWhat is the name of it?')
+
+        await facebook.handle(build_message({
+            'text': 'My Favorite List'
+        }))
+
+        await context.receive_answer('You\'ve just created list of tasks: `My Favorite List`.\nNow you can add tasks to it.')
