@@ -23,6 +23,20 @@ def setup(story):
             logger.info('greetings')
             await story.say('<Motivate user to act>', message['user'])
 
+    @story.on(text.text.EqualCaseIgnore('all'))
+    def list_of_lists():
+        @story.part()
+        async def show_list_of_stories(message):
+            logger.info('list of tasks')
+            # TODO: should have pagination
+            lists = await lists_document.ListDocument.objects.find({
+                'user_id': message['user']['_id'],
+            })
+            logger.info('lists:')
+            logger.info(lists)
+            lists_page = '\n'.join(':white_small_square: {}'.format(l.name) for l in lists)
+            await story.say('All lists:\n{}'.format(lists_page), user=message['user'])
+
     @story.on(text.text.EqualCaseIgnore('list'))
     @story.on(text.text.EqualCaseIgnore('todo'))
     def list_of_stories():

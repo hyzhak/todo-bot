@@ -32,26 +32,33 @@ def build_context():
             self.user = await self.db_interface.new_user(
                 facebook_user_id='facebook_user_id',
             )
+
             lists.lists_document.setup(self.db_interface.db)
+            self.lists_document = self.db_interface.db.get_collection('lists')
+            await self.lists_document.drop()
+
             tasks.tasks_document.setup(self.db_interface.db)
+            self.tasks_collection = self.db_interface.db.get_collection('tasks')
+            await self.tasks_collection.drop()
+
             return self
 
         async def __aexit__(self, exc_type, exc_val, exc_tb):
             await self.db_interface.clear_collections()
             if hasattr(self, 'tasks_collection'):
+                await self.lists_document.drop()
                 await self.tasks_collection.drop()
                 await self.db_interface.db.get_collection('lists').drop()
             await self.story.stop()
             self.db_interface = None
 
-        async def add_tasks(self, tasks):
-            if hasattr(self, 'tasks_collection'):
-                await self.tasks_collection.drop()
-
-            self.tasks_collection = self.db_interface.db.get_collection('tasks')
-
-            for t in tasks:
+        async def add_tasks(self, new_tasks):
+            for t in new_tasks:
                 await self.tasks_collection.insert(t)
+
+        async def add_lists(self, new_lists):
+            for l in new_lists:
+                await self.lists_document.insert(l)
 
         async def receive_answer(self, message):
             # assert len(server.history) > 0
@@ -187,4 +194,34 @@ async def test_list_of_active_tasks_on_new_list(build_context):
             'text': 'My Favorite List'
         }))
 
-        await context.receive_answer('You\'ve just created list of tasks: `My Favorite List`.\nNow you can add tasks to it.')
+        await context.receive_answer(
+            'You\'ve just created list of tasks: `My Favorite List`.\nNow you can add tasks to it.')
+
+
+@pytest.mark.asyncio
+async def test_list_all_lists(build_context):
+    async with build_context() as ctx:
+        await ctx.add_lists([{
+            'name': 'google calendar events',
+            'user_id': ctx.user['_id'],
+        }, {
+            'name': 'grocery store',
+            'user_id': ctx.user['_id'],
+        }, {
+            'name': 'travel to Sri Lanka',
+            'user_id': ctx.user['_id'],
+        },
+        ])
+
+        facebook = ctx.fb_interface
+
+        await facebook.handle(build_message({
+            'text': 'all'
+        }))
+
+        await ctx.receive_answer(
+            'All lists:\n'
+            ':white_small_square: google calendar events\n'
+            ':white_small_square: grocery store\n'
+            ':white_small_square: travel to Sri Lanka'
+        )
