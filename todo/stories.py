@@ -23,8 +23,8 @@ def setup(story):
             logger.info('greetings')
             await story.say('<Motivate user to act>', message['user'])
 
-    @story.on(receive=text.Match('list'))
-    @story.on(receive=text.Match('todo'))
+    @story.on(text.text.EqualCaseIgnore('list'))
+    @story.on(text.text.EqualCaseIgnore('todo'))
     def list_of_stories():
         @story.part()
         async def show_list_of_stories(message):
@@ -37,7 +37,7 @@ def setup(story):
             tasks_page = '\n'.join('* {}'.format(t.description) for t in tasks)
             await story.say('List of actual tasks:\n{}'.format(tasks_page), user=message['user'])
 
-    @story.on(receive=text.Match('new list'))
+    @story.on(text.text.EqualCaseIgnore('new list'))
     def new_list_story():
         @story.part()
         async def ask_name(message):
