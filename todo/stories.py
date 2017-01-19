@@ -24,7 +24,7 @@ def setup(story):
             await story.say('<Motivate user to act>', message['user'])
 
     @story.on(text.text.EqualCaseIgnore('all'))
-    def list_of_lists():
+    def list_of_lists_story():
         @story.part()
         async def show_list_of_stories(message):
             logger.info('list of tasks')
@@ -39,9 +39,9 @@ def setup(story):
 
     @story.on(text.text.EqualCaseIgnore('list'))
     @story.on(text.text.EqualCaseIgnore('todo'))
-    def list_of_stories():
+    def list_of_tasks_story():
         @story.part()
-        async def show_list_of_stories(message):
+        async def show_list_of_tasks(message):
             logger.info('list of tasks')
             # TODO: should filter the last one
             # TODO: should have pagination
@@ -52,7 +52,7 @@ def setup(story):
             await story.say('List of actual tasks:\n{}'.format(tasks_page), user=message['user'])
 
     @story.on(text.text.EqualCaseIgnore('new list'))
-    def new_list_story():
+    def new_list_tasks_story():
         @story.part()
         async def ask_name(message):
             logger.info('new list')
