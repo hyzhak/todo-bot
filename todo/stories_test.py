@@ -226,9 +226,10 @@ async def test_list_all_lists(build_context):
             ':white_small_square: travel to Sri Lanka'
         )
 
-
+@pytest.mark.parametrize('command',
+                         ['delete', 'drop', 'forget about', 'kill', 'remove'])
 @pytest.mark.asyncio
-async def test_remove_list(build_context):
+async def test_remove_list(build_context, command):
     async with build_context() as ctx:
         await ctx.add_lists([{
             'name': 'morning business',
@@ -245,7 +246,7 @@ async def test_remove_list(build_context):
         facebook = ctx.fb_interface
 
         await facebook.handle(build_message({
-            'text': 'remove night shift'
+            'text': '{} night shift'.format(command)
         }))
 
         await ctx.receive_answer(

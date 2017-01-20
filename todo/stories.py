@@ -75,7 +75,13 @@ def setup(story):
                             '`{}`.\n'
                             'Now you can add tasks to it.'.format(list_name), user=message['user'])
 
-    @story.on(text.Match('remove (.*)'))
+    @story.on([
+        text.Match('delete (.*)'),
+        text.Match('drop (.*)'),
+        text.Match('forget about (.*)'),
+        text.Match('kill (.*)'),
+        text.Match('remove (.*)'),
+    ])
     def remove_something_story():
         """
         got request to remove something (list or task)
