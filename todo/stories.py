@@ -97,6 +97,8 @@ def setup(story):
                                 user=ctx['user'])
                 return
 
+            await story.say('We can\'t find `{}` what do you want to remove?'.format(target),
+                            user=ctx['user'])
             # TODO: try to remove task
             # if count == 0:
 

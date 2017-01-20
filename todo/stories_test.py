@@ -260,3 +260,35 @@ async def test_remove_list(build_context):
         assert all(
             l.name != 'night shift' for l in res_lists
         )
+
+
+@pytest.mark.asyncio
+async def test_ask_again_if_we_can_find_what_to_remove(build_context):
+    async with build_context() as ctx:
+        await ctx.add_lists([{
+            'name': 'morning business',
+            'user_id': ctx.user['_id'],
+        }, {
+            'name': 'noon business',
+            'user_id': ctx.user['_id'],
+        }, {
+            'name': 'night shift',
+            'user_id': ctx.user['_id'],
+        },
+        ])
+
+        facebook = ctx.fb_interface
+
+        await facebook.handle(build_message({
+            'text': 'remove uncertainty'
+        }))
+
+        await ctx.receive_answer(
+            'We can\'t find `uncertainty` what do you want to remove?'
+        )
+
+        res_lists = await lists.ListDocument.objects.find({
+            'user_id': ctx.user['_id'],
+        })
+
+        assert len(res_lists) == 3
