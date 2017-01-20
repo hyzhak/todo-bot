@@ -1,4 +1,4 @@
-botstory==0.0.43
+botstory==0.0.46
 gunicorn==19.6.0
 inflection==0.3.1
 pytest==3.0.4
