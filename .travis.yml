@@ -5,8 +5,9 @@ language: python
 python:
   - "3.5"
 
-services:
-  - mongodb
+# Travis stuck on old version of MongoDB 2.4.12
+#services:
+#  - mongodb
 
 env:
   MONGODB_URI: 127.0.0.1
@@ -15,6 +16,15 @@ env:
 before_install:
   - pip install -r requirements.txt
   - pip install coveralls
+
+before_script:
+  - apt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10
+  - echo "deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen" | tee -a /etc/apt/sources.list.d/10gen.list
+  - apt-get -y update
+  - apt-get -y install mongodb-10gen
+  - bash ./mongo_install.bash
+  - sleep 15 #mongo may not be responded directly. See http://docs.travis-ci.com/user/database-setup/#MongoDB
+  - mongo --version
 
 script:
   - py.test --cov todo --cov-report term-missing
