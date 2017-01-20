@@ -48,7 +48,7 @@ def setup(story):
             tasks = await tasks_document.TaskDocument.objects.find({
                 'user_id': message['user']['_id'],
             })
-            tasks_page = '\n'.join('* {}'.format(t.description) for t in tasks)
+            tasks_page = '\n'.join(':white_small_square: {}'.format(t.description) for t in tasks)
             await story.say('List of actual tasks:\n{}'.format(tasks_page), user=message['user'])
 
     @story.on(text.text.EqualCaseIgnore('new list'))

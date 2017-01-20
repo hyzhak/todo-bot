@@ -127,8 +127,10 @@ async def test_new_task_story(build_context, mocker):
         task.save.assert_called_with()
 
 
+@pytest.mark.parametrize('command',
+                         ['list', 'todo'])
 @pytest.mark.asyncio
-async def test_list_of_active_tasks_on_list(build_context):
+async def test_list_of_active_tasks_on_list(build_context, command):
     async with build_context() as context:
         facebook = context.fb_interface
 
@@ -144,39 +146,13 @@ async def test_list_of_active_tasks_on_list(build_context):
         }, ])
 
         await facebook.handle(build_message({
-            'text': 'list'
+            'text': command
         }))
 
         await context.receive_answer('List of actual tasks:\n'
-                                     '* fry toasts\n'
-                                     '* fry eggs\n'
-                                     '* drop cheese')
-
-
-@pytest.mark.asyncio
-async def test_list_of_active_tasks_on_todo(build_context):
-    async with build_context() as context:
-        facebook = context.fb_interface
-
-        await context.add_tasks([{
-            'description': 'fry toasts',
-            'user_id': context.user['_id'],
-        }, {
-            'description': 'fry eggs',
-            'user_id': context.user['_id'],
-        }, {
-            'description': 'drop cheese',
-            'user_id': context.user['_id'],
-        }, ])
-
-        await facebook.handle(build_message({
-            'text': 'todo'
-        }))
-
-        await context.receive_answer('List of actual tasks:\n'
-                                     '* fry toasts\n'
-                                     '* fry eggs\n'
-                                     '* drop cheese')
+                                     ':white_small_square: fry toasts\n'
+                                     ':white_small_square: fry eggs\n'
+                                     ':white_small_square: drop cheese')
 
 
 @pytest.mark.asyncio
@@ -225,6 +201,7 @@ async def test_list_all_lists(build_context):
             ':white_small_square: grocery store\n'
             ':white_small_square: travel to Sri Lanka'
         )
+
 
 @pytest.mark.parametrize('command',
                          ['delete', 'drop', 'forget about', 'kill', 'remove'])
