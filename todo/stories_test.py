@@ -225,3 +225,38 @@ async def test_list_all_lists(build_context):
             ':white_small_square: grocery store\n'
             ':white_small_square: travel to Sri Lanka'
         )
+
+
+@pytest.mark.asyncio
+async def test_remove_list(build_context):
+    async with build_context() as ctx:
+        await ctx.add_lists([{
+            'name': 'morning business',
+            'user_id': ctx.user['_id'],
+        }, {
+            'name': 'noon business',
+            'user_id': ctx.user['_id'],
+        }, {
+            'name': 'night shift',
+            'user_id': ctx.user['_id'],
+        },
+        ])
+
+        facebook = ctx.fb_interface
+
+        await facebook.handle(build_message({
+            'text': 'remove night shift'
+        }))
+
+        await ctx.receive_answer(
+            ':skull: List night shift was removed'
+        )
+
+        res_lists = await lists.ListDocument.objects.find({
+            'user_id': ctx.user['_id'],
+        })
+
+        assert len(res_lists) == 2
+        assert all(
+            l.name != 'night shift' for l in res_lists
+        )

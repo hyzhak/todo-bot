@@ -75,6 +75,31 @@ def setup(story):
                             '`{}`.\n'
                             'Now you can add tasks to it.'.format(list_name), user=message['user'])
 
+    @story.on(text.Match('remove (.*)'))
+    def remove_something_story():
+        """
+        got request to remove something (list or task)
+        """
+
+        @story.part()
+        async def remove_list_or_task(ctx):
+            logger.info('remove list or task')
+            target = ctx['data']['text']['matches'][0]
+            logger.info('target {}'.format(target))
+
+            count = await lists_document.ListDocument.objects({
+                'name': target,
+                'user_id': ctx['user']['_id'],
+            }).delete()
+            logger.info('remove {} lists'.format(count))
+            if count > 0:
+                await story.say(':skull: List {} was removed'.format(target),
+                                user=ctx['user'])
+                return
+
+            # TODO: try to remove task
+            # if count == 0:
+
     @story.on(receive=text.Any())
     def new_task_story():
         """
