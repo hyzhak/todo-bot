@@ -50,6 +50,8 @@ def setup(story):
         await story.say(
             'Tasks:\n{}'.format(tasks_page),
             user=user,
+            # TODO: don't show options if it is the end of list
+            # TODO: `next 10`, `next 100`, `stop`
             options=[{
                 'title': 'More',
                 'payload': 'NEXT_PAGE_OF_TASKS_LIST'
@@ -58,17 +60,18 @@ def setup(story):
 
         # TODO: reach the end of list
 
-        # TODO: ask options: <next>
-        # await story.ask_options
-
         ctx['data']['page_index'] = page_index + 1
 
     @story.callable()
     def loop_list_of_tasks():
+        # TODO: get target collection (for example: tasks_document.TaskDocument)
+        # as an argument. So we be able to reuse pager for different endless lists
+
         @story.part()
         async def show_zero_page(ctx):
             await story.say(
-                'TODO: Introduce the list of tasks'
+                'TODO: Introduce the list of tasks',
+                user=ctx['user'],
             )
             _show_list_next_page(ctx)
 
@@ -76,7 +79,8 @@ def setup(story):
         def list_loop():
             @story.on([
                 option.Match('NEXT_PAGE_OF_TASKS_LIST'),
-                'more', 'next',
+                text.text.EqualCaseIgnore('more'),
+                text.text.EqualCaseIgnore('next'),
             ])
             def next_page():
                 @story.part()
@@ -87,20 +91,22 @@ def setup(story):
                text.text.EqualCaseIgnore('todo')])
     def list_of_tasks_story():
         @story.part()
-        async def list_of_tasks(message):
+        async def list_of_tasks(ctx):
             logger.info('list of tasks')
             # TODO: should filter the last one
             # TODO: should have pagination
             # - store current page in session
 
-            tasks = await tasks_document.TaskDocument.objects.find({
-                'user_id': message['user']['_id'],
-            })
-            tasks_page = '\n'.join(':white_small_square: {}'.format(t.description) for t in tasks)
-            await story.say(
-                'List of actual tasks:\n{}'.format(tasks_page),
-                user=message['user']
-            )
+            return await loop_list_of_tasks(**ctx)
+
+            # tasks = await tasks_document.TaskDocument.objects.find({
+            #     'user_id': message['user']['_id'],
+            # })
+            # tasks_page = '\n'.join(':white_small_square: {}'.format(t.description) for t in tasks)
+            # await story.say(
+            #     'List of actual tasks:\n{}'.format(tasks_page),
+            #     user=message['user']
+            # )
 
     @story.on(text.text.EqualCaseIgnore('new list'))
     def new_list_tasks_story():
