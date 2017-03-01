@@ -38,51 +38,8 @@ def setup(story):
             lists_page = '\n'.join(':white_small_square: {}'.format(l.name) for l in lists)
             await story.say('All lists:\n{}'.format(lists_page), user=message['user'])
 
-    # Recursion version
-
-    # @story.callable()
-    # def recursion_show_list_of_tasks():
-    #     @story.part()
-    #     async def body_of_recursion(user, pageIndex=0):
-    #         tasks = await tasks_document.TaskDocument.objects.find({
-    #             'user_id': user['_id'],
-    #             # TODO: show last page
-    #         })
-    #         tasks_page = '\n'.join(':white_small_square: {}'.format(t.description) for t in tasks)
-    #
-    #         # TODO: store pageIndex
-    #         return await story.ask(
-    #             'Tasks:\n{}'.format(tasks_page),
-    #             user=user,
-    #             options=[{
-    #                 'title': 'More',
-    #                 'payload': 'NEXt_PAGE_OF_TASKS_LIST'
-    #             }],
-    #         )
-    #
-    #     @story.part()
-    #     def parse_response(message):
-    #         return forking.SwitchOnValue(message['data']['option'])
-    #
-    #     @story.case(match='NEXt_PAGE_OF_TASKS_LIST')
-    #     def next_page():
-    #         @story.part()
-    #         async def call_recursion(message):
-    #             # going deeper
-    #             # TODO: should get from session
-    #             page_index = 0
-    #             await show_list_of_tasks(message['user'], page_index + 1)
-    #
-    #     # TODO: we should expose message if it is not `more`
-    #     @story.case(default=True)
-    #     def default_case():
-    #         @story.part()
-    #         def bubble_up(message):
-    #             # clear context
-    #             return story.cancel()
-
     # Loop version
-    async def _show_list_next_page():
+    async def _show_list_next_page(ctx):
         page_index = utils.safe_get(ctx, 'data', 'page_index', default=0)
         tasks = await tasks_document.TaskDocument.objects.find({
             'user_id': user['_id'],
@@ -114,7 +71,7 @@ def setup(story):
             await story.say(
                 'TODO: Introduce the list of tasks'
             )
-            _show_list_next_page()
+            _show_list_next_page(ctx)
 
         @story.loop()
         def list_loop():
@@ -123,48 +80,8 @@ def setup(story):
                 'more', 'next',
             ])
             async def show_part_of_list(ctx):
-                _show_list_next_page()
+                _show_list_next_page(ctx)
 
-    # Context version
-
-    # Show infinity list of tasks
-    # @story.callable()
-    # def ctx_show_list_of_tasks():
-    #     """
-    #     Infinity list of tasks
-    #     """
-    #     @story.part()
-    #     def init_page_of_tasks(ctx):
-    #         ctx['storage']['tasks_list_page_index'] = 0
-    #
-    #     @story.part()
-    #     async def show_one_page_of_tasks(ctx):
-    #         page_length = 5
-    #         page_index = ctx['storage']['tasks_list_page_index']
-    #         tasks = await tasks_document.TaskDocument.objects.find({
-    #             'user_id': user['_id'],
-    #         }, start=page_length * page_index,
-    #             end=page_length * (page_index + 1))
-    #
-    #         tasks_page = '\n'.join(':white_small_square: {}'.format(t.description) for t in tasks)
-    #
-    #         await story.say(
-    #             'Tasks:\n{}'.format(tasks_page),
-    #             user=user,
-    #             options=[{
-    #                 'title': 'More',
-    #                 'payload': 'NEXT_PAGE_OF_TASKS_LIST'
-    #             }],
-    #         )
-    #
-    #     @story.scope()
-    #     def task_list_context():
-    #         @story.on(['next', 'more',
-    #                    option.Match('NEXt_PAGE_OF_TASKS_LIST')])
-    #         async def show_next_page_of_tasks(ctx):
-    #             ctx['storage']['tasks_list_page_index'] += 1
-    #             # not sure whether it works (but should somehow reduce code duplication
-    #             show_one_page_of_tasks(ctx)
 
     @story.on(text.text.EqualCaseIgnore('list'))
     @story.on(text.text.EqualCaseIgnore('todo'))
