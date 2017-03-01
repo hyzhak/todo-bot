@@ -65,7 +65,6 @@ def setup(story):
 
     @story.callable()
     def loop_list_of_tasks():
-
         @story.part()
         async def show_zero_page(ctx):
             await story.say(
@@ -79,12 +78,13 @@ def setup(story):
                 option.Match('NEXT_PAGE_OF_TASKS_LIST'),
                 'more', 'next',
             ])
-            async def show_part_of_list(ctx):
-                _show_list_next_page(ctx)
+            def next_page():
+                @story.part()
+                async def show_part_of_list(ctx):
+                    _show_list_next_page(ctx)
 
-
-    @story.on(text.text.EqualCaseIgnore('list'))
-    @story.on(text.text.EqualCaseIgnore('todo'))
+    @story.on([text.text.EqualCaseIgnore('list'),
+               text.text.EqualCaseIgnore('todo')])
     def list_of_tasks_story():
         @story.part()
         async def list_of_tasks(message):
