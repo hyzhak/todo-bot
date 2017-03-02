@@ -1,6 +1,7 @@
 from botstory import utils
 from botstory.middlewares import any, option, text
 import logging
+from todo import reflection
 
 logger = logging.getLogger(__name__)
 
@@ -12,21 +13,23 @@ def setup(story):
     # Loop version
     async def _show_list_next_page(ctx):
         page_index = utils.safe_get(ctx, 'data', 'page_index', default=0)
-        TargetDocument = ctx['data']['target_document']
-        tasks = await TargetDocument.objects.find({
+        list_title = ctx['data']['list_title']
+        TargetDocument = reflection.str_to_class(ctx['data']['target_document'])
+
+        items = await TargetDocument.objects.find({
             'user_id': ctx['user']['_id'],
             # TODO: show last page by page_index
         })
-        tasks_page = '\n'.join(':white_small_square: {}'.format(t.description) for t in tasks)
+        items_page = '\n'.join(':white_small_square: {}'.format(t.description) for t in items)
 
         await story.say(
-            'List of actual tasks:\n{}'.format(tasks_page),
+            '{}\n{}'.format(list_title, items_page),
             user=ctx['user'],
             # TODO: don't show options if it is the end of list
             # TODO: `next 10`, `next 100`, `stop`
             options=[{
                 'title': 'More',
-                'payload': 'NEXT_PAGE_OF_TASKS_LIST'
+                'payload': 'NEXT_PAGE_OF_A_LIST'
             }],
         )
 
@@ -38,9 +41,6 @@ def setup(story):
 
     @story.callable()
     def loop():
-        # TODO: get target collection (for example: tasks_document.TaskDocument)
-        # as an argument. So we be able to reuse pager for different endless lists
-
         @story.part()
         async def show_zero_page(ctx):
             await _show_list_next_page(ctx)
@@ -48,7 +48,7 @@ def setup(story):
         @story.loop()
         def list_loop():
             @story.on([
-                option.Match('NEXT_PAGE_OF_TASKS_LIST'),
+                option.Match('NEXT_PAGE_OF_A_LIST'),
                 text.text.EqualCaseIgnore('more'),
                 text.text.EqualCaseIgnore('next'),
             ])

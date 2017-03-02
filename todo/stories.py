@@ -3,13 +3,14 @@ from botstory.middlewares import any, option, text
 import datetime
 import logging
 
-from todo import pagination_list
+from todo import pagination_list, reflection
 from todo.lists import lists_document
 from todo.tasks import tasks_document
 
 logger = logging.getLogger(__name__)
 
 logger.debug('parse stories')
+
 
 
 def setup(story):
@@ -51,7 +52,8 @@ def setup(story):
             # - store current page in session
 
             return await pagination_list.loop(
-                target_document=tasks_document.TaskDocument,
+                list_title='List of actual tasks:',
+                target_document=reflection.class_to_str(tasks_document.TaskDocument),
                 **ctx,
             )
 
