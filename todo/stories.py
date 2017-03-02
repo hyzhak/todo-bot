@@ -1,9 +1,9 @@
 import botstory
-from botstory import utils
 from botstory.middlewares import any, option, text
 import datetime
 import logging
 
+from todo import pagination_list
 from todo.lists import lists_document
 from todo.tasks import tasks_document
 
@@ -13,6 +13,8 @@ logger.debug('parse stories')
 
 
 def setup(story):
+    pagination_list.setup(story)
+
     @story.on_start()
     def on_start_story():
         """
@@ -38,51 +40,6 @@ def setup(story):
             lists_page = '\n'.join(':white_small_square: {}'.format(l.name) for l in lists)
             await story.say('All lists:\n{}'.format(lists_page), user=message['user'])
 
-    # Loop version
-    async def _show_list_next_page(ctx):
-        page_index = utils.safe_get(ctx, 'data', 'page_index', default=0)
-        tasks = await tasks_document.TaskDocument.objects.find({
-            'user_id': ctx['user']['_id'],
-            # TODO: show last page by page_index
-        })
-        tasks_page = '\n'.join(':white_small_square: {}'.format(t.description) for t in tasks)
-
-        await story.say(
-            'List of actual tasks:\n{}'.format(tasks_page),
-            user=ctx['user'],
-            # TODO: don't show options if it is the end of list
-            # TODO: `next 10`, `next 100`, `stop`
-            options=[{
-                'title': 'More',
-                'payload': 'NEXT_PAGE_OF_TASKS_LIST'
-            }],
-        )
-
-        # TODO: reach the end of list
-
-        ctx['data']['page_index'] = page_index + 1
-
-    @story.callable()
-    def loop_list_of_tasks():
-        # TODO: get target collection (for example: tasks_document.TaskDocument)
-        # as an argument. So we be able to reuse pager for different endless lists
-
-        @story.part()
-        async def show_zero_page(ctx):
-            await _show_list_next_page(ctx)
-
-        @story.loop()
-        def list_loop():
-            @story.on([
-                option.Match('NEXT_PAGE_OF_TASKS_LIST'),
-                text.text.EqualCaseIgnore('more'),
-                text.text.EqualCaseIgnore('next'),
-            ])
-            def next_page():
-                @story.part()
-                async def show_part_of_list(ctx):
-                    await _show_list_next_page(ctx)
-
     @story.on([text.text.EqualCaseIgnore('list'),
                text.text.EqualCaseIgnore('todo')])
     def list_of_tasks_story():
@@ -93,7 +50,10 @@ def setup(story):
             # TODO: should have pagination
             # - store current page in session
 
-            return await loop_list_of_tasks(**ctx)
+            return await pagination_list.loop(
+                target_document=tasks_document.TaskDocument,
+                **ctx,
+            )
 
     @story.on(text.text.EqualCaseIgnore('new list'))
     def new_list_tasks_story():
