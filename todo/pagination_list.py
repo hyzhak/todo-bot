@@ -10,6 +10,8 @@ loop = None
 
 
 def setup(story):
+    global loop
+
     # Loop version
     async def _show_list_next_page(ctx):
         page_index = utils.safe_get(ctx, 'data', 'page_index', default=0)
@@ -37,8 +39,6 @@ def setup(story):
 
         ctx['data']['page_index'] = page_index + 1
 
-    global loop
-
     @story.callable()
     def loop():
         @story.part()
@@ -56,3 +56,6 @@ def setup(story):
                 @story.part()
                 async def show_part_of_list(ctx):
                     await _show_list_next_page(ctx)
+
+
+__all__ = [loop]

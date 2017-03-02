@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 logger.debug('parse stories')
 
 
-
 def setup(story):
     pagination_list.setup(story)
 
@@ -48,8 +47,6 @@ def setup(story):
         async def list_of_tasks(ctx):
             logger.info('list of tasks')
             # TODO: should filter the last one
-            # TODO: should have pagination
-            # - store current page in session
 
             return await pagination_list.loop(
                 list_title='List of actual tasks:',

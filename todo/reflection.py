@@ -1,3 +1,6 @@
+# TODO: move to botstory
+
+
 def class_to_str(Clz):
     return '{}.{}'.format(
         Clz.__module__,
