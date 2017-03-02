@@ -16,13 +16,14 @@ def setup(story):
     async def _show_list_next_page(ctx):
         page_index = utils.safe_get(ctx, 'data', 'page_index', default=0)
         list_title = ctx['data']['list_title']
+        title_field = ctx['data']['title_field']
         TargetDocument = reflection.str_to_class(ctx['data']['target_document'])
 
         items = await TargetDocument.objects.find({
             'user_id': ctx['user']['_id'],
             # TODO: show last page by page_index
         })
-        items_page = '\n'.join(':white_small_square: {}'.format(t.description) for t in items)
+        items_page = '\n'.join(':white_small_square: {}'.format(getattr(t, title_field)) for t in items)
 
         await story.say(
             '{}\n{}'.format(list_title, items_page),

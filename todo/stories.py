@@ -29,16 +29,14 @@ def setup(story):
     @story.on(text.text.EqualCaseIgnore('all'))
     def list_of_lists_story():
         @story.part()
-        async def show_list_of_stories(message):
+        async def show_list_of_stories(ctx):
             logger.info('list of tasks')
-            # TODO: should have pagination
-            lists = await lists_document.ListDocument.objects.find({
-                'user_id': message['user']['_id'],
-            })
-            logger.info('lists:')
-            logger.info(lists)
-            lists_page = '\n'.join(':white_small_square: {}'.format(l.name) for l in lists)
-            await story.say('All lists:\n{}'.format(lists_page), user=message['user'])
+            return await pagination_list.loop(
+                list_title='All lists:',
+                target_document=reflection.class_to_str(lists_document.ListDocument),
+                title_field='name',
+                **ctx,
+            )
 
     @story.on([text.text.EqualCaseIgnore('list'),
                text.text.EqualCaseIgnore('todo')])
@@ -51,6 +49,7 @@ def setup(story):
             return await pagination_list.loop(
                 list_title='List of actual tasks:',
                 target_document=reflection.class_to_str(tasks_document.TaskDocument),
+                title_field='description',
                 **ctx,
             )
 
