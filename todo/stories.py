@@ -42,14 +42,14 @@ def setup(story):
     async def _show_list_next_page(ctx):
         page_index = utils.safe_get(ctx, 'data', 'page_index', default=0)
         tasks = await tasks_document.TaskDocument.objects.find({
-            'user_id': user['_id'],
+            'user_id': ctx['user']['_id'],
             # TODO: show last page by page_index
         })
         tasks_page = '\n'.join(':white_small_square: {}'.format(t.description) for t in tasks)
 
         await story.say(
-            'Tasks:\n{}'.format(tasks_page),
-            user=user,
+            'List of actual tasks:\n{}'.format(tasks_page),
+            user=ctx['user'],
             # TODO: don't show options if it is the end of list
             # TODO: `next 10`, `next 100`, `stop`
             options=[{
@@ -69,11 +69,7 @@ def setup(story):
 
         @story.part()
         async def show_zero_page(ctx):
-            await story.say(
-                'TODO: Introduce the list of tasks',
-                user=ctx['user'],
-            )
-            _show_list_next_page(ctx)
+            await _show_list_next_page(ctx)
 
         @story.loop()
         def list_loop():
@@ -85,7 +81,7 @@ def setup(story):
             def next_page():
                 @story.part()
                 async def show_part_of_list(ctx):
-                    _show_list_next_page(ctx)
+                    await _show_list_next_page(ctx)
 
     @story.on([text.text.EqualCaseIgnore('list'),
                text.text.EqualCaseIgnore('todo')])
@@ -98,15 +94,6 @@ def setup(story):
             # - store current page in session
 
             return await loop_list_of_tasks(**ctx)
-
-            # tasks = await tasks_document.TaskDocument.objects.find({
-            #     'user_id': message['user']['_id'],
-            # })
-            # tasks_page = '\n'.join(':white_small_square: {}'.format(t.description) for t in tasks)
-            # await story.say(
-            #     'List of actual tasks:\n{}'.format(tasks_page),
-            #     user=message['user']
-            # )
 
     @story.on(text.text.EqualCaseIgnore('new list'))
     def new_list_tasks_story():
