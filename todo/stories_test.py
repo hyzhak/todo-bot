@@ -155,11 +155,41 @@ async def test_list_of_active_tasks_on_list(build_context, command):
                                      ':white_small_square: drop cheese')
 
 
-# TODO: add test for pagination
-# 1. get first page
-# 2. press <next>
-# 3. get second page
-# 4. that's all
+@pytest.mark.asyncio
+async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
+    async with build_context() as context:
+        command = 'todo'
+        facebook = context.fb_interface
+
+        monkeypatch.setattr(os, 'environ', {
+            'LIST_PAGE_LENGTH': 2,
+        })
+
+        await context.add_tasks([{
+            'description': 'fry toasts',
+            'user_id': context.user['_id'],
+        }, {
+            'description': 'fry eggs',
+            'user_id': context.user['_id'],
+        }, {
+            'description': 'drop cheese',
+            'user_id': context.user['_id'],
+        }, ])
+
+        await facebook.handle(build_message({
+            'text': command,
+        }))
+
+        await context.receive_answer('List of actual tasks:\n'
+                                     ':white_small_square: fry toasts\n'
+                                     ':white_small_square: fry eggs')
+
+        await facebook.handle(build_message({
+            'text': 'next',
+        }))
+
+        await context.receive_answer(':white_small_square: drop cheese')
+
 
 @pytest.mark.asyncio
 async def test_list_of_active_tasks_on_new_list(build_context):
