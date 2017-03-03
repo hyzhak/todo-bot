@@ -35,6 +35,7 @@ def setup(story):
                 list_title='All lists:',
                 target_document=reflection.class_to_str(lists_document.ListDocument),
                 title_field='name',
+                page_length=5,
                 **ctx,
             )
 
@@ -50,6 +51,7 @@ def setup(story):
                 list_title='List of actual tasks:',
                 target_document=reflection.class_to_str(tasks_document.TaskDocument),
                 title_field='description',
+                page_length=5,
                 **ctx,
             )
 

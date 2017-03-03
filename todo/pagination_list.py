@@ -5,7 +5,6 @@ from todo import reflection
 
 logger = logging.getLogger(__name__)
 
-
 loop = None
 
 
@@ -17,12 +16,14 @@ def setup(story):
         page_index = utils.safe_get(ctx, 'data', 'page_index', default=0)
         list_title = ctx['data']['list_title']
         title_field = ctx['data']['title_field']
+        page_length = ctx['data']['page_length']
         TargetDocument = reflection.str_to_class(ctx['data']['target_document'])
 
         items = await TargetDocument.objects.find({
             'user_id': ctx['user']['_id'],
-            # TODO: show last page by page_index
-        })
+            # TODO: show last page of page_length from page_index*page_length
+        }).limit(page_length).skip(page_index * page_length).to_list()
+
         items_page = '\n'.join(':white_small_square: {}'.format(getattr(t, title_field)) for t in items)
 
         await story.say(
