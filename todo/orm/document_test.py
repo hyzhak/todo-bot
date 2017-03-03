@@ -126,3 +126,10 @@ async def test_skip(build_mock_db):
         assert len(tasks) == 2
         assert tasks[0].description == 'hokey-pokey'
         assert tasks[1].description == 'monkey business'
+
+
+@pytest.mark.asyncio
+async def test_count(build_mock_db):
+    async with build_mock_db():
+        tasks_count = await TaskDocument.objects.find().count()
+        assert tasks_count == 4

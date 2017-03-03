@@ -155,6 +155,12 @@ async def test_list_of_active_tasks_on_list(build_context, command):
                                      ':white_small_square: drop cheese')
 
 
+# TODO: add test for pagination
+# 1. get first page
+# 2. press <next>
+# 3. get second page
+# 4. that's all
+
 @pytest.mark.asyncio
 async def test_list_of_active_tasks_on_new_list(build_context):
     async with build_context() as context:

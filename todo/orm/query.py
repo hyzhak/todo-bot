@@ -14,6 +14,9 @@ class Query:
         self.query = args[0]
         return self
 
+    async def count(self):
+        return len(await self.to_list())
+
     async def delete(self):
         res = await self.collection.delete_many(self.query)
         return res.deleted_count

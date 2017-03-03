@@ -19,25 +19,30 @@ def setup(story):
         page_length = ctx['data']['page_length']
         TargetDocument = reflection.str_to_class(ctx['data']['target_document'])
 
-        items = await TargetDocument.objects.find({
+        cursor = TargetDocument.objects.find({
             'user_id': ctx['user']['_id'],
-            # TODO: show last page of page_length from page_index*page_length
-        }).limit(page_length).skip(page_index * page_length).to_list()
+        })
+
+        count = await cursor.count()
+        items = await cursor.limit(page_length).skip(page_index * page_length).to_list()
 
         items_page = '\n'.join(':white_small_square: {}'.format(getattr(t, title_field)) for t in items)
+
+        the_end_of_list = False
+
+        if (page_index + 1) * page_length >= count:
+            the_end_of_list = True
 
         await story.say(
             '{}\n{}'.format(list_title, items_page),
             user=ctx['user'],
             # TODO: don't show options if it is the end of list
             # TODO: `next 10`, `next 100`, `stop`
-            options=[{
+            options=None if the_end_of_list else [{
                 'title': 'More',
                 'payload': 'NEXT_PAGE_OF_A_LIST'
             }],
         )
-
-        # TODO: reach the end of list
 
         ctx['data']['page_index'] = page_index + 1
 
