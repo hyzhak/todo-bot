@@ -1,4 +1,5 @@
 import botstory
+from botstory.ast import story_context
 from botstory.middlewares import any, option, text
 import datetime
 import logging
@@ -67,18 +68,18 @@ def setup(story):
             )
 
         @story.part()
-        async def create_list(message):
+        async def create_list(ctx):
             logger.info('create list')
-            list_name = message['data']['text']['raw']
+            list_name = text.get_raw_text(ctx)
             new_list = await lists_document.ListDocument(**{
-                'user_id': message['user']['_id'],
+                'user_id': ctx['user']['_id'],
                 'name': list_name,
                 'created_at': datetime.datetime.now(),
                 'updated_at': datetime.datetime.now(),
             }).save()
             await story.say('You\'ve just created list of tasks: '
                             '`{}`.\n'
-                            'Now you can add tasks to it.'.format(list_name), user=message['user'])
+                            'Now you can add tasks to it.'.format(list_name), user=ctx['user'])
 
     @story.on([
         text.Match('delete (.*)'),
@@ -95,7 +96,7 @@ def setup(story):
         @story.part()
         async def remove_list_or_task(ctx):
             logger.info('remove list or task')
-            target = ctx['data']['text']['matches'][0]
+            target = story_context.get_user_data(ctx)['text']['matches'][0]
             logger.info('target {}'.format(target))
 
             count = await lists_document.ListDocument.objects({
@@ -121,12 +122,12 @@ def setup(story):
         """
 
         @story.part()
-        async def add_new_task(message):
+        async def add_new_task(ctx):
             logger.info('new task')
-            task_description = message['data']['text']['raw']
+            task_description = text.get_raw_text(ctx)
 
             await tasks_document.TaskDocument(**{
-                'user_id': message['user']['_id'],
+                'user_id': ctx['user']['_id'],
                 'list': 'list_1',
                 'description': task_description,
                 'state': 'new',
@@ -134,7 +135,7 @@ def setup(story):
                 'updated_at': datetime.datetime.now(),
             }).save()
 
-            await story.say('Task `{}` was added to the job list.'.format(task_description), message['user'])
+            await story.say('Task `{}` was added to the job list.'.format(task_description), ctx['user'])
 
     @story.on(receive=any.Any())
     def any_story():
