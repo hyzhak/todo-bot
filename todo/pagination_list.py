@@ -1,6 +1,7 @@
 from botstory import utils
 from botstory.ast import story_context
 from botstory.middlewares import any, option, text
+import emoji
 import logging
 from todo import reflection
 
