@@ -1,4 +1,5 @@
 botstory==0.0.51
+emoji==0.4.0
 gunicorn==19.6.0
 inflection==0.3.1
 pytest==3.0.4

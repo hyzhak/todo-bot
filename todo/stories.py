@@ -2,6 +2,7 @@ import botstory
 from botstory.ast import story_context
 from botstory.middlewares import any, option, text
 import datetime
+import emoji
 import logging
 import os
 
@@ -105,7 +106,7 @@ def setup(story):
             }).delete()
             logger.info('remove {} lists'.format(count))
             if count > 0:
-                await story.say(':skull: List {} was removed'.format(target),
+                await story.say(emoji.emojize(':skull: List {} was removed'.format(target)),
                                 user=ctx['user'])
                 return
 
