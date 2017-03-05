@@ -96,7 +96,7 @@ def setup(story):
         @story.part()
         async def remove_list_or_task(ctx):
             logger.info('remove list or task')
-            target = story_context.get_user_data(ctx)['text']['matches'][0]
+            target = story_context.get_message_data(ctx)['text']['matches'][0]
             logger.info('target {}'.format(target))
 
             count = await lists_document.ListDocument.objects({
