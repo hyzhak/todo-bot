@@ -1,8 +1,11 @@
 import botstory
-from botstory.middlewares import any, text
+from botstory.ast import story_context
+from botstory.middlewares import any, option, text
 import datetime
 import logging
+import os
 
+from todo import pagination_list, reflection
 from todo.lists import lists_document
 from todo.tasks import tasks_document
 
@@ -12,6 +15,8 @@ logger.debug('parse stories')
 
 
 def setup(story):
+    pagination_list.setup(story)
+
     @story.on_start()
     def on_start_story():
         """
@@ -26,30 +31,31 @@ def setup(story):
     @story.on(text.text.EqualCaseIgnore('all'))
     def list_of_lists_story():
         @story.part()
-        async def show_list_of_stories(message):
+        async def show_list_of_stories(ctx):
             logger.info('list of tasks')
-            # TODO: should have pagination
-            lists = await lists_document.ListDocument.objects.find({
-                'user_id': message['user']['_id'],
-            })
-            logger.info('lists:')
-            logger.info(lists)
-            lists_page = '\n'.join(':white_small_square: {}'.format(l.name) for l in lists)
-            await story.say('All lists:\n{}'.format(lists_page), user=message['user'])
+            return await pagination_list.loop(
+                list_title='All lists:',
+                target_document=reflection.class_to_str(lists_document.ListDocument),
+                title_field='name',
+                page_length=os.environ.get('LIST_PAGE_LENGTH', 5),
+                **ctx,
+            )
 
-    @story.on(text.text.EqualCaseIgnore('list'))
-    @story.on(text.text.EqualCaseIgnore('todo'))
+    @story.on([text.text.EqualCaseIgnore('list'),
+               text.text.EqualCaseIgnore('todo')])
     def list_of_tasks_story():
         @story.part()
-        async def show_list_of_tasks(message):
+        async def list_of_tasks(ctx):
             logger.info('list of tasks')
             # TODO: should filter the last one
-            # TODO: should have pagination
-            tasks = await tasks_document.TaskDocument.objects.find({
-                'user_id': message['user']['_id'],
-            })
-            tasks_page = '\n'.join(':white_small_square: {}'.format(t.description) for t in tasks)
-            await story.say('List of actual tasks:\n{}'.format(tasks_page), user=message['user'])
+
+            return await pagination_list.loop(
+                list_title='List of actual tasks:',
+                target_document=reflection.class_to_str(tasks_document.TaskDocument),
+                title_field='description',
+                page_length=os.environ.get('LIST_PAGE_LENGTH', 5),
+                **ctx,
+            )
 
     @story.on(text.text.EqualCaseIgnore('new list'))
     def new_list_tasks_story():
@@ -62,18 +68,18 @@ def setup(story):
             )
 
         @story.part()
-        async def create_list(message):
+        async def create_list(ctx):
             logger.info('create list')
-            list_name = message['data']['text']['raw']
+            list_name = text.get_raw_text(ctx)
             new_list = await lists_document.ListDocument(**{
-                'user_id': message['user']['_id'],
+                'user_id': ctx['user']['_id'],
                 'name': list_name,
                 'created_at': datetime.datetime.now(),
                 'updated_at': datetime.datetime.now(),
             }).save()
             await story.say('You\'ve just created list of tasks: '
                             '`{}`.\n'
-                            'Now you can add tasks to it.'.format(list_name), user=message['user'])
+                            'Now you can add tasks to it.'.format(list_name), user=ctx['user'])
 
     @story.on([
         text.Match('delete (.*)'),
@@ -90,7 +96,7 @@ def setup(story):
         @story.part()
         async def remove_list_or_task(ctx):
             logger.info('remove list or task')
-            target = ctx['data']['text']['matches'][0]
+            target = story_context.get_message_data(ctx)['text']['matches'][0]
             logger.info('target {}'.format(target))
 
             count = await lists_document.ListDocument.objects({
@@ -116,12 +122,12 @@ def setup(story):
         """
 
         @story.part()
-        async def add_new_task(message):
+        async def add_new_task(ctx):
             logger.info('new task')
-            task_description = message['data']['text']['raw']
+            task_description = text.get_raw_text(ctx)
 
             await tasks_document.TaskDocument(**{
-                'user_id': message['user']['_id'],
+                'user_id': ctx['user']['_id'],
                 'list': 'list_1',
                 'description': task_description,
                 'state': 'new',
@@ -129,7 +135,7 @@ def setup(story):
                 'updated_at': datetime.datetime.now(),
             }).save()
 
-            await story.say('Task `{}` was added to the job list.'.format(task_description), message['user'])
+            await story.say('Task `{}` was added to the job list.'.format(task_description), ctx['user'])
 
     @story.on(receive=any.Any())
     def any_story():

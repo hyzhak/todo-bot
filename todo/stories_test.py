@@ -156,6 +156,42 @@ async def test_list_of_active_tasks_on_list(build_context, command):
 
 
 @pytest.mark.asyncio
+async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
+    async with build_context() as context:
+        command = 'todo'
+        facebook = context.fb_interface
+
+        monkeypatch.setattr(os, 'environ', {
+            'LIST_PAGE_LENGTH': 2,
+        })
+
+        await context.add_tasks([{
+            'description': 'fry toasts',
+            'user_id': context.user['_id'],
+        }, {
+            'description': 'fry eggs',
+            'user_id': context.user['_id'],
+        }, {
+            'description': 'drop cheese',
+            'user_id': context.user['_id'],
+        }, ])
+
+        await facebook.handle(build_message({
+            'text': command,
+        }))
+
+        await context.receive_answer('List of actual tasks:\n'
+                                     ':white_small_square: fry toasts\n'
+                                     ':white_small_square: fry eggs')
+
+        await facebook.handle(build_message({
+            'text': 'next',
+        }))
+
+        await context.receive_answer(':white_small_square: drop cheese')
+
+
+@pytest.mark.asyncio
 async def test_list_of_active_tasks_on_new_list(build_context):
     async with build_context() as context:
         facebook = context.fb_interface
@@ -232,7 +268,7 @@ async def test_remove_list(build_context, command):
 
         res_lists = await lists.ListDocument.objects.find({
             'user_id': ctx.user['_id'],
-        })
+        }).to_list()
 
         assert len(res_lists) == 2
         assert all(
@@ -267,6 +303,6 @@ async def test_ask_again_if_we_can_find_what_to_remove(build_context):
 
         res_lists = await lists.ListDocument.objects.find({
             'user_id': ctx.user['_id'],
-        })
+        }).to_list()
 
         assert len(res_lists) == 3
