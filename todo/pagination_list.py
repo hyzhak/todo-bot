@@ -1,5 +1,5 @@
 from botstory import utils
-from botstory.ast import loop, story_context
+from botstory.ast import callable, loop, story_context
 from botstory.middlewares import any, option, text
 import emoji
 import logging
@@ -68,8 +68,7 @@ def setup(story):
         @story.part()
         async def show_zero_page(ctx):
             if not await _show_list_next_page(ctx):
-                # TODO: end evaluation
-                pass
+                return callable.EndOfStory()
 
         @story.loop()
         def list_loop():

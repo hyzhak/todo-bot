@@ -196,6 +196,7 @@ async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
                                                               '',
                                                               pagination_list.BORDER])))
 
+
 @pytest.mark.asyncio
 async def test_after_the_end_of_infinity_list_of_active_tasks(build_context, monkeypatch):
     async with build_context() as context:
@@ -226,6 +227,43 @@ async def test_after_the_end_of_infinity_list_of_active_tasks(build_context, mon
         }))
 
         # here we have just reach the end of list.
+        # so any other message should propagate to global matches
+        # and word `next` will be considered as new task
+
+        await facebook.handle(build_message({
+            'text': 'next',
+        }))
+
+        await context.receive_answer('Task `next` was added to the job list.')
+
+
+@pytest.mark.asyncio
+async def test_immediatly_reach_the_end_of_pagination_list_and_all_upcoming_commands_are_leaking_to_global_scope(
+        build_context, monkeypatch):
+    async with build_context() as context:
+        command = 'todo'
+        facebook = context.fb_interface
+
+        monkeypatch.setattr(os, 'environ', {
+            'LIST_PAGE_LENGTH': 5,
+        })
+
+        await context.add_tasks([{
+            'description': 'fry toasts',
+            'user_id': context.user['_id'],
+        }, {
+            'description': 'fry eggs',
+            'user_id': context.user['_id'],
+        }, {
+            'description': 'drop cheese',
+            'user_id': context.user['_id'],
+        }, ])
+
+        await facebook.handle(build_message({
+            'text': command,
+        }))
+
+        # here we have just immediately reach the end of list.
         # so any other message should propagate to global matches
         # and word `next` will be considered as new task
 
