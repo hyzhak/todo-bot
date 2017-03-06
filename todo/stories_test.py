@@ -151,9 +151,9 @@ async def test_list_of_active_tasks_on_list(build_context, command):
         }))
 
         await context.receive_answer(emoji.emojize('\n'.join(['List of actual tasks:',
-                                                              ':white_small_square: fry toasts',
-                                                              ':white_small_square: fry eggs',
-                                                              ':white_small_square: drop cheese',
+                                                              ':white_medium_square: fry toasts',
+                                                              ':white_medium_square: fry eggs',
+                                                              ':white_medium_square: drop cheese',
                                                               '',
                                                               pagination_list.BORDER])))
 
@@ -184,15 +184,15 @@ async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
         }))
 
         await context.receive_answer(emoji.emojize('\n'.join(['List of actual tasks:',
-                                                              ':white_small_square: fry toasts',
-                                                              ':white_small_square: fry eggs',
+                                                              ':white_medium_square: fry toasts',
+                                                              ':white_medium_square: fry eggs',
                                                               ])))
 
         await facebook.handle(build_message({
             'text': 'next',
         }))
 
-        await context.receive_answer(emoji.emojize('\n'.join([':white_small_square: drop cheese',
+        await context.receive_answer(emoji.emojize('\n'.join([':white_medium_square: drop cheese',
                                                               '',
                                                               pagination_list.BORDER])))
 
@@ -239,9 +239,9 @@ async def test_list_all_lists(build_context):
 
         await ctx.receive_answer(emoji.emojize('\n'.join([
             'All lists:',
-            ':white_small_square: google calendar events',
-            ':white_small_square: grocery store',
-            ':white_small_square: travel to Sri Lanka',
+            ':white_medium_square: google calendar events',
+            ':white_medium_square: grocery store',
+            ':white_medium_square: travel to Sri Lanka',
             '',
             pagination_list.BORDER,
         ])))
