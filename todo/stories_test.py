@@ -7,7 +7,7 @@ import datetime
 import emoji
 import os
 import pytest
-from todo import lists, tasks
+from todo import lists, tasks, pagination_list
 from unittest import mock
 from . import stories
 
@@ -150,10 +150,12 @@ async def test_list_of_active_tasks_on_list(build_context, command):
             'text': command
         }))
 
-        await context.receive_answer(emoji.emojize('List of actual tasks:\n'
-                                                   ':white_small_square: fry toasts\n'
-                                                   ':white_small_square: fry eggs\n'
-                                                   ':white_small_square: drop cheese'))
+        await context.receive_answer(emoji.emojize('\n'.join(['List of actual tasks:',
+                                                              ':white_small_square: fry toasts',
+                                                              ':white_small_square: fry eggs',
+                                                              ':white_small_square: drop cheese',
+                                                              '',
+                                                              pagination_list.BORDER])))
 
 
 @pytest.mark.asyncio
@@ -181,15 +183,18 @@ async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
             'text': command,
         }))
 
-        await context.receive_answer(emoji.emojize('List of actual tasks:\n'
-                                                   ':white_small_square: fry toasts\n'
-                                                   ':white_small_square: fry eggs'))
+        await context.receive_answer(emoji.emojize('\n'.join(['List of actual tasks:',
+                                                              ':white_small_square: fry toasts',
+                                                              ':white_small_square: fry eggs',
+                                                              ])))
 
         await facebook.handle(build_message({
             'text': 'next',
         }))
 
-        await context.receive_answer(emoji.emojize(':white_small_square: drop cheese'))
+        await context.receive_answer(emoji.emojize('\n'.join([':white_small_square: drop cheese',
+                                                              '',
+                                                              pagination_list.BORDER])))
 
 
 @pytest.mark.asyncio
@@ -232,12 +237,14 @@ async def test_list_all_lists(build_context):
             'text': 'all'
         }))
 
-        await ctx.receive_answer(emoji.emojize(
-            'All lists:\n'
-            ':white_small_square: google calendar events\n'
-            ':white_small_square: grocery store\n'
-            ':white_small_square: travel to Sri Lanka'
-        ))
+        await ctx.receive_answer(emoji.emojize('\n'.join([
+            'All lists:',
+            ':white_small_square: google calendar events',
+            ':white_small_square: grocery store',
+            ':white_small_square: travel to Sri Lanka',
+            '',
+            pagination_list.BORDER,
+        ])))
 
 
 @pytest.mark.parametrize('command',

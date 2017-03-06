@@ -9,6 +9,8 @@ logger = logging.getLogger(__name__)
 
 loop = None
 
+BORDER = '>< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< ><'
+
 
 def setup(story):
     global loop
@@ -39,6 +41,10 @@ def setup(story):
 
         if (page_index + 1) * page_length >= count:
             the_end_of_list = True
+            msg = '\n'.join([msg,
+                             '',
+                             BORDER,
+                             ])
 
         await story.say(
             msg,
