@@ -1,5 +1,5 @@
 from botstory import utils
-from botstory.ast import story_context
+from botstory.ast import loop, story_context
 from botstory.middlewares import any, option, text
 import emoji
 import logging
@@ -7,13 +7,13 @@ from todo import reflection
 
 logger = logging.getLogger(__name__)
 
-loop = None
+pagination_loop = None
 
 BORDER = '>< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< ><'
 
 
 def setup(story):
-    global loop
+    global pagination_loop
 
     # Loop version
     async def _show_list_next_page(ctx):
@@ -39,12 +39,15 @@ def setup(story):
 
         the_end_of_list = False
 
+        has_move_item = True
+
         if (page_index + 1) * page_length >= count:
             the_end_of_list = True
             msg = '\n'.join([msg,
                              '',
                              BORDER,
                              ])
+            has_move_item = False
 
         await story.say(
             msg,
@@ -58,12 +61,15 @@ def setup(story):
         )
 
         user_data['page_index'] = page_index + 1
+        return has_move_item
 
     @story.callable()
-    def loop():
+    def pagination_loop():
         @story.part()
         async def show_zero_page(ctx):
-            await _show_list_next_page(ctx)
+            if not await _show_list_next_page(ctx):
+                # TODO: end evaluation
+                pass
 
         @story.loop()
         def list_loop():
@@ -75,7 +81,9 @@ def setup(story):
             def next_page():
                 @story.part()
                 async def show_part_of_list(ctx):
-                    await _show_list_next_page(ctx)
+                    if not await _show_list_next_page(ctx):
+                        return loop.BreakLoop()
+                    return None
 
 
-__all__ = [loop]
+__all__ = [pagination_loop]
