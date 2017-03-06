@@ -4,6 +4,7 @@ import botstory
 from botstory.integrations import fb, mongodb, mockhttp
 from botstory.integrations.tests import fake_server
 import datetime
+import emoji
 import os
 import pytest
 from todo import lists, tasks
@@ -149,10 +150,10 @@ async def test_list_of_active_tasks_on_list(build_context, command):
             'text': command
         }))
 
-        await context.receive_answer('List of actual tasks:\n'
-                                     ':white_small_square: fry toasts\n'
-                                     ':white_small_square: fry eggs\n'
-                                     ':white_small_square: drop cheese')
+        await context.receive_answer(emoji.emojize('List of actual tasks:\n'
+                                                   ':white_small_square: fry toasts\n'
+                                                   ':white_small_square: fry eggs\n'
+                                                   ':white_small_square: drop cheese'))
 
 
 @pytest.mark.asyncio
@@ -180,15 +181,15 @@ async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
             'text': command,
         }))
 
-        await context.receive_answer('List of actual tasks:\n'
-                                     ':white_small_square: fry toasts\n'
-                                     ':white_small_square: fry eggs')
+        await context.receive_answer(emoji.emojize('List of actual tasks:\n'
+                                                   ':white_small_square: fry toasts\n'
+                                                   ':white_small_square: fry eggs'))
 
         await facebook.handle(build_message({
             'text': 'next',
         }))
 
-        await context.receive_answer(':white_small_square: drop cheese')
+        await context.receive_answer(emoji.emojize(':white_small_square: drop cheese'))
 
 
 @pytest.mark.asyncio
@@ -231,12 +232,12 @@ async def test_list_all_lists(build_context):
             'text': 'all'
         }))
 
-        await ctx.receive_answer(
+        await ctx.receive_answer(emoji.emojize(
             'All lists:\n'
             ':white_small_square: google calendar events\n'
             ':white_small_square: grocery store\n'
             ':white_small_square: travel to Sri Lanka'
-        )
+        ))
 
 
 @pytest.mark.parametrize('command',
@@ -262,9 +263,9 @@ async def test_remove_list(build_context, command):
             'text': '{} night shift'.format(command)
         }))
 
-        await ctx.receive_answer(
+        await ctx.receive_answer(emoji.emojize(
             ':skull: List night shift was removed'
-        )
+        ))
 
         res_lists = await lists.ListDocument.objects.find({
             'user_id': ctx.user['_id'],
