@@ -7,7 +7,7 @@ import datetime
 import emoji
 import os
 import pytest
-from todo import lists, tasks
+from todo import lists, tasks, pagination_list
 from unittest import mock
 from . import stories
 
@@ -150,10 +150,12 @@ async def test_list_of_active_tasks_on_list(build_context, command):
             'text': command
         }))
 
-        await context.receive_answer(emoji.emojize('List of actual tasks:\n'
-                                                   ':white_small_square: fry toasts\n'
-                                                   ':white_small_square: fry eggs\n'
-                                                   ':white_small_square: drop cheese'))
+        await context.receive_answer(emoji.emojize('\n'.join(['List of actual tasks:',
+                                                              ':white_medium_square: fry toasts',
+                                                              ':white_medium_square: fry eggs',
+                                                              ':white_medium_square: drop cheese',
+                                                              '',
+                                                              pagination_list.BORDER])))
 
 
 @pytest.mark.asyncio
@@ -181,15 +183,95 @@ async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
             'text': command,
         }))
 
-        await context.receive_answer(emoji.emojize('List of actual tasks:\n'
-                                                   ':white_small_square: fry toasts\n'
-                                                   ':white_small_square: fry eggs'))
+        await context.receive_answer(emoji.emojize('\n'.join(['List of actual tasks:',
+                                                              ':white_medium_square: fry toasts',
+                                                              ':white_medium_square: fry eggs',
+                                                              ])))
 
         await facebook.handle(build_message({
             'text': 'next',
         }))
 
-        await context.receive_answer(emoji.emojize(':white_small_square: drop cheese'))
+        await context.receive_answer(emoji.emojize('\n'.join([':white_medium_square: drop cheese',
+                                                              '',
+                                                              pagination_list.BORDER])))
+
+
+@pytest.mark.asyncio
+async def test_after_the_end_of_infinity_list_of_active_tasks(build_context, monkeypatch):
+    async with build_context() as context:
+        command = 'todo'
+        facebook = context.fb_interface
+
+        monkeypatch.setattr(os, 'environ', {
+            'LIST_PAGE_LENGTH': 2,
+        })
+
+        await context.add_tasks([{
+            'description': 'fry toasts',
+            'user_id': context.user['_id'],
+        }, {
+            'description': 'fry eggs',
+            'user_id': context.user['_id'],
+        }, {
+            'description': 'drop cheese',
+            'user_id': context.user['_id'],
+        }, ])
+
+        await facebook.handle(build_message({
+            'text': command,
+        }))
+
+        await facebook.handle(build_message({
+            'text': 'next',
+        }))
+
+        # here we have just reach the end of list.
+        # so any other message should propagate to global matches
+        # and word `next` will be considered as new task
+
+        await facebook.handle(build_message({
+            'text': 'next',
+        }))
+
+        await context.receive_answer('Task `next` was added to the job list.')
+
+
+@pytest.mark.asyncio
+async def test_immediatly_reach_the_end_of_pagination_list_and_all_upcoming_commands_are_leaking_to_global_scope(
+        build_context, monkeypatch):
+    async with build_context() as context:
+        command = 'todo'
+        facebook = context.fb_interface
+
+        monkeypatch.setattr(os, 'environ', {
+            'LIST_PAGE_LENGTH': 5,
+        })
+
+        await context.add_tasks([{
+            'description': 'fry toasts',
+            'user_id': context.user['_id'],
+        }, {
+            'description': 'fry eggs',
+            'user_id': context.user['_id'],
+        }, {
+            'description': 'drop cheese',
+            'user_id': context.user['_id'],
+        }, ])
+
+        await facebook.handle(build_message({
+            'text': command,
+        }))
+
+        # here we have just immediately reach the end of list.
+        # so any other message should propagate to global matches
+        # and word `next` will be considered as new task
+
+        await facebook.handle(build_message({
+            'text': 'next',
+        }))
+
+        await context.receive_answer('Task `next` was added to the job list.')
 
 
 @pytest.mark.asyncio
@@ -232,12 +314,14 @@ async def test_list_all_lists(build_context):
             'text': 'all'
         }))
 
-        await ctx.receive_answer(emoji.emojize(
-            'All lists:\n'
-            ':white_small_square: google calendar events\n'
-            ':white_small_square: grocery store\n'
-            ':white_small_square: travel to Sri Lanka'
-        ))
+        await ctx.receive_answer(emoji.emojize('\n'.join([
+            'All lists:',
+            ':white_medium_square: google calendar events',
+            ':white_medium_square: grocery store',
+            ':white_medium_square: travel to Sri Lanka',
+            '',
+            pagination_list.BORDER,
+        ])))
 
 
 @pytest.mark.parametrize('command',

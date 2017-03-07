@@ -34,7 +34,8 @@ def setup(story):
         @story.part()
         async def show_list_of_stories(ctx):
             logger.info('list of tasks')
-            return await pagination_list.loop(
+            # TODO: remove return solve one test, but why?
+            return await pagination_list.pagination_loop(
                 list_title='All lists:',
                 target_document=reflection.class_to_str(lists_document.ListDocument),
                 title_field='name',
@@ -50,12 +51,12 @@ def setup(story):
             logger.info('list of tasks')
             # TODO: should filter the last one
 
-            return await pagination_list.loop(
+            return await pagination_list.pagination_loop(
+                ctx,
                 list_title='List of actual tasks:',
                 target_document=reflection.class_to_str(tasks_document.TaskDocument),
                 title_field='description',
                 page_length=os.environ.get('LIST_PAGE_LENGTH', 5),
-                **ctx,
             )
 
     @story.on(text.text.EqualCaseIgnore('new list'))
