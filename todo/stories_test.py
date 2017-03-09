@@ -61,10 +61,15 @@ def build_context():
             for l in new_lists:
                 await self.lists_document.insert(l)
 
-        def was_asked_with_options(self, options):
+        def was_asked_with_quick_replies(self, options):
             assert self.http_interface.post.call_count > 0
             _, obj = self.http_interface.post.call_args
             return obj['json']['message']['quick_replies'] == options
+
+        def was_asked_with_without_quick_replies(self):
+            assert self.http_interface.post.call_count > 0
+            _, obj = self.http_interface.post.call_args
+            return 'quick_replies' not in obj['json']['message']
 
         def receive_answer(self, message):
             # assert len(server.history) > 0
@@ -159,35 +164,35 @@ async def test_list_of_active_tasks_on_list(build_context, command):
 
 @pytest.mark.asyncio
 async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
-    async with build_context() as context:
+    async with build_context() as ctx:
         command = 'todo'
-        facebook = context.fb_interface
+        facebook = ctx.fb_interface
 
         monkeypatch.setattr(os, 'environ', {
             'LIST_PAGE_LENGTH': 2,
         })
 
-        await context.add_tasks([{
+        await ctx.add_tasks([{
             'description': 'fry toasts',
-            'user_id': context.user['_id'],
+            'user_id': ctx.user['_id'],
         }, {
             'description': 'fry eggs',
-            'user_id': context.user['_id'],
+            'user_id': ctx.user['_id'],
         }, {
             'description': 'drop cheese',
-            'user_id': context.user['_id'],
+            'user_id': ctx.user['_id'],
         }, ])
 
         await facebook.handle(build_message({
             'text': command,
         }))
 
-        assert context.receive_answer(emoji.emojize('\n'.join(['List of actual tasks:',
+        assert ctx.receive_answer(emoji.emojize('\n'.join(['List of actual tasks:',
                                                               ':white_medium_square: fry toasts',
                                                               ':white_medium_square: fry eggs',
                                                               ])))
 
-        assert context.was_asked_with_options([{
+        assert ctx.was_asked_with_quick_replies([{
             'content_type': 'text',
             'payload': 'NEXT_PAGE_OF_A_LIST',
             'title': 'More',
@@ -197,9 +202,11 @@ async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
             'text': 'next',
         }))
 
-        assert context.receive_answer(emoji.emojize('\n'.join([':white_medium_square: drop cheese',
+        assert ctx.receive_answer(emoji.emojize('\n'.join([':white_medium_square: drop cheese',
                                                               '',
                                                               pagination_list.BORDER])))
+
+        assert ctx.was_asked_with_without_quick_replies()
 
 
 @pytest.mark.asyncio
