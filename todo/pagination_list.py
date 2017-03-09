@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 pagination_loop = None
 
-BORDER = '>< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< >< ><'
+BORDER = '✁----------------------------'
 
 
 def setup(story):
