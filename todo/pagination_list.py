@@ -49,14 +49,14 @@ def setup(story):
                              ])
             has_move_item = False
 
-        await story.say(
+        await story.chat.ask(
             msg,
             user=ctx['user'],
             # TODO: don't show options if it is the end of list
             # TODO: `next 10`, `next 100`, `stop`
-            options=None if the_end_of_list else [{
+            quick_replies=None if the_end_of_list else [{
                 'title': 'More',
-                'payload': 'NEXT_PAGE_OF_A_LIST'
+                'payload': 'NEXT_PAGE_OF_A_LIST',
             }],
         )
 
