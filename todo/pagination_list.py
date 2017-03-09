@@ -49,7 +49,7 @@ def setup(story):
                              ])
             has_move_item = False
 
-        await story.ask(
+        await story.chat.ask(
             msg,
             user=ctx['user'],
             # TODO: don't show options if it is the end of list

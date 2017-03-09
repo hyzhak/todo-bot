@@ -67,14 +67,8 @@ def build_context():
             assert self.http_interface.post.call_count > 0
             _, obj = self.http_interface.post.call_args
 
-            assert obj['json'] == {
-                'recipient': {
-                    'id': self.user['facebook_user_id'],
-                },
-                'message': {
-                    'text': message
-                }
-            }
+            assert obj['json']['recipient']['id'] == self.user['facebook_user_id']
+            assert obj['json']['message']['text'] == message
 
     return AsyncContext
 
