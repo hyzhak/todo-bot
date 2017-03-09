@@ -56,7 +56,7 @@ def setup(story):
             # TODO: `next 10`, `next 100`, `stop`
             quick_replies=None if the_end_of_list else [{
                 'title': 'More',
-                'payload': 'NEXT_PAGE_OF_A_LIST'
+                'payload': 'NEXT_PAGE_OF_A_LIST',
             }],
         )
 
