@@ -385,7 +385,7 @@ async def test_remove_list(build_context, command):
 
         res_lists = await lists.ListDocument.objects.find({
             'user_id': ctx.user['_id'],
-        }).to_list()
+        })
 
         assert len(res_lists) == 2
         assert all(
@@ -420,6 +420,6 @@ async def test_ask_again_if_we_can_find_what_to_remove(build_context):
 
         res_lists = await lists.ListDocument.objects.find({
             'user_id': ctx.user['_id'],
-        }).to_list()
+        })
 
         assert len(res_lists) == 3

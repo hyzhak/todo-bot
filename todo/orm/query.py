@@ -10,12 +10,21 @@ class Query:
         self.skip_value = skip_value
         self.query = query or {}
 
+    def __await__(self):
+        cursor = self.collection.find(self.query)
+        if self.skip_value > 0:
+            cursor = cursor.skip(self.skip_value)
+        if self.limit_value > 0:
+            cursor = cursor.limit(self.limit_value)
+        l = yield from cursor.to_list(None)
+        return [self.item_cls(**i) for i in l]
+
     def __call__(self, *args, **kwargs):
         self.query = args[0]
         return self
 
     async def count(self):
-        return len(await self.to_list())
+        return len(await self)
 
     def clone(self):
         return Query(item_cls=self.item_cls,
@@ -34,7 +43,7 @@ class Query:
         return q
 
     async def find_one(self, query={}):
-        l = await self.find(query).to_list()
+        l = await self.find(query)
         if len(l) > 0:
             return l[0]
         else:
@@ -49,12 +58,3 @@ class Query:
         q = self.clone()
         q.skip_value = skip
         return q
-
-    async def to_list(self):
-        cursor = self.collection.find(self.query)
-        if self.skip_value > 0:
-            cursor = cursor.skip(self.skip_value)
-        if self.limit_value > 0:
-            cursor = cursor.limit(self.limit_value)
-        l = await cursor.to_list(None)
-        return [self.item_cls(**i) for i in l]

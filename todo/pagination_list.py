@@ -30,7 +30,7 @@ def setup(story):
         })
 
         count = await cursor.count()
-        items = await cursor.limit(page_length).skip(page_index * page_length).to_list()
+        items = await cursor.limit(page_length).skip(page_index * page_length)
 
         msg = '\n'.join(emoji.emojize(':white_medium_square: {}').format(getattr(t, title_field)) for t in items)
 

@@ -57,7 +57,7 @@ async def test_read(build_mock_db):
     async with build_mock_db() as db:
         tasks = await TaskDocument.objects.find({
             'description': 'monkey business',
-        }).to_list()
+        })
         assert tasks is not None
         assert isinstance(tasks, list)
         assert len(tasks) == 1
@@ -95,7 +95,7 @@ async def test_update(build_mock_db):
 @pytest.mark.asyncio
 async def test_delete(build_mock_db):
     async with build_mock_db() as db:
-        tasks = await TaskDocument.objects.find().to_list()
+        tasks = await TaskDocument.objects.find()
         assert len(tasks) == 4
         assert await TaskDocument.objects({
             'description': 'monkey business',
@@ -106,14 +106,14 @@ async def test_delete(build_mock_db):
                 'description': 'monkey business',
             })
 
-        tasks = await TaskDocument.objects.find().to_list()
+        tasks = await TaskDocument.objects.find()
         assert len(tasks) == 3
 
 
 @pytest.mark.asyncio
 async def test_limit(build_mock_db):
     async with build_mock_db():
-        tasks = await TaskDocument.objects.find().limit(2).to_list()
+        tasks = await TaskDocument.objects.find().limit(2)
         assert len(tasks) == 2
         assert tasks[0].description == 'chicane'
         assert tasks[1].description == 'fooling around'
@@ -122,7 +122,7 @@ async def test_limit(build_mock_db):
 @pytest.mark.asyncio
 async def test_skip(build_mock_db):
     async with build_mock_db():
-        tasks = await TaskDocument.objects.find().skip(2).to_list()
+        tasks = await TaskDocument.objects.find().skip(2)
         assert len(tasks) == 2
         assert tasks[0].description == 'hokey-pokey'
         assert tasks[1].description == 'monkey business'
