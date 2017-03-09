@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 pagination_loop = None
 
-BORDER = '✁----------------------------'
+BORDER = '✁ ---------------------------'
 
 
 def setup(story):
@@ -41,6 +41,9 @@ def setup(story):
 
         has_move_item = True
 
+        logger.debug('page_index {}'.format(page_index))
+        logger.debug('page_length {}'.format(page_length))
+        logger.debug('count {}'.format(count))
         if (page_index + 1) * page_length >= count:
             the_end_of_list = True
             msg = '\n'.join([msg,
@@ -48,6 +51,8 @@ def setup(story):
                              BORDER,
                              ])
             has_move_item = False
+
+        logger.debug('has_move_item {}'.format(has_move_item))
 
         await story.chat.ask(
             msg,

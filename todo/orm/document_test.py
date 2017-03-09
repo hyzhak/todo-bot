@@ -133,3 +133,16 @@ async def test_count(build_mock_db):
     async with build_mock_db():
         tasks_count = await TaskDocument.objects.find().count()
         assert tasks_count == 4
+
+
+@pytest.mark.asyncio
+async def test_isolate_commands(build_mock_db):
+    async with build_mock_db():
+        TaskDocument.objects.find({
+            'description': 'monkey business',
+        })
+        assert await TaskDocument.objects.count() == 4
+        TaskDocument.objects.limit(2)
+        assert await TaskDocument.objects.count() == 4
+        TaskDocument.objects.skip(2)
+        assert await TaskDocument.objects.count() == 4

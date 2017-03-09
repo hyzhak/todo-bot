@@ -3,12 +3,12 @@ from todo.orm import errors
 
 
 class Query:
-    def __init__(self, item_cls):
+    def __init__(self, item_cls, limit_value=0, skip_value=0, query=None):
         self.collection = item_cls.collection
         self.item_cls = item_cls
-        self.limit_value = 0
-        self.skip_value = 0
-        self.query = {}
+        self.limit_value = limit_value
+        self.skip_value = skip_value
+        self.query = query or {}
 
     def __call__(self, *args, **kwargs):
         self.query = args[0]
@@ -17,13 +17,21 @@ class Query:
     async def count(self):
         return len(await self.to_list())
 
+    def clone(self):
+        return Query(item_cls=self.item_cls,
+                     limit_value=self.limit_value,
+                     skip_value=self.skip_value,
+                     query=self.query,
+                     )
+
     async def delete(self):
         res = await self.collection.delete_many(self.query)
         return res.deleted_count
 
-    def find(self, query={}):
-        self.query = query
-        return self
+    def find(self, query=None):
+        q = self.clone()
+        q.query = query or {}
+        return q
 
     async def find_one(self, query={}):
         l = await self.find(query).to_list()
@@ -33,12 +41,14 @@ class Query:
             raise errors.DoesNotExist()
 
     def limit(self, limit):
-        self.limit_value = limit
-        return self
+        q = self.clone()
+        q.limit_value = limit
+        return q
 
     def skip(self, skip):
-        self.skip_value = skip
-        return self
+        q = self.clone()
+        q.skip_value = skip
+        return q
 
     async def to_list(self):
         cursor = self.collection.find(self.query)

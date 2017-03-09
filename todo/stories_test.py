@@ -64,12 +64,12 @@ def build_context():
         def was_asked_with_quick_replies(self, options):
             assert self.http_interface.post.call_count > 0
             _, obj = self.http_interface.post.call_args
-            return obj['json']['message']['quick_replies'] == options
+            assert obj['json']['message']['quick_replies'] == options
 
         def was_asked_with_without_quick_replies(self):
             assert self.http_interface.post.call_count > 0
             _, obj = self.http_interface.post.call_args
-            return 'quick_replies' not in obj['json']['message']
+            assert 'quick_replies' not in obj['json']['message']
 
         def receive_answer(self, message):
             # assert len(server.history) > 0
@@ -77,8 +77,8 @@ def build_context():
             assert self.http_interface.post.call_count > 0
             _, obj = self.http_interface.post.call_args
 
-            return obj['json']['recipient']['id'] == self.user['facebook_user_id'] and \
-                   obj['json']['message']['text'] == message
+            assert obj['json']['recipient']['id'] == self.user['facebook_user_id']
+            assert obj['json']['message']['text'] == message
 
     return AsyncContext
 
@@ -154,12 +154,12 @@ async def test_list_of_active_tasks_on_list(build_context, command):
             'text': command
         }))
 
-        assert context.receive_answer(emoji.emojize('\n'.join(['List of actual tasks:',
-                                                              ':white_medium_square: fry toasts',
-                                                              ':white_medium_square: fry eggs',
-                                                              ':white_medium_square: drop cheese',
-                                                              '',
-                                                              pagination_list.BORDER])))
+        context.receive_answer(emoji.emojize('\n'.join(['List of actual tasks:',
+                                                        ':white_medium_square: fry toasts',
+                                                        ':white_medium_square: fry eggs',
+                                                        ':white_medium_square: drop cheese',
+                                                        '',
+                                                        pagination_list.BORDER])))
 
 
 @pytest.mark.asyncio
@@ -181,18 +181,24 @@ async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
         }, {
             'description': 'drop cheese',
             'user_id': ctx.user['_id'],
+        }, {
+            'description': 'serve',
+            'user_id': ctx.user['_id'],
+        }, {
+            'description': 'eat',
+            'user_id': ctx.user['_id'],
         }, ])
 
         await facebook.handle(build_message({
             'text': command,
         }))
 
-        assert ctx.receive_answer(emoji.emojize('\n'.join(['List of actual tasks:',
-                                                              ':white_medium_square: fry toasts',
-                                                              ':white_medium_square: fry eggs',
-                                                              ])))
+        ctx.receive_answer(emoji.emojize('\n'.join(['List of actual tasks:',
+                                                    ':white_medium_square: fry toasts',
+                                                    ':white_medium_square: fry eggs',
+                                                    ])))
 
-        assert ctx.was_asked_with_quick_replies([{
+        ctx.was_asked_with_quick_replies([{
             'content_type': 'text',
             'payload': 'NEXT_PAGE_OF_A_LIST',
             'title': 'More',
@@ -202,11 +208,25 @@ async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
             'text': 'next',
         }))
 
-        assert ctx.receive_answer(emoji.emojize('\n'.join([':white_medium_square: drop cheese',
-                                                              '',
-                                                              pagination_list.BORDER])))
+        ctx.receive_answer(emoji.emojize('\n'.join([':white_medium_square: drop cheese',
+                                                    ':white_medium_square: serve',
+                                                    ])))
 
-        assert ctx.was_asked_with_without_quick_replies()
+        ctx.was_asked_with_quick_replies([{
+            'content_type': 'text',
+            'payload': 'NEXT_PAGE_OF_A_LIST',
+            'title': 'More',
+        }])
+
+        await facebook.handle(build_message({
+            'text': 'next',
+        }))
+
+        ctx.receive_answer(emoji.emojize('\n'.join([':white_medium_square: eat',
+                                                    '',
+                                                    pagination_list.BORDER])))
+
+        ctx.was_asked_with_without_quick_replies()
 
 
 @pytest.mark.asyncio
@@ -246,7 +266,7 @@ async def test_after_the_end_of_infinity_list_of_active_tasks(build_context, mon
             'text': 'next',
         }))
 
-        assert context.receive_answer('Task `next` was added to the job list.')
+        context.receive_answer('Task `next` was added to the job list.')
 
 
 @pytest.mark.asyncio
@@ -283,7 +303,7 @@ async def test_immediatly_reach_the_end_of_pagination_list_and_all_upcoming_comm
             'text': 'next',
         }))
 
-        assert context.receive_answer('Task `next` was added to the job list.')
+        context.receive_answer('Task `next` was added to the job list.')
 
 
 @pytest.mark.asyncio
@@ -295,13 +315,13 @@ async def test_list_of_active_tasks_on_new_list(build_context):
             'text': 'new list'
         }))
 
-        assert context.receive_answer('You are about to create new list of tasks.\nWhat is the name of it?')
+        context.receive_answer('You are about to create new list of tasks.\nWhat is the name of it?')
 
         await facebook.handle(build_message({
             'text': 'My Favorite List'
         }))
 
-        assert context.receive_answer(
+        context.receive_answer(
             'You\'ve just created list of tasks: `My Favorite List`.\nNow you can add tasks to it.')
 
 
@@ -326,7 +346,7 @@ async def test_list_all_lists(build_context):
             'text': 'all'
         }))
 
-        assert ctx.receive_answer(emoji.emojize('\n'.join([
+        ctx.receive_answer(emoji.emojize('\n'.join([
             'All lists:',
             ':white_medium_square: google calendar events',
             ':white_medium_square: grocery store',
@@ -359,7 +379,7 @@ async def test_remove_list(build_context, command):
             'text': '{} night shift'.format(command)
         }))
 
-        assert ctx.receive_answer(emoji.emojize(
+        ctx.receive_answer(emoji.emojize(
             ':skull: List night shift was removed'
         ))
 
@@ -394,7 +414,7 @@ async def test_ask_again_if_we_can_find_what_to_remove(build_context):
             'text': 'remove uncertainty'
         }))
 
-        assert ctx.receive_answer(
+        ctx.receive_answer(
             'We can\'t find `uncertainty` what do you want to remove?'
         )
 
