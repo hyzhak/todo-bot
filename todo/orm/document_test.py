@@ -146,3 +146,16 @@ async def test_isolate_commands(build_mock_db):
         assert await TaskDocument.objects.count() == 4
         TaskDocument.objects.skip(2)
         assert await TaskDocument.objects.count() == 4
+
+
+@pytest.mark.asyncio
+async def test_sort(build_mock_db):
+    async with build_mock_db():
+        items = await TaskDocument.objects.sort(description='desc')
+
+        assert list(map(lambda i: i.description, items)) == [
+            'chicane',
+            'fooling around',
+            'hokey-pokey',
+            'monkey business',
+        ]
