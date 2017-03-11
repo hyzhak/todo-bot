@@ -467,3 +467,28 @@ async def test_remove_last_added_job(build_context, command):
         assert all(
             l.description != 'go to work' for l in res_lists
         )
+
+
+@pytest.mark.asyncio
+@pytest.mark.skip
+async def test_remove_last_warn_if_we_do_not_have_any_tickets_now(build_context):
+    async with build_context() as ctx:
+        facebook = ctx.fb_interface
+
+        await facebook.handle(build_message({
+            'text': 'delete last',
+        }))
+
+        ctx.receive_answer(
+            'You don\'t have any tickets yet.\n'
+            'Please send my few words about it and I will add it to your TODO list.',
+        )
+
+        res_lists = await tasks.TaskDocument.objects.find({
+            'user_id': ctx.user['_id'],
+        })
+
+        assert len(res_lists) == 2
+        assert all(
+            l.description != 'go to work' for l in res_lists
+        )

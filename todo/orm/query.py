@@ -16,15 +16,7 @@ class Query:
         self.query = query or {}
 
     def __await__(self):
-        cursor = self.collection.find(self.query)
-        if self.sort_list:
-            cursor = cursor.sort(self.sort_list)
-        if self.skip_value > 0:
-            cursor = cursor.skip(self.skip_value)
-        if self.limit_value > 0:
-            cursor = cursor.limit(self.limit_value)
-
-        l = yield from cursor.to_list(None)
+        l = yield from self.get_cursor().to_list(None)
         return [self.item_cls(**i) for i in l]
 
     def __call__(self, *args, **kwargs):
@@ -61,6 +53,22 @@ class Query:
             return l[0]
         else:
             raise errors.DoesNotExist()
+
+    async def first(self):
+        cursor = self.get_cursor()
+        if not await cursor.fetch_next:
+            return None
+        return self.item_cls(**cursor.next_object())
+
+    def get_cursor(self):
+        cursor = self.collection.find(self.query)
+        if self.sort_list:
+            cursor = cursor.sort(self.sort_list)
+        if self.skip_value > 0:
+            cursor = cursor.skip(self.skip_value)
+        if self.limit_value > 0:
+            cursor = cursor.limit(self.limit_value)
+        return cursor
 
     def limit(self, limit):
         q = self.clone()

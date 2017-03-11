@@ -187,3 +187,10 @@ async def test_get_last(build_mock_db):
         ).limit(1))[0]
 
         assert last_item.description == 'monkey business'
+
+
+@pytest.mark.asyncio
+async def test_get_first(build_mock_db):
+    async with build_mock_db():
+        first_item = await TaskDocument.objects.first()
+        assert first_item.description == 'chicane'
