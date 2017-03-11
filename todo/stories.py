@@ -103,11 +103,19 @@ def setup(story):
             logger.debug('jobs')
             logger.debug(jobs)
 
-            last_job = (await tasks_document.TaskDocument.objects({
+            last_job = await tasks_document.TaskDocument.objects({
                 'user_id': ctx['user']['_id'],
             }).sort(
                 updated_at='desc',
-            ).limit(1))[0]
+            ).first()
+            if not last_job:
+                logger.warn('user doesnt have tickets to remove')
+                await story.say(emoji.emojize(
+                    'You don\'t have any tickets yet.\n'
+                    ':information_source: Please send my few words about it and I will add it to your TODO list.'),
+                    user=ctx['user'],
+                )
+                return
             logger.debug(last_job.fields)
             desc = last_job.description
             logger.debug('going to remove job `{}`'.format(desc))
