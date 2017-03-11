@@ -1,6 +1,9 @@
 import asyncio
+import logging
 import pymongo
 from todo.orm import errors
+
+logger = logging.getLogger(__name__)
 
 
 class Query:
@@ -13,12 +16,7 @@ class Query:
         self.query = query or {}
 
     def __await__(self):
-        cursor = self.collection.find(self.query)
-        if self.skip_value > 0:
-            cursor = cursor.skip(self.skip_value)
-        if self.limit_value > 0:
-            cursor = cursor.limit(self.limit_value)
-        l = yield from cursor.to_list(None)
+        l = yield from self.get_cursor().to_list(None)
         return [self.item_cls(**i) for i in l]
 
     def __call__(self, *args, **kwargs):
@@ -32,11 +30,16 @@ class Query:
         return Query(item_cls=self.item_cls,
                      limit_value=self.limit_value,
                      skip_value=self.skip_value,
+                     sort_list=self.sort_list,
                      query=self.query,
                      )
 
     async def delete(self):
         res = await self.collection.delete_many(self.query)
+        return res.deleted_count
+
+    async def delete_one(self):
+        res = await self.collection.delete_one(self.query)
         return res.deleted_count
 
     def find(self, query=None):
@@ -51,6 +54,22 @@ class Query:
         else:
             raise errors.DoesNotExist()
 
+    async def first(self):
+        cursor = self.get_cursor()
+        if not await cursor.fetch_next:
+            return None
+        return self.item_cls(**cursor.next_object())
+
+    def get_cursor(self):
+        cursor = self.collection.find(self.query)
+        if self.sort_list:
+            cursor = cursor.sort(self.sort_list)
+        if self.skip_value > 0:
+            cursor = cursor.skip(self.skip_value)
+        if self.limit_value > 0:
+            cursor = cursor.limit(self.limit_value)
+        return cursor
+
     def limit(self, limit):
         q = self.clone()
         q.limit_value = limit
@@ -63,6 +82,6 @@ class Query:
 
     def sort(self, **kwargs):
         q = self.clone()
-        q.sort_list = [{k: pymongo.ASCENDING if direction == 'asc' else pymongo.DESCENDING} for k, direction in
+        q.sort_list = [(k, pymongo.ASCENDING if direction == 'asc' else pymongo.DESCENDING) for k, direction in
                        kwargs.items()]
         return q

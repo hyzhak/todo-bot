@@ -84,6 +84,49 @@ def setup(story):
                             'Now you can add tasks to it.'.format(list_name), user=ctx['user'])
 
     @story.on([
+        text.Match('delete last'),
+        text.Match('drop last'),
+        text.Match('forget about last'),
+        text.Match('kill last'),
+        text.Match('remove last'),
+    ])
+    def remove_last_job_story():
+        @story.part()
+        async def remove_last_job(ctx):
+            logger.info('remove last job')
+            jobs = await tasks_document.TaskDocument.objects({
+                'user_id': ctx['user']['_id'],
+            }).sort(
+                updated_at='desc',
+            )
+
+            logger.debug('jobs')
+            logger.debug(jobs)
+
+            last_job = await tasks_document.TaskDocument.objects({
+                'user_id': ctx['user']['_id'],
+            }).sort(
+                updated_at='desc',
+            ).first()
+            if not last_job:
+                logger.warn('user doesnt have tickets to remove')
+                await story.say(emoji.emojize(
+                    'You don\'t have any tickets yet.\n'
+                    ':information_source: Please send my few words about it and I will add it to your TODO list.'),
+                    user=ctx['user'],
+                )
+                return
+            logger.debug(last_job.fields)
+            desc = last_job.description
+            logger.debug('going to remove job `{}`'.format(desc))
+            await tasks_document.TaskDocument.objects({
+                '_id': last_job._id,
+            }).delete_one()
+            msg = emoji.emojize(':skull: job `{}` was removed'.format(desc))
+            logger.info(msg)
+            await story.say(msg, user=ctx['user'])
+
+    @story.on([
         text.Match('delete (.*)'),
         text.Match('drop (.*)'),
         text.Match('forget about (.*)'),

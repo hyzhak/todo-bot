@@ -21,10 +21,10 @@ def build_mock_db():
             self.db = self.cx.get_database(os.environ.get('MONGODB_TEST_DB', 'test'))
             self.tasks = self.db.get_collection('tasks')
 
-            await self.tasks.insert({'description': 'chicane'})
-            await self.tasks.insert({'description': 'fooling around'})
-            await self.tasks.insert({'description': 'hokey-pokey'})
-            await self.tasks.insert({'description': 'monkey business'})
+            await self.tasks.insert({'description': 'chicane', 'level': 1})
+            await self.tasks.insert({'description': 'fooling around', 'level': 1})
+            await self.tasks.insert({'description': 'hokey-pokey', 'level': 2})
+            await self.tasks.insert({'description': 'monkey business', 'level': 2})
 
             TaskDocument.set_collection(self.tasks)
             return self.db
@@ -98,8 +98,26 @@ async def test_delete(build_mock_db):
         tasks = await TaskDocument.objects.find()
         assert len(tasks) == 4
         assert await TaskDocument.objects({
+            'level': 1,
+        }).delete() == 2
+
+        with pytest.raises(errors.DoesNotExist):
+            await TaskDocument.objects.find_one({
+                'level': 1,
+            })
+
+        tasks = await TaskDocument.objects.find()
+        assert len(tasks) == 2
+
+
+@pytest.mark.asyncio
+async def test_delete(build_mock_db):
+    async with build_mock_db():
+        tasks = await TaskDocument.objects.find()
+        assert len(tasks) == 4
+        assert await TaskDocument.objects({
             'description': 'monkey business',
-        }).delete() == 1
+        }).delete_one() == 1
 
         with pytest.raises(errors.DoesNotExist):
             await TaskDocument.objects.find_one({
@@ -154,8 +172,25 @@ async def test_sort(build_mock_db):
         items = await TaskDocument.objects.sort(description='desc')
 
         assert list(map(lambda i: i.description, items)) == [
-            'chicane',
-            'fooling around',
-            'hokey-pokey',
             'monkey business',
+            'hokey-pokey',
+            'fooling around',
+            'chicane',
         ]
+
+
+@pytest.mark.asyncio
+async def test_get_last(build_mock_db):
+    async with build_mock_db():
+        last_item = (await TaskDocument.objects.sort(
+            description='desc',
+        ).limit(1))[0]
+
+        assert last_item.description == 'monkey business'
+
+
+@pytest.mark.asyncio
+async def test_get_first(build_mock_db):
+    async with build_mock_db():
+        first_item = await TaskDocument.objects.first()
+        assert first_item.description == 'chicane'
