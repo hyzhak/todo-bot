@@ -154,8 +154,8 @@ async def test_sort(build_mock_db):
         items = await TaskDocument.objects.sort(description='desc')
 
         assert list(map(lambda i: i.description, items)) == [
-            'chicane',
-            'fooling around',
-            'hokey-pokey',
             'monkey business',
+            'hokey-pokey',
+            'fooling around',
+            'chicane',
         ]
