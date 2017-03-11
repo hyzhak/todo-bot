@@ -84,6 +84,41 @@ def setup(story):
                             'Now you can add tasks to it.'.format(list_name), user=ctx['user'])
 
     @story.on([
+        text.Match('delete last'),
+        text.Match('drop last'),
+        text.Match('forget about last'),
+        text.Match('kill last'),
+        text.Match('remove last'),
+    ])
+    def remove_last_job_story():
+        @story.part()
+        async def remove_last_job(ctx):
+            logger.info('remove last job')
+            jobs = await tasks_document.TaskDocument.objects({
+                'user_id': ctx['user']['_id'],
+            }).sort(
+                updated_at='desc',
+            )
+
+            logger.debug('jobs')
+            logger.debug(jobs)
+
+            last_job = (await tasks_document.TaskDocument.objects({
+                'user_id': ctx['user']['_id'],
+            }).sort(
+                updated_at='desc',
+            ).limit(1))[0]
+            logger.debug(last_job.fields)
+            desc = last_job.description
+            logger.debug('going to remove job `{}`'.format(desc))
+            # await tasks_document.TaskDocument.objects.delete_one({
+            #     '_id': last_job._id,
+            # })
+            logger.info(':skull: job `{}` was removed'.format(desc))
+            await story.say(':skull: job `{}` was removed'.format(desc),
+                            user=ctx['user'])
+
+    @story.on([
         text.Match('delete (.*)'),
         text.Match('drop (.*)'),
         text.Match('forget about (.*)'),

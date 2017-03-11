@@ -55,10 +55,14 @@ def build_context():
 
         async def add_tasks(self, new_tasks):
             for t in new_tasks:
+                assert 'description' in t
+                assert 'user_id' in t
                 await self.tasks_collection.insert(t)
 
         async def add_lists(self, new_lists):
             for l in new_lists:
+                assert 'name' in l
+                assert 'user_id' in l
                 await self.lists_document.insert(l)
 
         def was_asked_with_quick_replies(self, options):
@@ -423,3 +427,44 @@ async def test_ask_again_if_we_can_find_what_to_remove(build_context):
         })
 
         assert len(res_lists) == 3
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('command',
+                         ['delete last', 'drop last', 'forget about last', 'kill last', 'remove last'])
+@pytest.mark.skip()
+async def test_remove_last_added_job(build_context, command):
+    async with build_context() as ctx:
+        await ctx.add_tasks([{
+            'description': 'coffee with friends',
+            'user_id': ctx.user['_id'],
+            'updated_at': datetime.datetime(2017, 1, 1),
+        }, {
+            'description': 'go to gym',
+            'user_id': ctx.user['_id'],
+            'updated_at': datetime.datetime(2017, 1, 2),
+        }, {
+            'description': 'go to work',
+            'user_id': ctx.user['_id'],
+            'updated_at': datetime.datetime(2017, 1, 3),
+        },
+        ])
+
+        facebook = ctx.fb_interface
+
+        await facebook.handle(build_message({
+            'text': command,
+        }))
+
+        ctx.receive_answer(emoji.emojize(
+            ':skull: job `go to work` was removed'
+        ))
+
+        res_lists = await tasks.TaskDocument.objects.find({
+            'user_id': ctx.user['_id'],
+        })
+
+        assert len(res_lists) == 2
+        assert all(
+            l.name != 'go to work' for l in res_lists
+        )

@@ -1,4 +1,11 @@
+from bson import json_util
+from botstory.utils import advanced_json_encoder
+import json
+import logging
+from todo import reflection
 from todo.orm import query
+
+logger = logging.getLogger(__name__)
 
 
 class BaseDocument:
@@ -19,6 +26,21 @@ class BaseDocument:
         if item in self.fields.keys():
             return self.fields[item]
         raise AttributeError(item)
+
+    def __repr__(self):
+        try:
+            return json.dumps({
+                'type': reflection.class_to_str(type(self)),
+                'fields': self.fields,
+            },
+                default=json_util.default)
+        except Exception as err:
+            logging.error(err)
+            return json.dumps({
+                'type': reflection.class_to_str(type(self)),
+                'error': err,
+            },
+                default=json_util.default)
 
     def __setattr__(self, key, value):
         if key in self.__slots__:

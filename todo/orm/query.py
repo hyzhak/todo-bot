@@ -17,14 +17,12 @@ class Query:
 
     def __await__(self):
         cursor = self.collection.find(self.query)
+        if self.sort_list:
+            cursor = cursor.sort(self.sort_list)
         if self.skip_value > 0:
             cursor = cursor.skip(self.skip_value)
         if self.limit_value > 0:
             cursor = cursor.limit(self.limit_value)
-        if self.sort_list:
-            logger.debug('self.sort_list')
-            logger.debug(self.sort_list)
-            cursor = cursor.sort(self.sort_list)
 
         l = yield from cursor.to_list(None)
         return [self.item_cls(**i) for i in l]
@@ -40,6 +38,7 @@ class Query:
         return Query(item_cls=self.item_cls,
                      limit_value=self.limit_value,
                      skip_value=self.skip_value,
+                     sort_list=self.sort_list,
                      query=self.query,
                      )
 

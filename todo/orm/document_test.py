@@ -159,3 +159,13 @@ async def test_sort(build_mock_db):
             'fooling around',
             'chicane',
         ]
+
+
+@pytest.mark.asyncio
+async def test_get_last(build_mock_db):
+    async with build_mock_db():
+        last_item = (await TaskDocument.objects.sort(
+            description='desc',
+        ).limit(1))[0]
+
+        assert last_item.description == 'monkey business'
