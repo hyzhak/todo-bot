@@ -46,6 +46,10 @@ class Query:
         res = await self.collection.delete_many(self.query)
         return res.deleted_count
 
+    async def delete_one(self):
+        res = await self.collection.delete_one(self.query)
+        return res.deleted_count
+
     def find(self, query=None):
         q = self.clone()
         q.query = query or {}
