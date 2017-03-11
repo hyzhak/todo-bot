@@ -114,9 +114,9 @@ def setup(story):
             # await tasks_document.TaskDocument.objects.delete_one({
             #     '_id': last_job._id,
             # })
-            logger.info(':skull: job `{}` was removed'.format(desc))
-            await story.say(':skull: job `{}` was removed'.format(desc),
-                            user=ctx['user'])
+            msg = emoji.emojize(':skull: job `{}` was removed'.format(desc))
+            logger.info(msg)
+            await story.say(msg, user=ctx['user'])
 
     @story.on([
         text.Match('delete (.*)'),
