@@ -432,7 +432,6 @@ async def test_ask_again_if_we_can_find_what_to_remove(build_context):
 @pytest.mark.asyncio
 @pytest.mark.parametrize('command',
                          ['delete last', 'drop last', 'forget about last', 'kill last', 'remove last'])
-@pytest.mark.skip()
 async def test_remove_last_added_job(build_context, command):
     async with build_context() as ctx:
         await ctx.add_tasks([{
@@ -466,5 +465,5 @@ async def test_remove_last_added_job(build_context, command):
 
         assert len(res_lists) == 2
         assert all(
-            l.name != 'go to work' for l in res_lists
+            l.description != 'go to work' for l in res_lists
         )

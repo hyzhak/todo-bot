@@ -111,9 +111,9 @@ def setup(story):
             logger.debug(last_job.fields)
             desc = last_job.description
             logger.debug('going to remove job `{}`'.format(desc))
-            # await tasks_document.TaskDocument.objects.delete_one({
-            #     '_id': last_job._id,
-            # })
+            await tasks_document.TaskDocument.objects({
+                '_id': last_job._id,
+            }).delete_one()
             msg = emoji.emojize(':skull: job `{}` was removed'.format(desc))
             logger.info(msg)
             await story.say(msg, user=ctx['user'])
