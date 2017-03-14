@@ -1,4 +1,3 @@
-import botstory
 from botstory.ast import story_context
 from botstory.middlewares import any, option, text
 import datetime
@@ -140,16 +139,12 @@ def setup(story):
                 'payload': 'REFUSE_REMOVE_ALL'
             }], user=ctx['user'])
 
-        # TODO : should be solve just direct by story.case
-        # @story.part()
-        # async def parse_result(ctx):
-        #     res = text.get_text(ctx)['raw']
-
         @story.case([
             text.Match('(.*) remove all (.*)', flags=re.IGNORECASE),
-            text.Match('Sure (.*)', flags=re.IGNORECASE),
             text.Match('ok', flags=re.IGNORECASE),
-            # payload.Equal(CONFIRM_REMOVE_ALL),
+            text.Match('sure (.*)', flags=re.IGNORECASE),
+            text.Match('yes', flags=re.IGNORECASE),
+            option.Match('CONFIRM_REMOVE_ALL'),
         ])
         def confirm_to_remove_all():
             @story.part()

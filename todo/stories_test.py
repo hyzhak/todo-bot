@@ -11,8 +11,8 @@ from todo import lists, tasks, pagination_list
 from unittest import mock
 from . import stories
 
-
 logger = logging.getLogger(__name__)
+
 
 @pytest.fixture
 def build_context():
@@ -497,14 +497,10 @@ async def test_remove_last_warn_if_we_do_not_have_any_tickets_now(build_context)
 
 
 @pytest.mark.asyncio
-@pytest.mark.asyncio
 @pytest.mark.parametrize('command',
                          ['delete all', 'delete all tasks', 'delete all jobs', ])
-                         # ['delete all', 'delete all tasks', 'delete all jobs', ])
 async def test_remove_all_job(build_context, command):
-    logger.debug('test_remove_last_added_job')
     async with build_context() as ctx:
-        logger.debug('after async with build_context() as ctx')
         await ctx.add_tasks([{
             'description': 'coffee with friends',
             'user_id': ctx.user['_id'],
@@ -535,12 +531,67 @@ async def test_remove_all_job(build_context, command):
             'text': 'ok',
         }))
 
+        res_lists = await tasks.TaskDocument.objects.find({
+            'user_id': ctx.user['_id'],
+        })
+
         ctx.receive_answer(emoji.emojize(
             ':ok: 3 tasks were removed',
         ))
+
+        assert len(res_lists) == 0
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(('answer', 'removed'),
+                         [({'text': 'ok'}, True),
+                          ({'text': 'Yes'}, True),
+                          # TODO:
+                          # (FBLike, True),
+                          ({'text': '', 'quick_reply': {'payload': 'CONFIRM_REMOVE_ALL'}}, True),
+                          ({'text': 'no'}, False),
+                          ({'text': 'qwerty'}, False),
+                          ({'text': '', 'quick_reply': {'payload': 'REFUSE_REMOVE_ALL'}}, False),
+                          ])
+async def test_remove_all_job_answer_in_different_way(build_context, answer, removed):
+    async with build_context() as ctx:
+        await ctx.add_tasks([{
+            'description': 'coffee with friends',
+            'user_id': ctx.user['_id'],
+            'updated_at': datetime.datetime(2017, 1, 1),
+        }, {
+            'description': 'go to gym',
+            'user_id': ctx.user['_id'],
+            'updated_at': datetime.datetime(2017, 1, 2),
+        }, {
+            'description': 'go to work',
+            'user_id': ctx.user['_id'],
+            'updated_at': datetime.datetime(2017, 1, 3),
+        },
+        ])
+
+        facebook = ctx.fb_interface
+
+        await facebook.handle(build_message({
+            'text': 'delete all',
+        }))
+
+        ctx.receive_answer(emoji.emojize(
+            ':question: Do you really want to remove all your tasks '
+            'of current list?',
+        ))
+
+        await facebook.handle(build_message(answer))
 
         res_lists = await tasks.TaskDocument.objects.find({
             'user_id': ctx.user['_id'],
         })
 
-        assert len(res_lists) == 0
+        if removed:
+            ctx.receive_answer(emoji.emojize(
+                ':ok: 3 tasks were removed',
+            ))
+
+            assert len(res_lists) == 0
+        else:
+            assert len(res_lists) == 3
