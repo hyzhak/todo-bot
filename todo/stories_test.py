@@ -94,7 +94,7 @@ def build_context():
             _, obj = self.http_interface.post.call_args
 
             assert obj['json']['recipient']['id'] == self.user['facebook_user_id']
-            assert obj['json']['message']['text'] == message
+            assert obj['json']['message']['text'] == emoji.emojize(message)
 
     return AsyncContext
 
@@ -170,12 +170,12 @@ async def test_list_of_active_tasks_on_list(build_context, command):
             'text': command
         }))
 
-        context.receive_answer(emoji.emojize('\n'.join(['List of actual tasks:',
-                                                        ':white_medium_square: fry toasts',
-                                                        ':white_medium_square: fry eggs',
-                                                        ':white_medium_square: drop cheese',
-                                                        '',
-                                                        pagination_list.BORDER])))
+        context.receive_answer('\n'.join(['List of actual tasks:',
+                                          ':white_medium_square: fry toasts',
+                                          ':white_medium_square: fry eggs',
+                                          ':white_medium_square: drop cheese',
+                                          '',
+                                          pagination_list.BORDER]))
 
 
 @pytest.mark.asyncio
@@ -209,10 +209,10 @@ async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
             'text': command,
         }))
 
-        ctx.receive_answer(emoji.emojize('\n'.join(['List of actual tasks:',
-                                                    ':white_medium_square: fry toasts',
-                                                    ':white_medium_square: fry eggs',
-                                                    ])))
+        ctx.receive_answer('\n'.join(['List of actual tasks:',
+                                      ':white_medium_square: fry toasts',
+                                      ':white_medium_square: fry eggs',
+                                      ]))
 
         ctx.was_asked_with_quick_replies([{
             'content_type': 'text',
@@ -224,9 +224,9 @@ async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
             'text': 'next',
         }))
 
-        ctx.receive_answer(emoji.emojize('\n'.join([':white_medium_square: drop cheese',
-                                                    ':white_medium_square: serve',
-                                                    ])))
+        ctx.receive_answer('\n'.join([':white_medium_square: drop cheese',
+                                      ':white_medium_square: serve',
+                                      ]))
 
         ctx.was_asked_with_quick_replies([{
             'content_type': 'text',
@@ -238,9 +238,9 @@ async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
             'text': 'next',
         }))
 
-        ctx.receive_answer(emoji.emojize('\n'.join([':white_medium_square: eat',
-                                                    '',
-                                                    pagination_list.BORDER])))
+        ctx.receive_answer('\n'.join([':white_medium_square: eat',
+                                      '',
+                                      pagination_list.BORDER]))
 
         ctx.was_asked_with_without_quick_replies()
 
@@ -362,14 +362,14 @@ async def test_list_all_lists(build_context):
             'text': 'all'
         }))
 
-        ctx.receive_answer(emoji.emojize('\n'.join([
+        ctx.receive_answer('\n'.join([
             'All lists:',
             ':white_medium_square: google calendar events',
             ':white_medium_square: grocery store',
             ':white_medium_square: travel to Sri Lanka',
             '',
             pagination_list.BORDER,
-        ])))
+        ]))
 
 
 @pytest.mark.parametrize('command',
@@ -395,9 +395,9 @@ async def test_remove_list(build_context, command):
             'text': '{} night shift'.format(command)
         }))
 
-        ctx.receive_answer(emoji.emojize(
+        ctx.receive_answer(
             ':skull: List night shift was removed'
-        ))
+        )
 
         res_lists = await lists.ListDocument.objects.find({
             'user_id': ctx.user['_id'],
@@ -467,9 +467,9 @@ async def test_remove_last_added_job(build_context, command):
             'text': command,
         }))
 
-        ctx.receive_answer(emoji.emojize(
+        ctx.receive_answer(
             ':skull: job `go to work` was removed'
-        ))
+        )
 
         res_lists = await tasks.TaskDocument.objects.find({
             'user_id': ctx.user['_id'],
@@ -490,10 +490,10 @@ async def test_remove_last_warn_if_we_do_not_have_any_tickets_now(build_context)
             'text': 'delete last',
         }))
 
-        ctx.receive_answer(emoji.emojize(
+        ctx.receive_answer(
             'You don\'t have any tickets yet.\n'
             ':information_source: Please send my few words about it and I will add it to your TODO list.',
-        ))
+        )
 
 
 @pytest.mark.asyncio
@@ -522,10 +522,10 @@ async def test_remove_all_job(build_context, command):
             'text': command,
         }))
 
-        ctx.receive_answer(emoji.emojize(
+        ctx.receive_answer(
             ':question: Do you really want to remove all your tasks '
             'of current list?',
-        ))
+        )
 
         await facebook.handle(build_message({
             'text': 'ok',
@@ -535,9 +535,9 @@ async def test_remove_all_job(build_context, command):
             'user_id': ctx.user['_id'],
         })
 
-        ctx.receive_answer(emoji.emojize(
+        ctx.receive_answer(
             ':ok: 3 tasks were removed',
-        ))
+        )
 
         assert len(res_lists) == 0
 
@@ -576,10 +576,10 @@ async def test_remove_all_job_answer_in_different_way(build_context, answer, rem
             'text': 'delete all',
         }))
 
-        ctx.receive_answer(emoji.emojize(
+        ctx.receive_answer(
             ':question: Do you really want to remove all your tasks '
             'of current list?',
-        ))
+        )
 
         await facebook.handle(build_message(answer))
 
@@ -588,9 +588,9 @@ async def test_remove_all_job_answer_in_different_way(build_context, answer, rem
         })
 
         if removed:
-            ctx.receive_answer(emoji.emojize(
+            ctx.receive_answer(
                 ':ok: 3 tasks were removed',
-            ))
+            )
 
             assert len(res_lists) == 0
         else:
