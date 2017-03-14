@@ -77,6 +77,9 @@ def build_context():
                 assert 'user_id' in l
                 await self.lists_document.insert(l)
 
+        async def ask(self, data):
+            await self.fb_interface.handle(build_message(data))
+
         def was_asked_with_quick_replies(self, options):
             assert self.http_interface.post.call_count > 0
             _, obj = self.http_interface.post.call_args
@@ -249,7 +252,6 @@ async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
 async def test_after_the_end_of_infinity_list_of_active_tasks(build_context, monkeypatch):
     async with build_context() as context:
         command = 'todo'
-        facebook = context.fb_interface
 
         monkeypatch.setattr(os, 'environ', {
             'LIST_PAGE_LENGTH': 2,
@@ -266,21 +268,21 @@ async def test_after_the_end_of_infinity_list_of_active_tasks(build_context, mon
             'user_id': context.user['_id'],
         }, ])
 
-        await facebook.handle(build_message({
+        await ctx.ask({
             'text': command,
-        }))
+        })
 
-        await facebook.handle(build_message({
+        await ctx.ask({
             'text': 'next',
-        }))
+        })
 
         # here we have just reach the end of list.
         # so any other message should propagate to global matches
         # and word `next` will be considered as new task
 
-        await facebook.handle(build_message({
+        await ctx.ask({
             'text': 'next',
-        }))
+        })
 
         context.receive_answer('Task `next` was added to the job list.')
 
@@ -288,56 +290,53 @@ async def test_after_the_end_of_infinity_list_of_active_tasks(build_context, mon
 @pytest.mark.asyncio
 async def test_immediatly_reach_the_end_of_pagination_list_and_all_upcoming_commands_are_leaking_to_global_scope(
         build_context, monkeypatch):
-    async with build_context() as context:
+    async with build_context() as ctx:
         command = 'todo'
-        facebook = context.fb_interface
 
         monkeypatch.setattr(os, 'environ', {
             'LIST_PAGE_LENGTH': 5,
         })
 
-        await context.add_tasks([{
+        await ctx.add_tasks([{
             'description': 'fry toasts',
-            'user_id': context.user['_id'],
+            'user_id': ctx.user['_id'],
         }, {
             'description': 'fry eggs',
-            'user_id': context.user['_id'],
+            'user_id': ctx.user['_id'],
         }, {
             'description': 'drop cheese',
-            'user_id': context.user['_id'],
+            'user_id': ctx.user['_id'],
         }, ])
 
-        await facebook.handle(build_message({
+        await ctx.ask({
             'text': command,
-        }))
+        })
 
         # here we have just immediately reach the end of list.
         # so any other message should propagate to global matches
         # and word `next` will be considered as new task
 
-        await facebook.handle(build_message({
+        await ctx.ask({
             'text': 'next',
-        }))
+        })
 
-        context.receive_answer('Task `next` was added to the job list.')
+        ctx.receive_answer('Task `next` was added to the job list.')
 
 
 @pytest.mark.asyncio
 async def test_list_of_active_tasks_on_new_list(build_context):
-    async with build_context() as context:
-        facebook = context.fb_interface
-
-        await facebook.handle(build_message({
+    async with build_context() as ctx:
+        await ctx.ask({
             'text': 'new list'
-        }))
+        })
 
-        context.receive_answer('You are about to create new list of tasks.\nWhat is the name of it?')
+        ctx.receive_answer('You are about to create new list of tasks.\nWhat is the name of it?')
 
         await facebook.handle(build_message({
             'text': 'My Favorite List'
         }))
 
-        context.receive_answer(
+        ctx.receive_answer(
             'You\'ve just created list of tasks: `My Favorite List`.\nNow you can add tasks to it.')
 
 
@@ -356,11 +355,9 @@ async def test_list_all_lists(build_context):
         },
         ])
 
-        facebook = ctx.fb_interface
-
-        await facebook.handle(build_message({
+        await ctx.ask({
             'text': 'all'
-        }))
+        })
 
         ctx.receive_answer('\n'.join([
             'All lists:',
@@ -389,11 +386,9 @@ async def test_remove_list(build_context, command):
         },
         ])
 
-        facebook = ctx.fb_interface
-
-        await facebook.handle(build_message({
+        await ctx.ask({
             'text': '{} night shift'.format(command)
-        }))
+        })
 
         ctx.receive_answer(
             ':skull: List night shift was removed'
@@ -424,11 +419,9 @@ async def test_ask_again_if_we_can_find_what_to_remove(build_context):
         },
         ])
 
-        facebook = ctx.fb_interface
-
-        await facebook.handle(build_message({
+        await ctx.ask({
             'text': 'remove uncertainty'
-        }))
+        })
 
         ctx.receive_answer(
             'We can\'t find `uncertainty` what do you want to remove?'
@@ -461,11 +454,9 @@ async def test_remove_last_added_job(build_context, command):
         },
         ])
 
-        facebook = ctx.fb_interface
-
-        await facebook.handle(build_message({
+        await ctx.ask({
             'text': command,
-        }))
+        })
 
         ctx.receive_answer(
             ':skull: job `go to work` was removed'
@@ -484,11 +475,9 @@ async def test_remove_last_added_job(build_context, command):
 @pytest.mark.asyncio
 async def test_remove_last_warn_if_we_do_not_have_any_tickets_now(build_context):
     async with build_context() as ctx:
-        facebook = ctx.fb_interface
-
-        await facebook.handle(build_message({
+        await ctx.ask({
             'text': 'delete last',
-        }))
+        })
 
         ctx.receive_answer(
             'You don\'t have any tickets yet.\n'
@@ -516,20 +505,18 @@ async def test_remove_all_job(build_context, command):
         },
         ])
 
-        facebook = ctx.fb_interface
-
-        await facebook.handle(build_message({
+        await ctx.ask({
             'text': command,
-        }))
+        })
 
         ctx.receive_answer(
             ':question: Do you really want to remove all your tasks '
             'of current list?',
         )
 
-        await facebook.handle(build_message({
+        await ctx.ask({
             'text': 'ok',
-        }))
+        })
 
         res_lists = await tasks.TaskDocument.objects.find({
             'user_id': ctx.user['_id'],
@@ -570,19 +557,16 @@ async def test_remove_all_job_answer_in_different_way(build_context, answer, rem
         },
         ])
 
-        facebook = ctx.fb_interface
-
-        await facebook.handle(build_message({
+        await ctx.ask({
             'text': 'delete all',
-        }))
-
+        })
         ctx.receive_answer(
             ':question: Do you really want to remove all your tasks '
             'of current list?',
         )
-
-        await facebook.handle(build_message(answer))
-
+        await ctx.ask(
+            answer,
+        )
         res_lists = await tasks.TaskDocument.objects.find({
             'user_id': ctx.user['_id'],
         })
