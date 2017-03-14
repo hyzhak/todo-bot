@@ -80,6 +80,21 @@ def build_context():
         async def ask(self, data):
             await self.fb_interface.handle(build_message(data))
 
+        async def dialog(self, dialog_sequence):
+            for q_a in zip(
+                    dialog_sequence[:-1][::2],
+                    dialog_sequence[1:][::2],
+            ):
+                question = q_a[0]
+                if question:
+                    if isinstance(question, str):
+                        question = {'text': question}
+                    await self.ask(question)
+
+                answer = q_a[1]
+                if answer:
+                    self.receive_answer(answer)
+
         def was_asked_with_quick_replies(self, options):
             assert self.http_interface.post.call_count > 0
             _, obj = self.http_interface.post.call_args
@@ -128,8 +143,8 @@ def build_message(msg):
 
 @pytest.mark.asyncio
 async def test_new_task_story(build_context, mocker):
-    async with build_context() as context:
-        facebook = context.fb_interface
+    async with build_context() as ctx:
+        facebook = ctx.fb_interface
 
         task = mock.Mock()
         task.save = aiohttp.test_utils.make_mocked_coro()
@@ -155,30 +170,30 @@ async def test_new_task_story(build_context, mocker):
                          ['list', 'todo'])
 @pytest.mark.asyncio
 async def test_list_of_active_tasks_on_list(build_context, command):
-    async with build_context() as context:
-        facebook = context.fb_interface
+    async with build_context() as ctx:
+        facebook = ctx.fb_interface
 
-        await context.add_tasks([{
+        await ctx.add_tasks([{
             'description': 'fry toasts',
-            'user_id': context.user['_id'],
+            'user_id': ctx.user['_id'],
         }, {
             'description': 'fry eggs',
-            'user_id': context.user['_id'],
+            'user_id': ctx.user['_id'],
         }, {
             'description': 'drop cheese',
-            'user_id': context.user['_id'],
+            'user_id': ctx.user['_id'],
         }, ])
 
         await facebook.handle(build_message({
             'text': command
         }))
 
-        context.receive_answer('\n'.join(['List of actual tasks:',
-                                          ':white_medium_square: fry toasts',
-                                          ':white_medium_square: fry eggs',
-                                          ':white_medium_square: drop cheese',
-                                          '',
-                                          pagination_list.BORDER]))
+        ctx.receive_answer('\n'.join(['List of actual tasks:',
+                                      ':white_medium_square: fry toasts',
+                                      ':white_medium_square: fry eggs',
+                                      ':white_medium_square: drop cheese',
+                                      '',
+                                      pagination_list.BORDER]))
 
 
 @pytest.mark.asyncio
@@ -250,41 +265,38 @@ async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_after_the_end_of_infinity_list_of_active_tasks(build_context, monkeypatch):
-    async with build_context() as context:
+    async with build_context() as ctx:
         command = 'todo'
 
         monkeypatch.setattr(os, 'environ', {
             'LIST_PAGE_LENGTH': 2,
         })
 
-        await context.add_tasks([{
+        await ctx.add_tasks([{
             'description': 'fry toasts',
-            'user_id': context.user['_id'],
+            'user_id': ctx.user['_id'],
         }, {
             'description': 'fry eggs',
-            'user_id': context.user['_id'],
+            'user_id': ctx.user['_id'],
         }, {
             'description': 'drop cheese',
-            'user_id': context.user['_id'],
+            'user_id': ctx.user['_id'],
         }, ])
-
-        await ctx.ask({
-            'text': command,
-        })
-
-        await ctx.ask({
-            'text': 'next',
-        })
 
         # here we have just reach the end of list.
         # so any other message should propagate to global matches
         # and word `next` will be considered as new task
 
-        await ctx.ask({
-            'text': 'next',
-        })
-
-        context.receive_answer('Task `next` was added to the job list.')
+        ctx.dialog([
+            # Alice:
+            command, None,
+            # Alice:
+            'next', None,
+            # Alice:
+            'next',
+            # Bob:
+            'Task `next` was added to the job list.',
+        ])
 
 
 @pytest.mark.asyncio
@@ -308,36 +320,35 @@ async def test_immediatly_reach_the_end_of_pagination_list_and_all_upcoming_comm
             'user_id': ctx.user['_id'],
         }, ])
 
-        await ctx.ask({
-            'text': command,
-        })
-
         # here we have just immediately reach the end of list.
         # so any other message should propagate to global matches
         # and word `next` will be considered as new task
-
-        await ctx.ask({
-            'text': 'next',
-        })
-
-        ctx.receive_answer('Task `next` was added to the job list.')
+        await ctx.dialog([
+            # Alice:
+            'todo',
+            None,
+            # Alice:
+            'next',
+            # Bob:
+            'Task `next` was added to the job list.',
+        ])
 
 
 @pytest.mark.asyncio
 async def test_list_of_active_tasks_on_new_list(build_context):
     async with build_context() as ctx:
-        await ctx.ask({
-            'text': 'new list'
-        })
-
-        ctx.receive_answer('You are about to create new list of tasks.\nWhat is the name of it?')
-
-        await facebook.handle(build_message({
-            'text': 'My Favorite List'
-        }))
-
-        ctx.receive_answer(
-            'You\'ve just created list of tasks: `My Favorite List`.\nNow you can add tasks to it.')
+        await ctx.dialog([
+            # Alice:
+            'new list',
+            # Bob:
+            'You are about to create new list of tasks.\n'
+            'What is the name of it?',
+            # Alice:
+            'My Favorite List',
+            # Bob:
+            'You\'ve just created list of tasks: `My Favorite List`.\n'
+            'Now you can add tasks to it.'
+        ])
 
 
 @pytest.mark.asyncio
@@ -355,18 +366,19 @@ async def test_list_all_lists(build_context):
         },
         ])
 
-        await ctx.ask({
-            'text': 'all'
-        })
-
-        ctx.receive_answer('\n'.join([
-            'All lists:',
-            ':white_medium_square: google calendar events',
-            ':white_medium_square: grocery store',
-            ':white_medium_square: travel to Sri Lanka',
-            '',
-            pagination_list.BORDER,
-        ]))
+        await ctx.dialog([
+            # Alice:
+            'all',
+            # Bob:
+            '\n'.join([
+                'All lists:',
+                ':white_medium_square: google calendar events',
+                ':white_medium_square: grocery store',
+                ':white_medium_square: travel to Sri Lanka',
+                '',
+                pagination_list.BORDER,
+            ])
+        ])
 
 
 @pytest.mark.parametrize('command',
@@ -386,13 +398,12 @@ async def test_remove_list(build_context, command):
         },
         ])
 
-        await ctx.ask({
-            'text': '{} night shift'.format(command)
-        })
-
-        ctx.receive_answer(
-            ':skull: List night shift was removed'
-        )
+        await ctx.dialog([
+            # Alice:
+            '{} night shift'.format(command),
+            # Bob:
+            ':skull: List night shift was removed',
+        ])
 
         res_lists = await lists.ListDocument.objects.find({
             'user_id': ctx.user['_id'],
@@ -419,13 +430,12 @@ async def test_ask_again_if_we_can_find_what_to_remove(build_context):
         },
         ])
 
-        await ctx.ask({
-            'text': 'remove uncertainty'
-        })
-
-        ctx.receive_answer(
-            'We can\'t find `uncertainty` what do you want to remove?'
-        )
+        await ctx.dialog([
+            # Alice:
+            'remove uncertainty',
+            # Bob:
+            'We can\'t find `uncertainty` what do you want to remove?',
+        ])
 
         res_lists = await lists.ListDocument.objects.find({
             'user_id': ctx.user['_id'],
@@ -454,13 +464,12 @@ async def test_remove_last_added_job(build_context, command):
         },
         ])
 
-        await ctx.ask({
-            'text': command,
-        })
-
-        ctx.receive_answer(
+        await ctx.dialog([
+            # Alice:
+            command,
+            # Bob:
             ':skull: job `go to work` was removed'
-        )
+        ])
 
         res_lists = await tasks.TaskDocument.objects.find({
             'user_id': ctx.user['_id'],
@@ -475,14 +484,13 @@ async def test_remove_last_added_job(build_context, command):
 @pytest.mark.asyncio
 async def test_remove_last_warn_if_we_do_not_have_any_tickets_now(build_context):
     async with build_context() as ctx:
-        await ctx.ask({
-            'text': 'delete last',
-        })
-
-        ctx.receive_answer(
+        await ctx.dialog([
+            # Alice:
+            'delete last',
+            # Bob:
             'You don\'t have any tickets yet.\n'
             ':information_source: Please send my few words about it and I will add it to your TODO list.',
-        )
+        ])
 
 
 @pytest.mark.asyncio
@@ -505,26 +513,21 @@ async def test_remove_all_job(build_context, command):
         },
         ])
 
-        await ctx.ask({
-            'text': command,
-        })
-
-        ctx.receive_answer(
+        await ctx.dialog([
+            # Alice:
+            command,
+            # Bob:
             ':question: Do you really want to remove all your tasks '
             'of current list?',
-        )
-
-        await ctx.ask({
-            'text': 'ok',
-        })
+            # Alice:
+            'ok',
+            # Bob:
+            ':ok: 3 tasks were removed',
+        ])
 
         res_lists = await tasks.TaskDocument.objects.find({
             'user_id': ctx.user['_id'],
         })
-
-        ctx.receive_answer(
-            ':ok: 3 tasks were removed',
-        )
 
         assert len(res_lists) == 0
 
@@ -557,25 +560,24 @@ async def test_remove_all_job_answer_in_different_way(build_context, answer, rem
         },
         ])
 
-        await ctx.ask({
-            'text': 'delete all',
-        })
-        ctx.receive_answer(
+        await ctx.dialog([
+            # Alice::
+            'delete all',
+            # Bob:
             ':question: Do you really want to remove all your tasks '
             'of current list?',
-        )
-        await ctx.ask(
+            # Alice::
             answer,
-        )
+            # Bob:
+            ':ok: 3 tasks were removed' if removed
+            else None,
+        ])
+
         res_lists = await tasks.TaskDocument.objects.find({
             'user_id': ctx.user['_id'],
         })
 
         if removed:
-            ctx.receive_answer(
-                ':ok: 3 tasks were removed',
-            )
-
             assert len(res_lists) == 0
         else:
             assert len(res_lists) == 3
