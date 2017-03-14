@@ -1,16 +1,18 @@
 import aiohttp
-import asyncio
 import botstory
+from botstory import di
 from botstory.integrations import fb, mongodb, mockhttp
-from botstory.integrations.tests import fake_server
 import datetime
 import emoji
+import logging
 import os
 import pytest
 from todo import lists, tasks, pagination_list
 from unittest import mock
 from . import stories
 
+
+logger = logging.getLogger(__name__)
 
 @pytest.fixture
 def build_context():
@@ -20,19 +22,28 @@ def build_context():
 
         async def __aenter__(self):
             self.story = botstory.Story()
+            logger.debug('di.injector.root')
+            logger.debug(di.injector.root)
+            logger.debug('after create story')
             self.fb_interface = self.story.use(
                 fb.FBInterface(page_access_token='qwerty'))
+            logger.debug('after use fb')
             self.db_interface = self.story.use(mongodb.MongodbInterface(
                 uri=os.environ.get('MONGODB_URI', 'mongo'),
                 db_name=os.environ.get('MONGODB_TEST_DB', 'test'),
             ))
+            logger.debug('after use db')
             self.http_interface = self.story.use(mockhttp.MockHttpInterface())
+            logger.debug('after use http')
 
             stories.setup(self.story)
+            logger.debug('after setup stories')
             await self.story.start()
+            logger.debug('after start stories')
             self.user = await self.db_interface.new_user(
                 facebook_user_id='facebook_user_id',
             )
+            logger.debug('after create new user')
 
             lists.lists_document.setup(self.db_interface.db)
             self.lists_document = self.db_interface.db.get_collection('lists')
@@ -51,6 +62,7 @@ def build_context():
                 await self.tasks_collection.drop()
                 await self.db_interface.db.get_collection('lists').drop()
             await self.story.stop()
+            self.story.clear()
             self.db_interface = None
 
         async def add_tasks(self, new_tasks):
@@ -482,3 +494,53 @@ async def test_remove_last_warn_if_we_do_not_have_any_tickets_now(build_context)
             'You don\'t have any tickets yet.\n'
             ':information_source: Please send my few words about it and I will add it to your TODO list.',
         ))
+
+
+@pytest.mark.asyncio
+@pytest.mark.asyncio
+@pytest.mark.parametrize('command',
+                         ['delete all', 'delete all tasks', 'delete all jobs', ])
+                         # ['delete all', 'delete all tasks', 'delete all jobs', ])
+async def test_remove_all_job(build_context, command):
+    logger.debug('test_remove_last_added_job')
+    async with build_context() as ctx:
+        logger.debug('after async with build_context() as ctx')
+        await ctx.add_tasks([{
+            'description': 'coffee with friends',
+            'user_id': ctx.user['_id'],
+            'updated_at': datetime.datetime(2017, 1, 1),
+        }, {
+            'description': 'go to gym',
+            'user_id': ctx.user['_id'],
+            'updated_at': datetime.datetime(2017, 1, 2),
+        }, {
+            'description': 'go to work',
+            'user_id': ctx.user['_id'],
+            'updated_at': datetime.datetime(2017, 1, 3),
+        },
+        ])
+
+        facebook = ctx.fb_interface
+
+        await facebook.handle(build_message({
+            'text': command,
+        }))
+
+        ctx.receive_answer(emoji.emojize(
+            ':question: Do you really want to remove all your tasks '
+            'of current list?',
+        ))
+
+        await facebook.handle(build_message({
+            'text': 'ok',
+        }))
+
+        ctx.receive_answer(emoji.emojize(
+            ':ok: 3 tasks were removed',
+        ))
+
+        res_lists = await tasks.TaskDocument.objects.find({
+            'user_id': ctx.user['_id'],
+        })
+
+        assert len(res_lists) == 0

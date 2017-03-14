@@ -54,7 +54,7 @@ def setup(story):
 
         logger.debug('has_move_item {}'.format(has_move_item))
 
-        await story.chat.ask(
+        await story.ask(
             msg,
             user=ctx['user'],
             # TODO: don't show options if it is the end of list
