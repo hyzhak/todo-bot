@@ -2,6 +2,7 @@ import aiohttp
 import botstory
 from botstory import di
 from botstory.integrations import fb, mongodb, mockhttp
+from botstory.middlewares import sticker
 import datetime
 import emoji
 import logging
@@ -89,6 +90,7 @@ def build_context():
                 if question:
                     if isinstance(question, str):
                         question = {'text': question}
+
                     await self.ask(question)
 
                 answer = q_a[1]
@@ -537,7 +539,7 @@ async def test_remove_all_job(build_context, command):
                          [({'text': 'ok'}, True),
                           ({'text': 'Yes'}, True),
                           # TODO:
-                          # (FBLike, True),
+                          ({'sticker_id': sticker.SMALL_LIKE}, True),
                           ({'text': '', 'quick_reply': {'payload': 'CONFIRM_REMOVE_ALL'}}, True),
                           ({'text': 'no'}, False),
                           ({'text': 'qwerty'}, False),

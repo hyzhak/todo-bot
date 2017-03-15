@@ -1,5 +1,5 @@
 from botstory.ast import story_context
-from botstory.middlewares import any, option, text
+from botstory.middlewares import any, option, sticker, text
 import datetime
 import emoji
 import logging
@@ -140,11 +140,12 @@ def setup(story):
             }], user=ctx['user'])
 
         @story.case([
+            option.Match('CONFIRM_REMOVE_ALL'),
+            sticker.Like(),
             text.Match('(.*) remove all (.*)', flags=re.IGNORECASE),
             text.Match('ok', flags=re.IGNORECASE),
             text.Match('sure (.*)', flags=re.IGNORECASE),
             text.Match('yes', flags=re.IGNORECASE),
-            option.Match('CONFIRM_REMOVE_ALL'),
         ])
         def confirm_to_remove_all():
             @story.part()
