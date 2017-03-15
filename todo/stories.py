@@ -1,10 +1,10 @@
-import botstory
 from botstory.ast import story_context
-from botstory.middlewares import any, option, text
+from botstory.middlewares import any, option, sticker, text
 import datetime
 import emoji
 import logging
 import os
+import re
 
 from todo import pagination_list, reflection
 from todo.lists import lists_document
@@ -94,14 +94,6 @@ def setup(story):
         @story.part()
         async def remove_last_job(ctx):
             logger.info('remove last job')
-            jobs = await tasks_document.TaskDocument.objects({
-                'user_id': ctx['user']['_id'],
-            }).sort(
-                updated_at='desc',
-            )
-
-            logger.debug('jobs')
-            logger.debug(jobs)
 
             last_job = await tasks_document.TaskDocument.objects({
                 'user_id': ctx['user']['_id'],
@@ -116,7 +108,6 @@ def setup(story):
                     user=ctx['user'],
                 )
                 return
-            logger.debug(last_job.fields)
             desc = last_job.description
             logger.debug('going to remove job `{}`'.format(desc))
             await tasks_document.TaskDocument.objects({
@@ -125,6 +116,48 @@ def setup(story):
             msg = emoji.emojize(':skull: job `{}` was removed'.format(desc))
             logger.info(msg)
             await story.say(msg, user=ctx['user'])
+
+    @story.on([
+        text.Match('delete all(?: tasks)?(?: jobs)?'),
+        text.Match('drop all (.*)'),
+        text.Match('forget all (.*)'),
+        text.Match('kill all (.*)'),
+        text.Match('remove all (.*)'),
+    ])
+    def remove_all_jobs_story():
+        @story.part()
+        async def ask_whether_user_really_want_to_remove_all_tasks(ctx):
+            logger.info('ask whether remove all tasks or not')
+            return await story.ask(emoji.emojize(
+                ':question: Do you really want to remove all your tasks '
+                'of current list?',
+            ), quick_replies=[{
+                'title': emoji.emojize(':ok: Sure remove all!'),
+                'payload': 'CONFIRM_REMOVE_ALL'
+            }, {
+                'title': 'Don\'t remove all.',
+                'payload': 'REFUSE_REMOVE_ALL'
+            }], user=ctx['user'])
+
+        @story.case([
+            option.Match('CONFIRM_REMOVE_ALL'),
+            sticker.Like(),
+            text.Match('(.*) remove all (.*)', flags=re.IGNORECASE),
+            text.Match('ok', flags=re.IGNORECASE),
+            text.Match('sure (.*)', flags=re.IGNORECASE),
+            text.Match('yes', flags=re.IGNORECASE),
+        ])
+        def confirm_to_remove_all():
+            @story.part()
+            async def remove_all_jobs(ctx):
+                logger.info('remove all tasks')
+                tasks_count = await tasks_document.TaskDocument.objects({
+                    'user_id': ctx['user']['_id'],
+                }).delete()
+
+                msg = emoji.emojize(':ok: {} tasks were removed'.format(tasks_count))
+                logger.info(msg)
+                await story.say(msg, user=ctx['user'])
 
     @story.on([
         text.Match('delete (.*)'),
