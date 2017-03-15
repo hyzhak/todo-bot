@@ -15,6 +15,10 @@ from . import stories
 logger = logging.getLogger(__name__)
 
 
+def all_emoji(text):
+    return emoji.emojize(emoji.emojize(text), use_aliases=True)
+
+
 @pytest.fixture
 def build_context():
     class AsyncContext:
@@ -89,7 +93,9 @@ def build_context():
                 question = q_a[0]
                 if question:
                     if isinstance(question, str):
-                        question = {'text': question}
+                        question = {'text': all_emoji(
+                            question
+                        )}
 
                     await self.ask(question)
 
@@ -114,7 +120,7 @@ def build_context():
             _, obj = self.http_interface.post.call_args
 
             assert obj['json']['recipient']['id'] == self.user['facebook_user_id']
-            assert obj['json']['message']['text'] == emoji.emojize(message)
+            assert obj['json']['message']['text'] == all_emoji(message)
 
     return AsyncContext
 

@@ -119,10 +119,10 @@ def setup(story):
 
     @story.on([
         text.Match('delete all(?: tasks)?(?: jobs)?'),
-        text.Match('drop all (.*)'),
-        text.Match('forget all (.*)'),
-        text.Match('kill all (.*)'),
-        text.Match('remove all (.*)'),
+        text.Match('drop all(?: tasks)'),
+        text.Match('forget all(?: tasks)'),
+        text.Match('kill all(?: tasks)'),
+        text.Match('remove all(?: tasks)'),
     ])
     def remove_all_jobs_story():
         @story.part()
@@ -131,8 +131,9 @@ def setup(story):
             return await story.ask(emoji.emojize(
                 ':question: Do you really want to remove all your tasks '
                 'of current list?',
+                use_aliases=True,
             ), quick_replies=[{
-                'title': emoji.emojize(':ok: Sure remove all!'),
+                'title': emoji.emojize(':ok: Sure remove all!', use_aliases=True),
                 'payload': 'CONFIRM_REMOVE_ALL'
             }, {
                 'title': 'Don\'t remove all.',
@@ -155,7 +156,7 @@ def setup(story):
                     'user_id': ctx['user']['_id'],
                 }).delete()
 
-                msg = emoji.emojize(':ok: {} tasks were removed'.format(tasks_count))
+                msg = emoji.emojize(':ok: {} tasks were removed'.format(tasks_count), use_aliases=True)
                 logger.info(msg)
                 await story.say(msg, user=ctx['user'])
 
