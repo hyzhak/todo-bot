@@ -119,10 +119,10 @@ def setup(story):
 
     @story.on([
         text.Match('delete all(?: tasks)?(?: jobs)?'),
-        text.Match('drop all(?: tasks)'),
-        text.Match('forget all(?: tasks)'),
-        text.Match('kill all(?: tasks)'),
-        text.Match('remove all(?: tasks)'),
+        text.Match('drop all(?: tasks)?'),
+        text.Match('forget all(?: tasks)?'),
+        text.Match('kill all(?: tasks)?'),
+        text.Match('remove all(?: tasks)?'),
     ])
     def remove_all_jobs_story():
         @story.part()
