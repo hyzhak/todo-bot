@@ -113,7 +113,7 @@ def setup(story):
             await tasks_document.TaskDocument.objects({
                 '_id': last_job._id,
             }).delete_one()
-            msg = emoji.emojize(':skull: job `{}` was removed'.format(desc))
+            msg = emoji.emojize(':ok: job `{}` was removed'.format(desc), use_aliases=True)
             logger.info(msg)
             await story.say(msg, user=ctx['user'])
 
@@ -178,20 +178,30 @@ def setup(story):
             target = story_context.get_message_data(ctx)['text']['matches'][0]
             logger.info('target {}'.format(target))
 
+            logger.debug('try to remove task {}'.format(target))
+            count = await tasks_document.TaskDocument.objects({
+                'description': target,
+                'user_id': ctx['user']['_id'],
+            }).delete()
+            logger.info('remove {} lists'.format(count))
+            if count > 0:
+                await story.say(emoji.emojize(':ok: Task `{}` was removed'.format(target), use_aliases=True),
+                                user=ctx['user'])
+                return
+
+            logger.debug('try to remove list {}'.format(target))
             count = await lists_document.ListDocument.objects({
                 'name': target,
                 'user_id': ctx['user']['_id'],
             }).delete()
             logger.info('remove {} lists'.format(count))
             if count > 0:
-                await story.say(emoji.emojize(':skull: List {} was removed'.format(target)),
+                await story.say(emoji.emojize(':ok: List `{}` was removed'.format(target), use_aliases=True),
                                 user=ctx['user'])
                 return
 
             await story.say('We can\'t find `{}` what do you want to remove?'.format(target),
                             user=ctx['user'])
-            # TODO: try to remove task
-            # if count == 0:
 
     @story.on(receive=text.Any())
     def new_task_story():
