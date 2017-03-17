@@ -133,10 +133,10 @@ def setup(story):
                 'of current list?',
                 use_aliases=True,
             ), quick_replies=[{
-                'title': emoji.emojize(':ok: Sure remove all!', use_aliases=True),
+                'title': emoji.emojize('Sure, remove all!', use_aliases=True),
                 'payload': 'CONFIRM_REMOVE_ALL'
             }, {
-                'title': 'Don\'t remove all.',
+                'title': 'Nope.',
                 'payload': 'REFUSE_REMOVE_ALL'
             }], user=ctx['user'])
 
