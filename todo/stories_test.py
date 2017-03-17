@@ -410,7 +410,7 @@ async def test_remove_list(build_context, command):
             # Alice:
             '{} night shift'.format(command),
             # Bob:
-            ':skull: List night shift was removed',
+            ':ok: List `night shift` was removed',
         ])
 
         res_lists = await lists.ListDocument.objects.find({
@@ -476,7 +476,7 @@ async def test_remove_last_added_job(build_context, command):
             # Alice:
             command,
             # Bob:
-            ':skull: job `go to work` was removed'
+            ':ok: job `go to work` was removed'
         ])
 
         res_lists = await tasks.TaskDocument.objects.find({
@@ -486,6 +486,41 @@ async def test_remove_last_added_job(build_context, command):
         assert len(res_lists) == 2
         assert all(
             l.description != 'go to work' for l in res_lists
+        )
+
+
+@pytest.mark.asyncio
+async def test_remove_certain_task_by_complete_name(build_context):
+    async with build_context() as ctx:
+        await ctx.add_tasks([{
+            'description': 'coffee with friends',
+            'user_id': ctx.user['_id'],
+            'updated_at': datetime.datetime(2017, 1, 1),
+        }, {
+            'description': 'go to gym',
+            'user_id': ctx.user['_id'],
+            'updated_at': datetime.datetime(2017, 1, 2),
+        }, {
+            'description': 'go to work',
+            'user_id': ctx.user['_id'],
+            'updated_at': datetime.datetime(2017, 1, 3),
+        },
+        ])
+
+        await ctx.dialog([
+            # Alice:
+            'remove go to gym',
+            # Bob:
+            ':ok: Task `go to gym` was removed'
+        ])
+
+        res_lists = await tasks.TaskDocument.objects.find({
+            'user_id': ctx.user['_id'],
+        })
+
+        assert len(res_lists) == 2
+        assert all(
+            l.description != 'go to gym' for l in res_lists
         )
 
 
