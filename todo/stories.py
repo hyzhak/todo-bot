@@ -119,10 +119,10 @@ def setup(story):
 
     @story.on([
         text.Match('delete all(?: tasks)?(?: jobs)?'),
-        text.Match('drop all(?: tasks)'),
-        text.Match('forget all(?: tasks)'),
-        text.Match('kill all(?: tasks)'),
-        text.Match('remove all(?: tasks)'),
+        text.Match('drop all(?: tasks)?'),
+        text.Match('forget all(?: tasks)?'),
+        text.Match('kill all(?: tasks)?'),
+        text.Match('remove all(?: tasks)?'),
     ])
     def remove_all_jobs_story():
         @story.part()
@@ -133,10 +133,10 @@ def setup(story):
                 'of current list?',
                 use_aliases=True,
             ), quick_replies=[{
-                'title': emoji.emojize(':ok: Sure remove all!', use_aliases=True),
+                'title': emoji.emojize('Sure, remove all!', use_aliases=True),
                 'payload': 'CONFIRM_REMOVE_ALL'
             }, {
-                'title': 'Don\'t remove all.',
+                'title': 'Nope.',
                 'payload': 'REFUSE_REMOVE_ALL'
             }], user=ctx['user'])
 
