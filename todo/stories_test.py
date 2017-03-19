@@ -208,12 +208,6 @@ async def test_list_of_active_tasks_on_list(build_context, command):
             'text': command
         }))
 
-        # ctx.receive_answer('\n'.join(['List of actual tasks:',
-        #                               ':white_medium_square: fry toasts',
-        #                               ':white_medium_square: fry eggs',
-        #                               ':white_medium_square: drop cheese',
-        #                               '',
-        #                               pagination_list.BORDER]))
         ctx.receive_answer([
             'fry toasts',
             'fry eggs',
@@ -252,53 +246,28 @@ async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
             'text': command,
         }))
 
-        # ctx.receive_answer('\n'.join(['List of actual tasks:',
-        #                               ':white_medium_square: fry toasts',
-        #                               ':white_medium_square: fry eggs',
-        #                               ]))
-
         ctx.receive_answer([
             'fry toasts',
             'fry eggs',
         ], next_button='More')
 
-        # ctx.was_asked_with_quick_replies([{
-        #     'content_type': 'text',
-        #     'payload': 'NEXT_PAGE_OF_A_LIST',
-        #     'title': 'More',
-        # }])
-
         await facebook.handle(build_message({
             'text': 'next',
         }))
 
-        # ctx.receive_answer('\n'.join([':white_medium_square: drop cheese',
-        #                               ':white_medium_square: serve',
-        #                               ]))
         ctx.receive_answer([
             'drop cheese',
             'serve',
         ], next_button='More')
 
-        # ctx.was_asked_with_quick_replies([{
-        #     'content_type': 'text',
-        #     'payload': 'NEXT_PAGE_OF_A_LIST',
-        #     'title': 'More',
-        # }])
 
         await facebook.handle(build_message({
             'text': 'next',
         }))
 
-        # ctx.receive_answer('\n'.join([':white_medium_square: eat',
-        #                               '',
-        #                               pagination_list.BORDER]))
-
         ctx.receive_answer([
             'eat',
         ], next_button=None)
-
-        # ctx.was_asked_with_without_quick_replies()
 
 
 @pytest.mark.asyncio

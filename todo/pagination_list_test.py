@@ -1,5 +1,42 @@
 import pytest
 
+
+@pytest.mark.parametrize('command',
+                         ['list', 'todo'])
+@pytest.mark.skip('should call pagination_list.pagination_loop direct')
+@pytest.mark.asyncio
+async def test_list_of_active_tasks_on_list(build_context, command):
+    async with build_context() as ctx:
+        facebook = ctx.fb_interface
+
+        await ctx.add_tasks([{
+            'description': 'fry toasts',
+            'user_id': ctx.user['_id'],
+        }, {
+            'description': 'fry eggs',
+            'user_id': ctx.user['_id'],
+        }, {
+            'description': 'drop cheese',
+            'user_id': ctx.user['_id'],
+        }, ])
+
+        await facebook.handle(build_message({
+            'text': command
+        }))
+
+        # ctx.receive_answer('\n'.join(['List of actual tasks:',
+        #                               ':white_medium_square: fry toasts',
+        #                               ':white_medium_square: fry eggs',
+        #                               ':white_medium_square: drop cheese',
+        #                               '',
+        #                               pagination_list.BORDER]))
+        ctx.receive_answer([
+            'fry toasts',
+            'fry eggs',
+            'drop cheese',
+        ], next_button=None)
+
+
 @pytest.mark.asyncio
 @pytest.mark.skip('should call pagination_list.pagination_loop direct')
 async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
