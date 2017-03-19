@@ -39,7 +39,7 @@ def setup(story):
                 list_title='All lists:',
                 target_document=reflection.class_to_str(lists_document.ListDocument),
                 title_field='name',
-                page_length=os.environ.get('LIST_PAGE_LENGTH', 5),
+                page_length=os.environ.get('LIST_PAGE_LENGTH', 4),
                 **ctx,
             )
 
@@ -54,9 +54,10 @@ def setup(story):
             return await pagination_list.pagination_loop(
                 ctx,
                 list_title='List of actual tasks:',
+                list_type='template',
                 target_document=reflection.class_to_str(tasks_document.TaskDocument),
                 title_field='description',
-                page_length=os.environ.get('LIST_PAGE_LENGTH', 5),
+                page_length=os.environ.get('LIST_PAGE_LENGTH', 4),
             )
 
     @story.on(text.text.EqualCaseIgnore('new list'))
@@ -202,6 +203,89 @@ def setup(story):
 
             await story.say('We can\'t find `{}` what do you want to remove?'.format(target),
                             user=ctx['user'])
+
+    @story.on(receive=sticker.Like())
+    def like_story():
+        @story.part()
+        async def test_message(ctx):
+            await story.list_elements(
+                elements=[{
+                    'title': '#100',  # (*) required
+                    # 'image_url': 'https://peterssendreceiveapp.ngrok.io/img/collection.png',
+                    'subtitle': 'See all our colors',
+                    # 'default_action': {
+                    #     'type': 'web_url',
+                    #     'url': 'https://peterssendreceiveapp.ngrok.io/shop_collection',
+                    #     'messenger_extensions': True,
+                    #     'webview_height_ratio': 'tall',
+                    #     'fallback_url': 'https://peterssendreceiveapp.ngrok.io/'
+                    # },
+                    'buttons': [{
+                        'title': 'Open Task #100',
+                        'type': 'postback',
+                        'payload': 'payload'
+                    }]
+                }, {
+                    'title': '#101',
+                    # 'image_url': 'https://peterssendreceiveapp.ngrok.io/img/white-t-shirt.png',
+                    'subtitle': '100% Cotton, 200% Comfortable',
+                    # 'default_action': {
+                    #     'type': 'web_url',
+                    #     'url': 'https://peterssendreceiveapp.ngrok.io/view?item=100',
+                    #     'messenger_extensions': True,
+                    #     'webview_height_ratio': 'tall',
+                    #     'fallback_url': 'https://peterssendreceiveapp.ngrok.io/'
+                    # },
+                    'buttons': [{
+                        'title': 'Open Task #101',
+                        'type': 'postback',
+                        'payload': 'payload'
+                    }]
+                }, {
+                    'title': '#102',
+                    # 'image_url': 'https://peterssendreceiveapp.ngrok.io/img/blue-t-shirt.png',
+                    'subtitle': '100% Cotton, 200% Comfortable',
+                    # 'default_action': {
+                    #     'type': 'web_url',
+                    #     'url': 'https://peterssendreceiveapp.ngrok.io/view?item=101',
+                    #     'messenger_extensions': True,
+                    #     'webview_height_ratio': 'tall',
+                    #     'fallback_url': 'https://peterssendreceiveapp.ngrok.io/'
+                    # },
+                    'buttons': [{
+                        'title': 'Open Task #102',
+                        'type': 'postback',
+                        'payload': 'payload'
+                    }]
+                }, {
+                    'title': '#103',
+                    # 'image_url': 'https://peterssendreceiveapp.ngrok.io/img/black-t-shirt.png',
+                    'subtitle': '100% Cotton, 200% Comfortable',
+                    # 'default_action': {
+                    #     'type': 'web_url',
+                    #     'url': 'https://peterssendreceiveapp.ngrok.io/view?item=102',
+                    #     'messenger_extensions': True,
+                    #     'webview_height_ratio': 'tall',
+                    #     'fallback_url': 'https://peterssendreceiveapp.ngrok.io/'
+                    # },
+                    'buttons': [{
+                        'title': 'Open Task #103',
+                        'type': 'postback',
+                        'payload': 'payload'
+                    }]
+                }],
+                buttons=[
+                    {
+                        'title': 'View More',
+                        'type': 'postback',
+                        'payload': 'payload'
+                    }
+                ],
+                options={
+                    'top_element_style': 'compact',
+                },
+                user=ctx['user'],
+            )
 
     @story.on(receive=text.Any())
     def new_task_story():

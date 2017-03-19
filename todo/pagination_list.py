@@ -22,6 +22,7 @@ def setup(story):
         list_title = user_data['list_title']
         title_field = user_data['title_field']
         page_length = user_data['page_length']
+        list_type = user_data.get('list_type', 'pure')
 
         TargetDocument = reflection.str_to_class(user_data['target_document'])
 
@@ -29,6 +30,7 @@ def setup(story):
             'user_id': ctx['user']['_id'],
         })
 
+        start_index = page_index * page_length
         count = await cursor.count()
         items = await cursor.limit(page_length).skip(page_index * page_length).sort(updated_at='desc')
 
@@ -54,16 +56,48 @@ def setup(story):
 
         logger.debug('has_move_item {}'.format(has_move_item))
 
-        await story.ask(
-            msg,
-            user=ctx['user'],
-            # TODO: don't show options if it is the end of list
-            # TODO: `next 10`, `next 100`, `stop`
-            quick_replies=None if the_end_of_list else [{
-                'title': 'More',
-                'payload': 'NEXT_PAGE_OF_A_LIST',
-            }],
-        )
+        # based on list template
+
+        buttons = []
+        if has_move_item:
+            buttons = [
+                {
+                    'title': 'More',
+                    'payload': 'NEXT_PAGE_OF_A_LIST'
+                }
+            ]
+
+        if list_type == 'template':
+            await story.list_elements(
+                elements=[{
+                              # 'title': '#{}'.format(start_index + index + 1),
+                              # 'subtitle': getattr(i, title_field),
+                              'title': getattr(item, title_field),
+                              'buttons': [{
+                                  'title': 'Task #{}'.format(start_index + index + 1),
+                                  'type': 'postback',
+                                  'payload': 'OPEN_TASK_{}'.format(item._id),
+                              }]
+                          }
+                          for index, item in enumerate(items)],
+                buttons=buttons,
+                options={
+                    'top_element_style': 'compact',
+                },
+                user=ctx['user'],
+            )
+        else:
+            # based on pure text message (default)
+            await story.ask(
+                msg,
+                user=ctx['user'],
+                # TODO: don't show options if it is the end of list
+                # TODO: `next 10`, `next 100`, `stop`
+                quick_replies=None if the_end_of_list else [{
+                    'title': 'More',
+                    'payload': 'NEXT_PAGE_OF_A_LIST',
+                }],
+            )
 
         user_data['page_index'] = page_index + 1
         return has_move_item

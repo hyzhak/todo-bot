@@ -1,4 +1,4 @@
-botstory==0.0.58
+botstory==0.0.62
 emoji==0.4.0
 gunicorn==19.6.0
 inflection==0.3.1
