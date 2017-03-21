@@ -57,17 +57,15 @@ def setup(story):
         logger.debug('has_move_item {}'.format(has_move_item))
 
         # based on list template
-
-        buttons = []
-        if has_move_item:
-            buttons = [
-                {
-                    'title': 'More',
-                    'payload': 'NEXT_PAGE_OF_A_LIST'
-                }
-            ]
-
         if list_type == 'template':
+            buttons = []
+            if has_move_item:
+                buttons = [
+                    {
+                        'title': 'More',
+                        'payload': 'NEXT_PAGE_OF_A_LIST'
+                    }
+                ]
             await story.list_elements(
                 elements=[{
                               # 'title': '#{}'.format(start_index + index + 1),

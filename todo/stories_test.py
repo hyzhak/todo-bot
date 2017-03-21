@@ -48,6 +48,9 @@ def build_context():
             self.user = await self.db_interface.new_user(
                 facebook_user_id='facebook_user_id',
             )
+            self.session = await self.db_interface.new_session(
+                user=self.user,
+            )
             logger.debug('after create new user')
 
             lists.lists_document.setup(self.db_interface.db)
@@ -259,7 +262,6 @@ async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
             'drop cheese',
             'serve',
         ], next_button='More')
-
 
         await facebook.handle(build_message({
             'text': 'next',
