@@ -3,7 +3,7 @@ from botstory.utils import answer
 import os
 import pytest
 from todo import pagination_list, reflection
-from todo.stories_test import build_context
+from todo.stories_test import build_context, build_message
 from todo.tasks import tasks_document
 
 __all__ = [build_context]
@@ -83,15 +83,11 @@ async def test_template_list_of_active_tasks_on_list(build_context):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip('should call pagination_list.pagination_loop direct')
-async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
-    async with build_context() as ctx:
-        command = 'todo'
+async def test_pagination_of_list(build_context):
+    async with build_context(use_app_stories=False) as ctx:
         facebook = ctx.fb_interface
-
-        monkeypatch.setattr(os, 'environ', {
-            'LIST_PAGE_LENGTH': 2,
-        })
+        story = ctx.story
+        pagination_list.setup(story)
 
         await ctx.add_tasks([{
             'description': 'fry toasts',
@@ -110,8 +106,21 @@ async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
             'user_id': ctx.user['_id'],
         }, ])
 
+        @story.on('hi')
+        def one_story():
+            @story.part()
+            async def run_pagination(ctx):
+                return await pagination_list.pagination_loop(
+                    ctx,
+                    list_title='List of actual tasks:',
+                    list_type='pure',
+                    target_document=reflection.class_to_str(tasks_document.TaskDocument),
+                    title_field='description',
+                    page_length=2,
+                )
+
         await facebook.handle(build_message({
-            'text': command,
+            'text': 'hi',
         }))
 
         ctx.receive_answer('\n'.join(['List of actual tasks:',

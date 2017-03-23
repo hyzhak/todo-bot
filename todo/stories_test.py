@@ -22,8 +22,8 @@ def all_emoji(text):
 @pytest.fixture
 def build_context():
     class AsyncContext:
-        def __init__(self):
-            pass
+        def __init__(self, use_app_stories=True):
+            self.use_app_stories = use_app_stories
 
         async def __aenter__(self):
             self.story = botstory.Story()
@@ -41,7 +41,9 @@ def build_context():
             self.http_interface = self.story.use(mockhttp.MockHttpInterface())
             logger.debug('after use http')
 
-            stories.setup(self.story)
+            if self.use_app_stories:
+                stories.setup(self.story)
+
             logger.debug('after setup stories')
             await self.story.start()
             logger.debug('after start stories')
