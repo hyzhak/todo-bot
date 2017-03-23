@@ -83,7 +83,7 @@ async def test_template_list_of_active_tasks_on_list(build_context):
 
 
 @pytest.mark.asyncio
-async def test_pagination_of_list(build_context):
+async def test_pure_pagination_of_list(build_context):
     async with build_context(use_app_stories=False) as ctx:
         facebook = ctx.fb_interface
         story = ctx.story
@@ -157,3 +157,64 @@ async def test_pagination_of_list(build_context):
                                       pagination_list.BORDER]))
 
         ctx.was_asked_with_without_quick_replies()
+
+
+@pytest.mark.asyncio
+async def test_template_pagination_of_list(build_context):
+    async with build_context(use_app_stories=False) as ctx:
+        facebook = ctx.fb_interface
+        story = ctx.story
+        pagination_list.setup(story)
+
+        await ctx.add_tasks([{
+            'description': 'fry toasts',
+            'user_id': ctx.user['_id'],
+        }, {
+            'description': 'fry eggs',
+            'user_id': ctx.user['_id'],
+        }, {
+            'description': 'drop cheese',
+            'user_id': ctx.user['_id'],
+        }, {
+            'description': 'serve',
+            'user_id': ctx.user['_id'],
+        }, {
+            'description': 'eat',
+            'user_id': ctx.user['_id'],
+        }, ])
+
+        @story.on('hi')
+        def one_story():
+            @story.part()
+            async def run_pagination(ctx):
+                return await pagination_list.pagination_loop(
+                    ctx,
+                    list_title='List of actual tasks:',
+                    list_type='template',
+                    target_document=reflection.class_to_str(tasks_document.TaskDocument),
+                    title_field='description',
+                    page_length=2,
+                )
+
+        await facebook.handle(build_message({
+            'text': 'hi',
+        }))
+
+        ctx.receive_answer(['fry toasts',
+                            'fry eggs'],
+                           next_button='More')
+
+        await facebook.handle(build_message({
+            'text': 'next',
+        }))
+
+        ctx.receive_answer(['drop cheese',
+                            'serve',
+                            ],
+                           next_button='More')
+
+        await facebook.handle(build_message({
+            'text': 'next',
+        }))
+
+        ctx.receive_answer(['eat'])
