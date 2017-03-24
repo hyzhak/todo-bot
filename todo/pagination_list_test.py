@@ -210,26 +210,26 @@ async def test_template_pagination_of_list(build_context):
 
 @pytest.mark.asyncio
 async def test_could_use_like_to_request_next_page(build_context):
-    async with build_context(use_app_stories=False) as ctx:
-        facebook = ctx.fb_interface
-        story = ctx.story
+    async with build_context(use_app_stories=False) as app_ctx:
+        facebook = app_ctx.fb_interface
+        story = app_ctx.story
         pagination_list.setup(story)
 
-        await ctx.add_tasks([{
+        await app_ctx.add_tasks([{
             'description': 'fry toasts',
-            'user_id': ctx.user['_id'],
+            'user_id': app_ctx.user['_id'],
         }, {
             'description': 'fry eggs',
-            'user_id': ctx.user['_id'],
+            'user_id': app_ctx.user['_id'],
         }, {
             'description': 'drop cheese',
-            'user_id': ctx.user['_id'],
+            'user_id': app_ctx.user['_id'],
         }, {
             'description': 'serve',
-            'user_id': ctx.user['_id'],
+            'user_id': app_ctx.user['_id'],
         }, {
             'description': 'eat',
-            'user_id': ctx.user['_id'],
+            'user_id': app_ctx.user['_id'],
         }, ])
 
         @story.on('hi')
@@ -245,19 +245,21 @@ async def test_could_use_like_to_request_next_page(build_context):
                     page_length=2,
                 )
 
-        await facebook.handle(build_like())
+        await facebook.handle(build_message({
+            'text': 'hi',
+        }))
 
-        ctx.receive_answer(['fry toasts',
-                            'fry eggs'],
-                           next_button='More')
-
-        await facebook.handle(build_like())
-
-        ctx.receive_answer(['drop cheese',
-                            'serve',
-                            ],
-                           next_button='More')
+        app_ctx.receive_answer(['fry toasts',
+                                'fry eggs'],
+                               next_button='More')
 
         await facebook.handle(build_like())
 
-        ctx.receive_answer(['eat'])
+        app_ctx.receive_answer(['drop cheese',
+                                'serve',
+                                ],
+                               next_button='More')
+
+        await facebook.handle(build_like())
+
+        app_ctx.receive_answer(['eat'])
