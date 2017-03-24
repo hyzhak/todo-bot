@@ -22,8 +22,8 @@ def all_emoji(text):
 @pytest.fixture
 def build_context():
     class AsyncContext:
-        def __init__(self):
-            pass
+        def __init__(self, use_app_stories=True):
+            self.use_app_stories = use_app_stories
 
         async def __aenter__(self):
             self.story = botstory.Story()
@@ -41,12 +41,17 @@ def build_context():
             self.http_interface = self.story.use(mockhttp.MockHttpInterface())
             logger.debug('after use http')
 
-            stories.setup(self.story)
+            if self.use_app_stories:
+                stories.setup(self.story)
+
             logger.debug('after setup stories')
             await self.story.start()
             logger.debug('after start stories')
             self.user = await self.db_interface.new_user(
                 facebook_user_id='facebook_user_id',
+            )
+            self.session = await self.db_interface.new_session(
+                user=self.user,
             )
             logger.debug('after create new user')
 
@@ -113,14 +118,26 @@ def build_context():
             _, obj = self.http_interface.post.call_args
             assert 'quick_replies' not in obj['json']['message']
 
-        def receive_answer(self, message):
-            # assert len(server.history) > 0
-            # req = server.history[-1]['request']
+        def receive_answer(self, message, **kwargs):
             assert self.http_interface.post.call_count > 0
             _, obj = self.http_interface.post.call_args
-
             assert obj['json']['recipient']['id'] == self.user['facebook_user_id']
-            assert obj['json']['message']['text'] == all_emoji(message)
+
+            if isinstance(message, list):
+                list_of_messages = message
+                posted_list = obj['json']['message']['attachment']['payload']['elements']
+                for idx, message in enumerate(list_of_messages):
+                    assert posted_list[idx]['title'] == all_emoji(message)
+                if 'next_button' in kwargs:
+                    next_button_title = kwargs['next_button']
+                    if next_button_title is None:
+                        assert 'buttons' not in obj['json']['message']['attachment']['payload'] or \
+                               obj['json']['message']['attachment']['payload']['buttons'] == []
+                    else:
+                        assert obj['json']['message']['attachment']['payload']['buttons'][0][
+                                   'title'] == next_button_title
+            else:
+                assert obj['json']['message']['text'] == all_emoji(message)
 
     return AsyncContext
 
@@ -147,6 +164,12 @@ def build_message(msg):
             }]
         }]
     }
+
+
+def build_like():
+    return build_message({
+        'sticker_id': sticker.SMALL_LIKE,
+    })
 
 
 @pytest.mark.asyncio
@@ -196,12 +219,11 @@ async def test_list_of_active_tasks_on_list(build_context, command):
             'text': command
         }))
 
-        ctx.receive_answer('\n'.join(['List of actual tasks:',
-                                      ':white_medium_square: fry toasts',
-                                      ':white_medium_square: fry eggs',
-                                      ':white_medium_square: drop cheese',
-                                      '',
-                                      pagination_list.BORDER]))
+        ctx.receive_answer([
+            'fry toasts',
+            'fry eggs',
+            'drop cheese',
+        ], next_button=None)
 
 
 @pytest.mark.asyncio
@@ -235,40 +257,27 @@ async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
             'text': command,
         }))
 
-        ctx.receive_answer('\n'.join(['List of actual tasks:',
-                                      ':white_medium_square: fry toasts',
-                                      ':white_medium_square: fry eggs',
-                                      ]))
-
-        ctx.was_asked_with_quick_replies([{
-            'content_type': 'text',
-            'payload': 'NEXT_PAGE_OF_A_LIST',
-            'title': 'More',
-        }])
+        ctx.receive_answer([
+            'fry toasts',
+            'fry eggs',
+        ], next_button='More')
 
         await facebook.handle(build_message({
             'text': 'next',
         }))
 
-        ctx.receive_answer('\n'.join([':white_medium_square: drop cheese',
-                                      ':white_medium_square: serve',
-                                      ]))
-
-        ctx.was_asked_with_quick_replies([{
-            'content_type': 'text',
-            'payload': 'NEXT_PAGE_OF_A_LIST',
-            'title': 'More',
-        }])
+        ctx.receive_answer([
+            'drop cheese',
+            'serve',
+        ], next_button='More')
 
         await facebook.handle(build_message({
             'text': 'next',
         }))
 
-        ctx.receive_answer('\n'.join([':white_medium_square: eat',
-                                      '',
-                                      pagination_list.BORDER]))
-
-        ctx.was_asked_with_without_quick_replies()
+        ctx.receive_answer([
+            'eat',
+        ], next_button=None)
 
 
 @pytest.mark.asyncio

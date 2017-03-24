@@ -1,6 +1,15 @@
-from botstory import utils
+# TODO:
+#
+# make pagination list part of framework
+#
+# 1) create class iterator for:
+# 1.1) iterate DB (like we have right now)
+# 1.2) iterate third party endpoints
+# so we will get class-strategy and its state passed and stored in ctx
+
+
 from botstory.ast import callable, loop, story_context
-from botstory.middlewares import any, option, text
+from botstory.middlewares import option, sticker, text
 import emoji
 import logging
 from todo import reflection
@@ -22,6 +31,7 @@ def setup(story):
         list_title = user_data['list_title']
         title_field = user_data['title_field']
         page_length = user_data['page_length']
+        list_type = user_data.get('list_type', 'pure')
 
         TargetDocument = reflection.str_to_class(user_data['target_document'])
 
@@ -29,6 +39,7 @@ def setup(story):
             'user_id': ctx['user']['_id'],
         })
 
+        start_index = page_index * page_length
         count = await cursor.count()
         items = await cursor.limit(page_length).skip(page_index * page_length).sort(updated_at='desc')
 
@@ -54,16 +65,46 @@ def setup(story):
 
         logger.debug('has_move_item {}'.format(has_move_item))
 
-        await story.ask(
-            msg,
-            user=ctx['user'],
-            # TODO: don't show options if it is the end of list
-            # TODO: `next 10`, `next 100`, `stop`
-            quick_replies=None if the_end_of_list else [{
-                'title': 'More',
-                'payload': 'NEXT_PAGE_OF_A_LIST',
-            }],
-        )
+        # based on list template
+        if list_type == 'template':
+            buttons = []
+            if has_move_item:
+                buttons = [
+                    {
+                        'title': 'More',
+                        'payload': 'NEXT_PAGE_OF_A_LIST'
+                    }
+                ]
+            await story.list_elements(
+                elements=[{
+                              # 'title': '#{}'.format(start_index + index + 1),
+                              # 'subtitle': getattr(i, title_field),
+                              'title': getattr(item, title_field),
+                              'buttons': [{
+                                  'title': 'Task #{}'.format(start_index + index + 1),
+                                  'type': 'postback',
+                                  'payload': 'OPEN_TASK_{}'.format(item._id),
+                              }]
+                          }
+                          for index, item in enumerate(items)],
+                buttons=buttons,
+                options={
+                    'top_element_style': 'compact',
+                },
+                user=ctx['user'],
+            )
+        else:
+            # based on pure text message (default)
+            await story.ask(
+                msg,
+                user=ctx['user'],
+                # TODO: don't show options if it is the end of list
+                # TODO: `next 10`, `next 100`, `stop`
+                quick_replies=None if the_end_of_list else [{
+                    'title': 'More',
+                    'payload': 'NEXT_PAGE_OF_A_LIST',
+                }],
+            )
 
         user_data['page_index'] = page_index + 1
         return has_move_item
@@ -79,6 +120,7 @@ def setup(story):
         def list_loop():
             @story.on([
                 option.Match('NEXT_PAGE_OF_A_LIST'),
+                sticker.Like(),
                 text.text.EqualCaseIgnore('more'),
                 text.text.EqualCaseIgnore('next'),
             ])
