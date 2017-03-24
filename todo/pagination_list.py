@@ -9,7 +9,7 @@
 
 
 from botstory.ast import callable, loop, story_context
-from botstory.middlewares import option, text
+from botstory.middlewares import option, sticker, text
 import emoji
 import logging
 from todo import reflection
@@ -120,6 +120,7 @@ def setup(story):
         def list_loop():
             @story.on([
                 option.Match('NEXT_PAGE_OF_A_LIST'),
+                sticker.Like(),
                 text.text.EqualCaseIgnore('more'),
                 text.text.EqualCaseIgnore('next'),
             ])

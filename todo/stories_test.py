@@ -166,6 +166,12 @@ def build_message(msg):
     }
 
 
+def build_like():
+    return build_message({
+        'sticker_id': sticker.SMALL_LIKE,
+    })
+
+
 @pytest.mark.asyncio
 async def test_new_task_story(build_context, mocker):
     async with build_context() as ctx:
