@@ -1,6 +1,15 @@
-from botstory import utils
+# TODO:
+#
+# make pagination list part of framework
+#
+# 1) create class iterator for:
+# 1.1) iterate DB (like we have right now)
+# 1.2) iterate third party endpoints
+# so we will get class-strategy and its state passed and stored in ctx
+
+
 from botstory.ast import callable, loop, story_context
-from botstory.middlewares import any, option, text
+from botstory.middlewares import option, text
 import emoji
 import logging
 from todo import reflection

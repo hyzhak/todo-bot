@@ -1,5 +1,3 @@
-from botstory.integrations import fb, mongodb, mockhttp
-from botstory.utils import answer
 import os
 import pytest
 from todo import pagination_list, reflection
@@ -9,18 +7,8 @@ from todo.tasks import tasks_document
 __all__ = [build_context]
 
 
-# TODO:
-#
-# make pagination list part of framework
-#
-# 1) create class iterator for:
-# 1.1) iterate DB (like we have right now)
-# 1.2) iterate third party endpoints
-# so we will get class-strategy and its state passed and stored in ctx
-
-
 @pytest.mark.asyncio
-async def test_pure_list_of_active_tasks_on_list(build_context):
+async def test_pure_one_page_list(build_context):
     async with build_context() as ctx:
         await ctx.add_tasks([{
             'description': 'fry toasts',
@@ -52,7 +40,7 @@ async def test_pure_list_of_active_tasks_on_list(build_context):
 
 
 @pytest.mark.asyncio
-async def test_template_list_of_active_tasks_on_list(build_context):
+async def test_template_one_page_list(build_context):
     async with build_context() as ctx:
         await ctx.add_tasks([{
             'description': 'fry toasts',
