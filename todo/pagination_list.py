@@ -76,6 +76,26 @@ def setup(story):
         # based on list template
         if list_type == 'template':
             buttons = []
+            elements = [{
+                            # 'title': '#{}'.format(start_index + index + 1),
+                            # 'subtitle': getattr(i, title_field),
+                            'title': getattr(item, title_field),
+                            'buttons': [{
+                                'title': 'Task #{}'.format(start_index + index + 1),
+                                'type': 'postback',
+                                'payload': 'OPEN_TASK_{}'.format(item._id),
+                            }]
+                        }
+                        for index, item in enumerate(items)]
+            if len(elements) == 1:
+                elements.append({
+                    'title': '...',
+                    'buttons': [{
+                        'title': 'Add New Task',
+                        'type': 'postback',
+                        'payload': 'ADD_NEW_TASK',
+                    }]
+                })
             if has_move_item:
                 buttons = [
                     {
@@ -84,17 +104,7 @@ def setup(story):
                     }
                 ]
             await story.list_elements(
-                elements=[{
-                              # 'title': '#{}'.format(start_index + index + 1),
-                              # 'subtitle': getattr(i, title_field),
-                              'title': getattr(item, title_field),
-                              'buttons': [{
-                                  'title': 'Task #{}'.format(start_index + index + 1),
-                                  'type': 'postback',
-                                  'payload': 'OPEN_TASK_{}'.format(item._id),
-                              }]
-                          }
-                          for index, item in enumerate(items)],
+                elements=elements,
                 buttons=buttons,
                 options={
                     'top_element_style': 'compact',

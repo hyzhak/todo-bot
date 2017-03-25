@@ -279,3 +279,27 @@ async def test_pure_empty_listt(build_context):
         )
 
         ctx.receive_answer('You don\'t have any tickets yet.')
+
+
+@pytest.mark.asyncio
+async def test_template_list_for_one_task(build_context):
+    async with build_context() as ctx:
+        await ctx.add_tasks([{
+            'description': 'be the best',
+            'user_id': ctx.user['_id'],
+        }, ])
+
+        await pagination_list.pagination_loop(
+            list_title='List of actual tasks:',
+            list_type='template',
+            target_document=reflection.class_to_str(tasks_document.TaskDocument),
+            title_field='description',
+            page_length=os.environ.get('LIST_PAGE_LENGTH', 4),
+            session=ctx.session,
+            user=ctx.user,
+        )
+
+        ctx.receive_answer([
+            'be the best',
+            '...',
+        ], next_button=None)
