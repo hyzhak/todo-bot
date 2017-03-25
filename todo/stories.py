@@ -217,9 +217,14 @@ def setup(story):
                 updated_at='desc',
             ).first()
             if not last_task:
-                # TODO: empty list
-                pass
-            await task_details_renderer.render(story, ctx['user'], last_task)
+                await story.ask('There is no last task yet. Please add few.',
+                                user=ctx['user'],
+                                quick_replies=[{
+                                    'title': emoji.emojize('Add New Task', use_aliases=True),
+                                    'payload': 'ADD_NEW_TASK'
+                                }])
+            else:
+                await task_details_renderer.render(story, ctx['user'], last_task)
 
     @story.on(receive=sticker.Like())
     def like_story():

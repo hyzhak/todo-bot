@@ -514,3 +514,14 @@ async def test_show_task_details_on_last_task(build_context, command):
 
         # Bob:
         task_test_helper.assert_task_message(created_tasks[-1], ctx)
+
+
+@pytest.mark.asyncio
+async def test_react_on_last_task_when_there_is_no_any_task_yet(build_context):
+    async with build_context() as ctx:
+        await ctx.dialog([
+            # Alice:
+            'last task',
+            # Bob:
+            'There is no last task yet. Please add few.',
+        ])
