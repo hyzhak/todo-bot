@@ -263,3 +263,19 @@ async def test_could_use_like_to_request_next_page(build_context):
         await facebook.handle(env.build_like())
 
         app_ctx.receive_answer(['eat'])
+
+
+@pytest.mark.asyncio
+async def test_pure_empty_listt(build_context):
+    async with build_context() as ctx:
+        await pagination_list.pagination_loop(
+            list_title='List of actual tasks:',
+            list_type='pure',
+            target_document=reflection.class_to_str(tasks_document.TaskDocument),
+            title_field='description',
+            page_length=os.environ.get('LIST_PAGE_LENGTH', 4),
+            session=ctx.session,
+            user=ctx.user,
+        )
+
+        ctx.receive_answer('You don\'t have any tickets yet.')

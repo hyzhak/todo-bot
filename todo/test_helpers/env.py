@@ -122,6 +122,7 @@ def build_context():
         def receive_answer(self, message, **kwargs):
             assert self.http_interface.post.call_count > 0
             _, obj = self.http_interface.post.call_args
+            assert 'json' in obj
             assert obj['json']['recipient']['id'] == self.user['facebook_user_id']
 
             if isinstance(message, list):
@@ -149,6 +150,8 @@ def build_context():
                 assert template_elements[0]['subtitle'] == message['subtitle']
                 assert template_elements[0]['buttons'] == message['buttons']
             else:
+                assert 'message' in obj['json']
+                assert 'text' in obj['json']['message']
                 assert obj['json']['message']['text'] == all_emoji(message)
 
     return AsyncContext

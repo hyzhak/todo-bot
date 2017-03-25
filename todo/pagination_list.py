@@ -55,6 +55,14 @@ def setup(story):
         logger.debug('page_index {}'.format(page_index))
         logger.debug('page_length {}'.format(page_length))
         logger.debug('count {}'.format(count))
+        if count == 0:
+            await story.ask('You don\'t have any tickets yet.',
+                            user=ctx['user'],
+                            quick_replies=[{
+                                'title': emoji.emojize('Add New Task', use_aliases=True),
+                                'payload': 'ADD_NEW_TASK'
+                            }])
+            return
         if (page_index + 1) * page_length >= count:
             the_end_of_list = True
             msg = '\n'.join([msg,
