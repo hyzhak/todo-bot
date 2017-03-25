@@ -76,10 +76,15 @@ def build_context():
             self.db_interface = None
 
         async def add_tasks(self, new_tasks):
+            added_tasks = []
             for t in new_tasks:
                 assert 'description' in t
                 assert 'user_id' in t
-                await self.tasks_collection.insert(t)
+                _id = await self.tasks_collection.insert(t)
+                task = await tasks.TaskDocument.objects.find_one({'_id': _id})
+                added_tasks.append(task)
+
+            return added_tasks
 
         async def add_lists(self, new_lists):
             for l in new_lists:
@@ -136,6 +141,17 @@ def build_context():
                     else:
                         assert obj['json']['message']['attachment']['payload']['buttons'][0][
                                    'title'] == next_button_title
+            elif 'template_type' in message:
+                assert 'attachment' in obj['json']['message']
+                assert 'payload' in obj['json']['message']['attachment']
+                assert 'type' in obj['json']['message']['attachment']
+                assert obj['json']['message']['attachment']['type'] == 'template'
+                template_payload = obj['json']['message']['attachment']['payload']
+                assert template_payload['template_type'] == message['template_type']
+                template_elements = template_payload['elements']
+                assert template_elements[0]['title'] == message['title']
+                assert template_elements[0]['subtitle'] == message['subtitle']
+                assert template_elements[0]['buttons'] == message['buttons']
             else:
                 assert obj['json']['message']['text'] == all_emoji(message)
 
