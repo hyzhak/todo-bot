@@ -1,10 +1,10 @@
 import os
 import pytest
 from todo import pagination_list, reflection
-from todo.stories_test import build_context, build_like, build_message
 from todo.tasks import tasks_document
+from todo.test_helpers import env
 
-__all__ = [build_context]
+build_context = env.build_context
 
 
 @pytest.mark.asyncio
@@ -107,7 +107,7 @@ async def test_pure_pagination_of_list(build_context):
                     page_length=2,
                 )
 
-        await facebook.handle(build_message({
+        await facebook.handle(env.build_message({
             'text': 'hi',
         }))
 
@@ -122,7 +122,7 @@ async def test_pure_pagination_of_list(build_context):
             'title': 'More',
         }])
 
-        await facebook.handle(build_message({
+        await facebook.handle(env.build_message({
             'text': 'next',
         }))
 
@@ -136,7 +136,7 @@ async def test_pure_pagination_of_list(build_context):
             'title': 'More',
         }])
 
-        await facebook.handle(build_message({
+        await facebook.handle(env.build_message({
             'text': 'next',
         }))
 
@@ -184,7 +184,7 @@ async def test_template_pagination_of_list(build_context):
                     page_length=2,
                 )
 
-        await facebook.handle(build_message({
+        await facebook.handle(env.build_message({
             'text': 'hi',
         }))
 
@@ -192,7 +192,7 @@ async def test_template_pagination_of_list(build_context):
                             'fry eggs'],
                            next_button='More')
 
-        await facebook.handle(build_message({
+        await facebook.handle(env.build_message({
             'text': 'next',
         }))
 
@@ -201,7 +201,7 @@ async def test_template_pagination_of_list(build_context):
                             ],
                            next_button='More')
 
-        await facebook.handle(build_message({
+        await facebook.handle(env.build_message({
             'text': 'next',
         }))
 
@@ -245,7 +245,7 @@ async def test_could_use_like_to_request_next_page(build_context):
                     page_length=2,
                 )
 
-        await facebook.handle(build_message({
+        await facebook.handle(env.build_message({
             'text': 'hi',
         }))
 
@@ -253,13 +253,13 @@ async def test_could_use_like_to_request_next_page(build_context):
                                 'fry eggs'],
                                next_button='More')
 
-        await facebook.handle(build_like())
+        await facebook.handle(env.build_like())
 
         app_ctx.receive_answer(['drop cheese',
                                 'serve',
                                 ],
                                next_button='More')
 
-        await facebook.handle(build_like())
+        await facebook.handle(env.build_like())
 
         app_ctx.receive_answer(['eat'])

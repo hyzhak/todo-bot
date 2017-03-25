@@ -22,7 +22,7 @@ async def render(story, user, task):
                 # TODO: maybe we could generate individual images for each task
                 # 'image_url': 'https://petersfancybrownhats.com/company_image.png',
                 'subtitle': 'Status: {}\n'
-                            'Created: {}\n'.format(task.status,
+                            'Created: {}\n'.format(getattr(task, 'status', 'Unknown'),
                                                    humanize.naturaltime(task.created_at)),
                 'buttons': [{
                     'type': 'postback',
@@ -33,8 +33,8 @@ async def render(story, user, task):
                     'title': 'Remove',
                     'payload': remove_task_payload(task),
                 }, {
-                    'type': 'next task',
-                    'title': 'Remove',
+                    'type': 'postback',
+                    'title': 'Next Task',
                     'payload': open_task_payload(task),
                 }, ],
             }]

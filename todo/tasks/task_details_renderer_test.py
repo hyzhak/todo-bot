@@ -1,10 +1,10 @@
 import humanize
 import pytest
 import datetime
-from todo.stories_test import build_context, build_like, build_message
 from todo.tasks import task_details_renderer
+from todo.test_helpers import env
 
-__all__ = [build_context]
+build_context = env.build_context
 
 
 def assert_task_message(task, ctx):
@@ -23,8 +23,8 @@ def assert_task_message(task, ctx):
             'title': 'Remove',
             'payload': task_details_renderer.remove_task_payload(task),
         }, {
-            'type': 'next task',
-            'title': 'Remove',
+            'type': 'postback',
+            'title': 'Next Task',
             'payload': task_details_renderer.open_task_payload(task),
         }, ],
     })

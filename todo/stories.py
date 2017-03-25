@@ -8,7 +8,7 @@ import re
 
 from todo import pagination_list, reflection
 from todo.lists import lists_document
-from todo.tasks import tasks_document
+from todo.tasks import tasks_document, task_details_renderer
 
 logger = logging.getLogger(__name__)
 
@@ -203,6 +203,23 @@ def setup(story):
 
             await story.say('We can\'t find `{}` what do you want to remove?'.format(target),
                             user=ctx['user'])
+
+    @story.on(
+        # option.Match('OPEN_TASK_(.*)'),
+        text.Match('last(?: task)'),
+    )
+    def last_task_story():
+        @story.part()
+        async def send_last_task_details(ctx):
+            last_task = await tasks_document.TaskDocument.objects({
+                'user_id': ctx['user']['_id'],
+            }).sort(
+                updated_at='desc',
+            ).first()
+            if not last_task:
+                # TODO: empty list
+                pass
+            await task_details_renderer.render(story, ctx['user'], last_task)
 
     @story.on(receive=sticker.Like())
     def like_story():
