@@ -206,7 +206,7 @@ def setup(story):
 
     @story.on(
         # option.Match('OPEN_TASK_(.*)'),
-        text.Match('last(?: task)'),
+        text.Match('last(?: task)?'),
     )
     def last_task_story():
         @story.part()
