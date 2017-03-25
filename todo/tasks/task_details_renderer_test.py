@@ -1,39 +1,14 @@
-import humanize
 import pytest
 import datetime
-from todo.tasks import task_details_renderer
+from todo.tasks import task_details_renderer, task_test_helper
 from todo.test_helpers import env
 
 build_context = env.build_context
 
 
-def assert_task_message(task, ctx):
-    ctx.receive_answer({
-        'template_type': 'generic',
-        'title': 'Task: {}'.format(task.description),
-        'subtitle': 'Status: {}\n'
-                    'Created: {}\n'.format(task.status,
-                                           humanize.naturaltime(task.created_at)),
-        'buttons': [{
-            'type': 'postback',
-            'title': 'Re-Open',
-            'payload': task_details_renderer.reopen_task_payload(task),
-        }, {
-            'type': 'postback',
-            'title': 'Remove',
-            'payload': task_details_renderer.remove_task_payload(task),
-        }, {
-            'type': 'postback',
-            'title': 'Next Task',
-            'payload': task_details_renderer.open_task_payload(task),
-        }, ],
-    })
-
-
 @pytest.mark.asyncio
 async def test_render_task_details(build_context):
     async with build_context(use_app_stories=False) as ctx:
-        facebook = ctx.fb_interface
         story = ctx.story
 
         tasks = await ctx.add_tasks([{
@@ -60,4 +35,4 @@ async def test_render_task_details(build_context):
         target_task = tasks[0]
 
         await task_details_renderer.render(story, ctx.user, target_task)
-        assert_task_message(target_task, ctx)
+        task_test_helper.assert_task_message(target_task, ctx)

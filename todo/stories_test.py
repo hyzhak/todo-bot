@@ -7,6 +7,7 @@ import pytest
 from todo import lists, tasks, pagination_list
 from unittest import mock
 from . import stories
+from todo.tasks import task_details_renderer, task_test_helper
 from todo.test_helpers import env
 
 build_context = env.build_context
@@ -478,24 +479,34 @@ async def test_remove_all_job_answer_in_different_way(build_context, answer, rem
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip
 async def test_show_task_details_on_last_task(build_context):
     async with build_context() as ctx:
-        await ctx.add_tasks([{
+        facebook = ctx.fb_interface
+        created_tasks = await ctx.add_tasks([{
             'description': 'coffee with friends',
             'user_id': ctx.user['_id'],
+            'status': 'close',
+            'created_at': datetime.datetime(2017, 1, 1),
             'updated_at': datetime.datetime(2017, 1, 1),
         }, {
             'description': 'go to gym',
             'user_id': ctx.user['_id'],
+            'status': 'in progress',
+            'created_at': datetime.datetime(2017, 1, 2),
             'updated_at': datetime.datetime(2017, 1, 2),
         }, {
             'description': 'go to work',
             'user_id': ctx.user['_id'],
+            'status': 'open',
+            'created_at': datetime.datetime(2017, 1, 3),
             'updated_at': datetime.datetime(2017, 1, 3),
         },
         ])
 
         # Alice:
-        ctx.receive_answer('last task')
+        await facebook.handle(env.build_message({
+            'text': 'last task'
+        }))
+
         # Bob:
+        task_test_helper.assert_task_message(created_tasks[-1], ctx)
