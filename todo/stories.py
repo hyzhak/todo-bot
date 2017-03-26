@@ -205,6 +205,24 @@ def setup(story):
             await story.say('We can\'t find `{}` what do you want to remove?'.format(target),
                             user=ctx['user'])
 
+    @story.on(text.Match('open(.+)'))
+    def open_task_story():
+        @story.part()
+        async def send_task_details(ctx):
+            query = story_context.get_message_data(ctx, 'text', 'matches')[0].strip()
+            try:
+                task = await tasks_document.TaskDocument.objects.find({
+                    'description': query,
+                })
+                if len(task) == 1:
+                    await task_details_renderer.render(story, ctx['user'], task[0])
+                else:
+                    pass
+                    # TODO:
+            except orm.errors.DoesNotExist:
+                # TODO:
+                pass
+
     @story.on(option.Match('OPEN_TASK_(.+)'))
     def task_details_story():
         @story.part()

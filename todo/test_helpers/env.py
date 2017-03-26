@@ -56,4 +56,10 @@ def build_postback(payload):
     }
 
 
-__all__ = [build_like, build_message, build_postback]
+def build_text(text):
+    return build_message({
+        'text': text,
+    })
+
+
+__all__ = [build_like, build_message, build_postback, build_text]

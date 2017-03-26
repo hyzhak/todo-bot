@@ -578,3 +578,42 @@ async def test_send_task_details(build_context, current_status, next_statuses):
         task_test_helper.assert_task_message(target_task,
                                              ctx,
                                              next_statuses=next_statuses)
+
+
+@pytest.mark.asyncio
+async def test_open_task_by_exact_description(build_context):
+    async with build_context() as ctx:
+        facebook = ctx.fb_interface
+        created_tasks = await ctx.add_tasks([{
+            'description': 'coffee with friends',
+            'user_id': ctx.user['_id'],
+            'status': 'close',
+            'created_at': datetime.datetime(2017, 1, 1),
+            'updated_at': datetime.datetime(2017, 1, 1),
+        }, {
+            'description': 'go to gym',
+            'user_id': ctx.user['_id'],
+            'status': 'in progress',
+            'created_at': datetime.datetime(2017, 1, 2),
+            'updated_at': datetime.datetime(2017, 1, 2),
+        }, {
+            'description': 'go to work',
+            'user_id': ctx.user['_id'],
+            'status': 'open',
+            'created_at': datetime.datetime(2017, 1, 3),
+            'updated_at': datetime.datetime(2017, 1, 3),
+        },
+        ])
+
+        # Alice:
+        await facebook.handle(env.build_text(
+            'open go to work',
+        ))
+
+        # Bob:
+        task_test_helper.assert_task_message(created_tasks[2],
+                                             ctx,
+                                             next_statuses=[{
+                                                 'title': 'Start',
+                                                 'payload': 'START_TASK_{}',
+                                             }])
