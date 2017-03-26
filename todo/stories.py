@@ -1,12 +1,13 @@
 from botstory.ast import story_context
 from botstory.middlewares import any, option, sticker, text
+from bson.objectid import ObjectId
 import datetime
 import emoji
 import logging
 import os
 import re
 
-from todo import pagination_list, reflection
+from todo import orm, pagination_list, reflection
 from todo.lists import lists_document
 from todo.tasks import tasks_document, task_details_renderer
 
@@ -204,10 +205,20 @@ def setup(story):
             await story.say('We can\'t find `{}` what do you want to remove?'.format(target),
                             user=ctx['user'])
 
-    @story.on(
-        # option.Match('OPEN_TASK_(.*)'),
-        text.Match('last(?: task)?'),
-    )
+    @story.on(option.Match('OPEN_TASK_(.+)'))
+    def task_details_story():
+        @story.part()
+        async def send_task_details_back(ctx):
+            task_id = story_context.get_message_data(ctx, 'option', 'matches')[0]
+            try:
+                task = await tasks_document.TaskDocument.objects.find_one({
+                    '_id': ObjectId(task_id),
+                })
+                await task_details_renderer.render(story, ctx['user'], task)
+            except orm.errors.DoesNotExist:
+                await story.say('Can\'t find task details. With id {}'.format(task_id), user=ctx['user'])
+
+    @story.on(text.Match('last(?: task)?'))
     def last_task_story():
         @story.part()
         async def send_last_task_details(ctx):

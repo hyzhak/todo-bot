@@ -525,3 +525,38 @@ async def test_react_on_last_task_when_there_is_no_any_task_yet(build_context):
             # Bob:
             'There is no last task yet. Please add few.',
         ])
+
+
+@pytest.mark.asyncio
+async def test_send_task_details(build_context):
+    async with build_context() as ctx:
+        facebook = ctx.fb_interface
+        created_tasks = await ctx.add_tasks([{
+            'description': 'coffee with friends',
+            'user_id': ctx.user['_id'],
+            'status': 'close',
+            'created_at': datetime.datetime(2017, 1, 1),
+            'updated_at': datetime.datetime(2017, 1, 1),
+        }, {
+            'description': 'go to gym',
+            'user_id': ctx.user['_id'],
+            'status': 'in progress',
+            'created_at': datetime.datetime(2017, 1, 2),
+            'updated_at': datetime.datetime(2017, 1, 2),
+        }, {
+            'description': 'go to work',
+            'user_id': ctx.user['_id'],
+            'status': 'open',
+            'created_at': datetime.datetime(2017, 1, 3),
+            'updated_at': datetime.datetime(2017, 1, 3),
+        },
+        ])
+
+        target_task = created_tasks[1]
+
+        # Alice:
+        await facebook.handle(env.build_postback(
+            'OPEN_TASK_{}'.format(target_task._id)))
+
+        # Bob:
+        task_test_helper.assert_task_message(target_task, ctx)

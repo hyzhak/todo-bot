@@ -186,4 +186,27 @@ def build_like():
         'sticker_id': sticker.SMALL_LIKE,
     })
 
+
+def build_postback(payload):
+    return {
+        'object': 'page',
+        'entry': [{
+            'id': 'PAGE_ID',
+            'time': 1473204787206,
+            'messaging': [{
+                'sender': {
+                    'id': 'facebook_user_id',
+                },
+                'recipient': {
+                    'id': 'PAGE_ID'
+                },
+                'timestamp': 1458692752478,
+                'postback': {
+                    'payload': payload
+                }
+            }]
+        }]
+    }
+
+
 __all__ = [build_context, build_like, build_message]
