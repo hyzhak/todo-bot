@@ -7,10 +7,8 @@ import pytest
 from todo import lists, tasks, pagination_list
 from unittest import mock
 from . import stories
-from todo.tasks import task_details_renderer, task_test_helper
+from todo.tasks import task_test_helper
 from todo.test_helpers import env
-
-build_context = env.build_context
 
 logger = logging.getLogger(__name__)
 
@@ -513,7 +511,12 @@ async def test_show_task_details_on_last_task(build_context, command):
         }))
 
         # Bob:
-        task_test_helper.assert_task_message(created_tasks[-1], ctx)
+        task_test_helper.assert_task_message(created_tasks[-1],
+                                             ctx,
+                                             next_statuses=[{
+                                                 'title': 'Start',
+                                                 'payload': 'START_TASK_{}',
+                                             }])
 
 
 @pytest.mark.asyncio
@@ -528,7 +531,20 @@ async def test_react_on_last_task_when_there_is_no_any_task_yet(build_context):
 
 
 @pytest.mark.asyncio
-async def test_send_task_details(build_context):
+@pytest.mark.parametrize(('current_status', 'next_statuses'),
+                         [
+                             ('open', [
+                                 {'payload': 'START_TASK_{}', 'title': 'Start'}
+                             ]),
+                             ('in progress', [
+                                 {'payload': 'STOP_TASK_{}', 'title': 'Stop'},
+                                 {'payload': 'CLOSE_TASK_{}', 'title': 'Done'}
+                             ]),
+                             ('close', [
+                                 {'payload': 'REOPEN_TASK_{}', 'title': 'Reopen'}
+                             ]),
+                         ])
+async def test_send_task_details(build_context, current_status, next_statuses):
     async with build_context() as ctx:
         facebook = ctx.fb_interface
         created_tasks = await ctx.add_tasks([{
@@ -540,7 +556,7 @@ async def test_send_task_details(build_context):
         }, {
             'description': 'go to gym',
             'user_id': ctx.user['_id'],
-            'status': 'in progress',
+            'status': current_status,
             'created_at': datetime.datetime(2017, 1, 2),
             'updated_at': datetime.datetime(2017, 1, 2),
         }, {
@@ -559,4 +575,6 @@ async def test_send_task_details(build_context):
             'OPEN_TASK_{}'.format(target_task._id)))
 
         # Bob:
-        task_test_helper.assert_task_message(target_task, ctx)
+        task_test_helper.assert_task_message(target_task,
+                                             ctx,
+                                             next_statuses=next_statuses)

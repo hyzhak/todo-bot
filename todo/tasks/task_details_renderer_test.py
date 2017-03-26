@@ -1,9 +1,6 @@
 import pytest
 import datetime
 from todo.tasks import task_details_renderer, task_test_helper
-from todo.test_helpers import env
-
-build_context = env.build_context
 
 
 @pytest.mark.asyncio
@@ -35,4 +32,8 @@ async def test_render_task_details(build_context):
         target_task = tasks[0]
 
         await task_details_renderer.render(story, ctx.user, target_task)
-        task_test_helper.assert_task_message(target_task, ctx)
+        task_test_helper.assert_task_message(
+            target_task, ctx, next_statuses=[{
+                'title': 'Reopen',
+                'payload': 'REOPEN_TASK_{}',
+            }])

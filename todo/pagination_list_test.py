@@ -4,8 +4,6 @@ from todo import pagination_list, reflection
 from todo.tasks import tasks_document
 from todo.test_helpers import env
 
-build_context = env.build_context
-
 
 @pytest.mark.asyncio
 async def test_pure_one_page_list(build_context):
