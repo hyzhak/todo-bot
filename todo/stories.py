@@ -1,14 +1,15 @@
 from botstory.ast import story_context
 from botstory.middlewares import any, option, sticker, text
+from bson.objectid import ObjectId
 import datetime
 import emoji
 import logging
 import os
 import re
 
-from todo import pagination_list, reflection
+from todo import orm, pagination_list, reflection
 from todo.lists import lists_document
-from todo.tasks import tasks_document
+from todo.tasks import tasks_document, task_details_renderer
 
 logger = logging.getLogger(__name__)
 
@@ -203,6 +204,56 @@ def setup(story):
 
             await story.say('We can\'t find `{}` what do you want to remove?'.format(target),
                             user=ctx['user'])
+
+    @story.on(text.Match('open(.+)'))
+    def open_task_story():
+        @story.part()
+        async def send_task_details(ctx):
+            query = story_context.get_message_data(ctx, 'text', 'matches')[0].strip()
+            try:
+                task = await tasks_document.TaskDocument.objects.find({
+                    'description': query,
+                })
+                if len(task) == 1:
+                    await task_details_renderer.render(story, ctx['user'], task[0])
+                else:
+                    pass
+                    # TODO:
+            except orm.errors.DoesNotExist:
+                # TODO:
+                pass
+
+    @story.on(option.Match('OPEN_TASK_(.+)'))
+    def task_details_story():
+        @story.part()
+        async def send_task_details_back(ctx):
+            task_id = story_context.get_message_data(ctx, 'option', 'matches')[0]
+            try:
+                task = await tasks_document.TaskDocument.objects.find_one({
+                    '_id': ObjectId(task_id),
+                })
+                await task_details_renderer.render(story, ctx['user'], task)
+            except orm.errors.DoesNotExist:
+                await story.say('Can\'t find task details. With id {}'.format(task_id), user=ctx['user'])
+
+    @story.on(text.Match('last(?: task)?'))
+    def last_task_story():
+        @story.part()
+        async def send_last_task_details(ctx):
+            last_task = await tasks_document.TaskDocument.objects({
+                'user_id': ctx['user']['_id'],
+            }).sort(
+                updated_at='desc',
+            ).first()
+            if not last_task:
+                await story.ask('There is no last task yet. Please add few.',
+                                user=ctx['user'],
+                                quick_replies=[{
+                                    'title': emoji.emojize('Add New Task', use_aliases=True),
+                                    'payload': 'ADD_NEW_TASK'
+                                }])
+            else:
+                await task_details_renderer.render(story, ctx['user'], last_task)
 
     @story.on(receive=sticker.Like())
     def like_story():
