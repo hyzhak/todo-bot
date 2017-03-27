@@ -4,11 +4,10 @@ import datetime
 import logging
 import os
 import pytest
-from todo import lists, tasks, pagination_list
-from unittest import mock
-from . import stories
-from todo.tasks import task_test_helper
+from todo import lists, tasks, pagination_list, stories
+from todo.tasks import task_test_helper, tasks_document
 from todo.test_helpers import env
+from unittest import mock
 
 logger = logging.getLogger(__name__)
 
@@ -633,3 +632,72 @@ async def test_open_task_by_exact_description(build_context):
                                                  'title': 'Start',
                                                  'payload': 'START_TASK_{}',
                                              }])
+
+
+@pytest.mark.asyncio
+async def test_remove_task_by_postback(build_context):
+    async with build_context() as ctx:
+        created_tasks = await ctx.add_tasks([{
+            'description': 'coffee with friends',
+            'user_id': ctx.user['_id'],
+            'status': 'close',
+            'created_at': datetime.datetime(2017, 1, 1),
+            'updated_at': datetime.datetime(2017, 1, 1),
+        }, {
+            'description': 'go to gym',
+            'user_id': ctx.user['_id'],
+            'status': 'in progress',
+            'created_at': datetime.datetime(2017, 1, 2),
+            'updated_at': datetime.datetime(2017, 1, 2),
+        }, {
+            'description': 'go to work',
+            'user_id': ctx.user['_id'],
+            'status': 'open',
+            'created_at': datetime.datetime(2017, 1, 3),
+            'updated_at': datetime.datetime(2017, 1, 3),
+        },
+        ])
+
+        await ctx.dialog([
+            # Alice:
+            env.build_postback('REMOVE_TASK_{}'.format(created_tasks[0]._id)),
+            # Bob:
+            ':ok: Task `{}` was deleted'.format(created_tasks[0].description),
+        ])
+        tasks_left = await tasks_document.TaskDocument.objects.find()
+        assert len(tasks_left) == 2
+
+
+@pytest.mark.asyncio
+async def test_remove_task_by_postback_fail_if_wrong_id(build_context):
+    async with build_context() as ctx:
+        await ctx.add_tasks([{
+            'description': 'coffee with friends',
+            'user_id': ctx.user['_id'],
+            'status': 'close',
+            'created_at': datetime.datetime(2017, 1, 1),
+            'updated_at': datetime.datetime(2017, 1, 1),
+        }, {
+            'description': 'go to gym',
+            'user_id': ctx.user['_id'],
+            'status': 'in progress',
+            'created_at': datetime.datetime(2017, 1, 2),
+            'updated_at': datetime.datetime(2017, 1, 2),
+        }, {
+            'description': 'go to work',
+            'user_id': ctx.user['_id'],
+            'status': 'open',
+            'created_at': datetime.datetime(2017, 1, 3),
+            'updated_at': datetime.datetime(2017, 1, 3),
+        },
+        ])
+
+        await ctx.dialog([
+            # Alice:
+            env.build_postback('REMOVE_TASK_58d99754e61713000143a2e1'),
+            # Bob:
+            ':confused: Can\'t find task with id 58d99754e61713000143a2e1.\n'
+            'It seems that it was already removed.',
+        ])
+        tasks_left = await tasks_document.TaskDocument.objects.find()
+        assert len(tasks_left) == 3

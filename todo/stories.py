@@ -120,6 +120,25 @@ def setup(story):
             logger.info(msg)
             await story.say(msg, user=ctx['user'])
 
+    @story.on(option.Match('REMOVE_TASK_(.+)'))
+    def remove_task_story():
+        @story.part()
+        async def send_task_details_back(ctx):
+            task_id = story_context.get_message_data(ctx, 'option', 'matches')[0]
+            try:
+                task = await tasks_document.TaskDocument.objects.find_one({
+                    '_id': ObjectId(task_id),
+                })
+                await tasks_document.TaskDocument.objects({
+                    '_id': task._id,
+                }).delete_one()
+                await story.say(emoji.emojize(
+                    ':ok: Task `{}` was deleted', use_aliases=True).format(task.description), user=ctx['user'])
+            except orm.errors.DoesNotExist:
+                await story.say(emoji.emojize(':confused: Can\'t find task with id 58d99754e61713000143a2e1.\n'
+                                              'It seems that it was already removed.', use_aliases=True).format(
+                    task_id), user=ctx['user'])
+
     @story.on([
         text.Match('delete all(?: tasks)?(?: jobs)?'),
         text.Match('drop all(?: tasks)?'),
@@ -136,7 +155,7 @@ def setup(story):
                 'of current list?',
                 use_aliases=True,
             ), quick_replies=[{
-                'title': emoji.emojize('Sure, remove all!', use_aliases=True),
+                'title': 'Sure, remove all!',
                 'payload': 'CONFIRM_REMOVE_ALL'
             }, {
                 'title': 'Nope.',

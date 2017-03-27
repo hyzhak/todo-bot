@@ -103,7 +103,10 @@ def build_context():
                             question
                         )}
 
-                    await self.ask(question)
+                    if 'entry' in question:
+                        await self.fb_interface.handle(question)
+                    else:
+                        await self.ask(question)
 
                 answer = q_a[1]
                 if answer:
