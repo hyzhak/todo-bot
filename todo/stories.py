@@ -54,11 +54,12 @@ def setup(story):
 
             return await pagination_list.pagination_loop(
                 ctx,
+                subtitle_renderer=reflection.class_to_str(tasks_document.task_details_renderer),
                 list_title='List of actual tasks:',
                 list_type='template',
+                page_length=os.environ.get('LIST_PAGE_LENGTH', 4),
                 target_document=reflection.class_to_str(tasks_document.TaskDocument),
                 title_field='description',
-                page_length=os.environ.get('LIST_PAGE_LENGTH', 4),
             )
 
     @story.on(text.text.EqualCaseIgnore('new list'))

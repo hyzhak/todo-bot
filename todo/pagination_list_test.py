@@ -1,3 +1,4 @@
+import datetime
 import os
 import pytest
 from todo import pagination_list, reflection
@@ -65,6 +66,36 @@ async def test_template_one_page_list(build_context):
             'fry toasts',
             'fry eggs',
             'drop cheese',
+        ], next_button=None)
+
+
+@pytest.mark.asyncio
+async def test_template_list_with_subtitle_renderer(build_context):
+    async with build_context() as ctx:
+        created_at = datetime.datetime(year=2017, month=3, day=27, hour=23, minute=46)
+        created_tasks = await ctx.add_tasks([{
+            'description': 'fry toasts',
+            'user_id': ctx.user['_id'],
+            'status': 'open',
+            'created_at': created_at,
+        }])
+
+        await pagination_list.pagination_loop(
+            list_title='List of actual tasks:',
+            list_type='template',
+            target_document=reflection.class_to_str(tasks_document.TaskDocument),
+            title_field='description',
+            page_length=os.environ.get('LIST_PAGE_LENGTH', 4),
+            session=ctx.session,
+            subtitle_renderer=reflection.class_to_str(tasks_document.task_details_renderer),
+            user=ctx.user,
+        )
+
+        ctx.receive_answer([
+            {
+                'title': 'fry toasts',
+                'subtitle': created_tasks[0].details(),
+            }
         ], next_button=None)
 
 

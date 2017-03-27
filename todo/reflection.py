@@ -9,6 +9,8 @@ def class_to_str(Clz):
 
 
 def str_to_class(full_name):
+    if full_name is None:
+        return None
     parts = full_name.split('.')
     module_full_name = '.'.join(parts[:-1])
     m = __import__(module_full_name)

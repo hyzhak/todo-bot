@@ -48,12 +48,18 @@ async def test_list_of_active_tasks_on_list(build_context, command):
         await ctx.add_tasks([{
             'description': 'fry toasts',
             'user_id': ctx.user['_id'],
+            # 'status': 'open',
+            # 'created_at': datetime.datetime.now(),
         }, {
             'description': 'fry eggs',
             'user_id': ctx.user['_id'],
+            # 'status': 'open',
+            # 'created_at': datetime.datetime.now(),
         }, {
             'description': 'drop cheese',
             'user_id': ctx.user['_id'],
+            # 'status': 'open',
+            # 'created_at': datetime.datetime.now(),
         }, ])
 
         await facebook.handle(env.build_message({
@@ -80,18 +86,28 @@ async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
         await ctx.add_tasks([{
             'description': 'fry toasts',
             'user_id': ctx.user['_id'],
+            'status': 'open',
+            'created_at': datetime.datetime.now(),
         }, {
             'description': 'fry eggs',
             'user_id': ctx.user['_id'],
+            'status': 'open',
+            'created_at': datetime.datetime.now(),
         }, {
             'description': 'drop cheese',
             'user_id': ctx.user['_id'],
+            'status': 'open',
+            'created_at': datetime.datetime.now(),
         }, {
             'description': 'serve',
             'user_id': ctx.user['_id'],
+            'status': 'open',
+            'created_at': datetime.datetime.now(),
         }, {
             'description': 'eat',
             'user_id': ctx.user['_id'],
+            'status': 'open',
+            'created_at': datetime.datetime.now(),
         }, ])
 
         await facebook.handle(env.build_message({

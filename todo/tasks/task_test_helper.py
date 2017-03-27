@@ -20,8 +20,8 @@ def assert_task_message(task,
         'template_type': 'generic',
         'title': 'Task: {}'.format(task.description),
         'subtitle': 'Status: {}\n'
-                    'Created: {}\n'.format(getattr(task, 'status', ''),
-                                           humanize.naturaltime(task.created_at)),
+                    'Created: {}'.format(getattr(task, 'status', ''),
+                                         humanize.naturaltime(task.created_at)),
         'buttons': buttons,
     })
 

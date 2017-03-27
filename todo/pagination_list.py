@@ -6,6 +6,10 @@
 # 1.1) iterate DB (like we have right now)
 # 1.2) iterate third party endpoints
 # so we will get class-strategy and its state passed and stored in ctx
+#
+#   Props:
+#   - subtitle_renderer - gets callback with param item and which returns string
+#
 
 
 from botstory.ast import callable, loop, story_context
@@ -32,6 +36,7 @@ def setup(story):
         title_field = user_data['title_field']
         page_length = user_data['page_length']
         list_type = user_data.get('list_type', 'pure')
+        subtitle_renderer = reflection.str_to_class(user_data.get('subtitle_renderer', None)) or (lambda item: '')
 
         TargetDocument = reflection.str_to_class(user_data['target_document'])
 
@@ -78,8 +83,8 @@ def setup(story):
             buttons = []
             elements = [{
                             # 'title': '#{}'.format(start_index + index + 1),
-                            # 'subtitle': getattr(i, title_field),
                             'title': getattr(item, title_field),
+                            'subtitle': subtitle_renderer(item),
                             'buttons': [{
                                 'title': 'Task #{}'.format(start_index + index + 1),
                                 'type': 'postback',

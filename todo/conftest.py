@@ -129,7 +129,13 @@ def build_context():
                 list_of_messages = message
                 posted_list = obj['json']['message']['attachment']['payload']['elements']
                 for idx, message in enumerate(list_of_messages):
-                    assert posted_list[idx]['title'] == all_emoji(message)
+                    if isinstance(message, str):
+                        assert posted_list[idx]['title'] == all_emoji(message)
+                    else:
+                        if 'title' in message:
+                            assert posted_list[idx]['title'] == all_emoji(message['title'])
+                        if 'subtitle' in message:
+                            assert posted_list[idx]['subtitle'] == all_emoji(message['subtitle'])
                 if 'next_button' in kwargs:
                     next_button_title = kwargs['next_button']
                     if next_button_title is None:
