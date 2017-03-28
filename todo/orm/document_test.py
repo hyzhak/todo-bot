@@ -82,14 +82,14 @@ async def test_update(build_mock_db):
             'description': 'monkey business',
         })
         with pytest.raises(AttributeError):
-            assert old_task.status == 'done'
-        old_task.status = 'done'
+            assert old_task.state == 'done'
+        old_task.state = 'done'
 
         await old_task.save()
         new_task = await TaskDocument.objects.find_one({
             'description': 'monkey business',
         })
-        assert new_task.status == 'done'
+        assert new_task.state == 'done'
 
 
 @pytest.mark.asyncio

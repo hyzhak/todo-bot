@@ -47,17 +47,17 @@ async def test_list_of_active_tasks_on_list(build_context, command):
         await ctx.add_tasks([{
             'description': 'fry toasts',
             'user_id': ctx.user['_id'],
-            # 'status': 'open',
+            'state': 'open',
             # 'created_at': datetime.datetime.now(),
         }, {
             'description': 'fry eggs',
             'user_id': ctx.user['_id'],
-            # 'status': 'open',
+            'state': 'open',
             # 'created_at': datetime.datetime.now(),
         }, {
             'description': 'drop cheese',
             'user_id': ctx.user['_id'],
-            # 'status': 'open',
+            # 'state': 'open',
             # 'created_at': datetime.datetime.now(),
         }, ])
 
@@ -85,27 +85,27 @@ async def test_pagination_of_list_of_active_tasks(build_context, monkeypatch):
         await ctx.add_tasks([{
             'description': 'fry toasts',
             'user_id': ctx.user['_id'],
-            'status': 'open',
+            'state': 'open',
             'created_at': datetime.datetime.now(),
         }, {
             'description': 'fry eggs',
             'user_id': ctx.user['_id'],
-            'status': 'open',
+            'state': 'open',
             'created_at': datetime.datetime.now(),
         }, {
             'description': 'drop cheese',
             'user_id': ctx.user['_id'],
-            'status': 'open',
+            'state': 'open',
             'created_at': datetime.datetime.now(),
         }, {
             'description': 'serve',
             'user_id': ctx.user['_id'],
-            'status': 'open',
+            'state': 'open',
             'created_at': datetime.datetime.now(),
         }, {
             'description': 'eat',
             'user_id': ctx.user['_id'],
-            'status': 'open',
+            'state': 'open',
             'created_at': datetime.datetime.now(),
         }, ])
 
@@ -502,19 +502,19 @@ async def test_show_task_details_on_last_task(build_context, command):
         created_tasks = await ctx.add_tasks([{
             'description': 'coffee with friends',
             'user_id': ctx.user['_id'],
-            'status': 'close',
+            'state': 'close',
             'created_at': datetime.datetime(2017, 1, 1),
             'updated_at': datetime.datetime(2017, 1, 1),
         }, {
             'description': 'go to gym',
             'user_id': ctx.user['_id'],
-            'status': 'in progress',
+            'state': 'in progress',
             'created_at': datetime.datetime(2017, 1, 2),
             'updated_at': datetime.datetime(2017, 1, 2),
         }, {
             'description': 'go to work',
             'user_id': ctx.user['_id'],
-            'status': 'open',
+            'state': 'open',
             'created_at': datetime.datetime(2017, 1, 3),
             'updated_at': datetime.datetime(2017, 1, 3),
         },
@@ -528,7 +528,7 @@ async def test_show_task_details_on_last_task(build_context, command):
         # Bob:
         task_test_helper.assert_task_message(created_tasks[-1],
                                              ctx,
-                                             next_statuses=[{
+                                             next_states=[{
                                                  'title': 'Start',
                                                  'payload': 'START_TASK_{}',
                                              }])
@@ -546,7 +546,7 @@ async def test_react_on_last_task_when_there_is_no_any_task_yet(build_context):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(('current_status', 'next_statuses'),
+@pytest.mark.parametrize(('current_states', 'next_states'),
                          [
                              ('open', [
                                  {'payload': 'START_TASK_{}', 'title': 'Start'}
@@ -559,25 +559,25 @@ async def test_react_on_last_task_when_there_is_no_any_task_yet(build_context):
                                  {'payload': 'REOPEN_TASK_{}', 'title': 'Reopen'}
                              ]),
                          ])
-async def test_send_task_details(build_context, current_status, next_statuses):
+async def test_send_task_details(build_context, current_states, next_states):
     async with build_context() as ctx:
         facebook = ctx.fb_interface
         created_tasks = await ctx.add_tasks([{
             'description': 'coffee with friends',
             'user_id': ctx.user['_id'],
-            'status': 'close',
+            'state': 'close',
             'created_at': datetime.datetime(2017, 1, 1),
             'updated_at': datetime.datetime(2017, 1, 1),
         }, {
             'description': 'go to gym',
             'user_id': ctx.user['_id'],
-            'status': current_status,
+            'state': current_states,
             'created_at': datetime.datetime(2017, 1, 2),
             'updated_at': datetime.datetime(2017, 1, 2),
         }, {
             'description': 'go to work',
             'user_id': ctx.user['_id'],
-            'status': 'open',
+            'state': 'open',
             'created_at': datetime.datetime(2017, 1, 3),
             'updated_at': datetime.datetime(2017, 1, 3),
         },
@@ -592,7 +592,7 @@ async def test_send_task_details(build_context, current_status, next_statuses):
         # Bob:
         task_test_helper.assert_task_message(target_task,
                                              ctx,
-                                             next_statuses=next_statuses)
+                                             next_states=next_states)
 
 
 @pytest.mark.asyncio
@@ -602,19 +602,19 @@ async def test_open_task_by_exact_description(build_context):
         created_tasks = await ctx.add_tasks([{
             'description': 'coffee with friends',
             'user_id': ctx.user['_id'],
-            'status': 'close',
+            'state': 'close',
             'created_at': datetime.datetime(2017, 1, 1),
             'updated_at': datetime.datetime(2017, 1, 1),
         }, {
             'description': 'go to gym',
             'user_id': ctx.user['_id'],
-            'status': 'in progress',
+            'state': 'in progress',
             'created_at': datetime.datetime(2017, 1, 2),
             'updated_at': datetime.datetime(2017, 1, 2),
         }, {
             'description': 'go to work',
             'user_id': ctx.user['_id'],
-            'status': 'open',
+            'state': 'open',
             'created_at': datetime.datetime(2017, 1, 3),
             'updated_at': datetime.datetime(2017, 1, 3),
         },
@@ -628,7 +628,7 @@ async def test_open_task_by_exact_description(build_context):
         # Bob:
         task_test_helper.assert_task_message(created_tasks[2],
                                              ctx,
-                                             next_statuses=[{
+                                             next_states=[{
                                                  'title': 'Start',
                                                  'payload': 'START_TASK_{}',
                                              }])
@@ -640,19 +640,19 @@ async def test_remove_task_by_postback(build_context):
         created_tasks = await ctx.add_tasks([{
             'description': 'coffee with friends',
             'user_id': ctx.user['_id'],
-            'status': 'close',
+            'state': 'close',
             'created_at': datetime.datetime(2017, 1, 1),
             'updated_at': datetime.datetime(2017, 1, 1),
         }, {
             'description': 'go to gym',
             'user_id': ctx.user['_id'],
-            'status': 'in progress',
+            'state': 'in progress',
             'created_at': datetime.datetime(2017, 1, 2),
             'updated_at': datetime.datetime(2017, 1, 2),
         }, {
             'description': 'go to work',
             'user_id': ctx.user['_id'],
-            'status': 'open',
+            'state': 'open',
             'created_at': datetime.datetime(2017, 1, 3),
             'updated_at': datetime.datetime(2017, 1, 3),
         },
@@ -674,19 +674,19 @@ async def test_remove_task_by_postback_fail_if_wrong_id(build_context):
         await ctx.add_tasks([{
             'description': 'coffee with friends',
             'user_id': ctx.user['_id'],
-            'status': 'close',
+            'state': 'close',
             'created_at': datetime.datetime(2017, 1, 1),
             'updated_at': datetime.datetime(2017, 1, 1),
         }, {
             'description': 'go to gym',
             'user_id': ctx.user['_id'],
-            'status': 'in progress',
+            'state': 'in progress',
             'created_at': datetime.datetime(2017, 1, 2),
             'updated_at': datetime.datetime(2017, 1, 2),
         }, {
             'description': 'go to work',
             'user_id': ctx.user['_id'],
-            'status': 'open',
+            'state': 'open',
             'created_at': datetime.datetime(2017, 1, 3),
             'updated_at': datetime.datetime(2017, 1, 3),
         },
@@ -701,3 +701,37 @@ async def test_remove_task_by_postback_fail_if_wrong_id(build_context):
         ])
         tasks_left = await tasks_document.TaskDocument.objects.find()
         assert len(tasks_left) == 3
+
+
+@pytest.mark.asyncio
+async def test_start_task_by_postback(build_context):
+    async with build_context() as ctx:
+        created_tasks = await ctx.add_tasks([{
+            'description': 'coffee with friends',
+            'user_id': ctx.user['_id'],
+            'state': 'close',
+            'created_at': datetime.datetime(2017, 1, 1),
+            'updated_at': datetime.datetime(2017, 1, 1),
+        }, {
+            'description': 'go to gym',
+            'user_id': ctx.user['_id'],
+            'state': 'in progress',
+            'created_at': datetime.datetime(2017, 1, 2),
+            'updated_at': datetime.datetime(2017, 1, 2),
+        }, {
+            'description': 'go to work',
+            'user_id': ctx.user['_id'],
+            'state': 'open',
+            'created_at': datetime.datetime(2017, 1, 3),
+            'updated_at': datetime.datetime(2017, 1, 3),
+        },
+        ])
+
+        await ctx.dialog([
+            # Alice:
+            env.build_postback('REMOVE_TASK_{}'.format(created_tasks[0]._id)),
+            # Bob:
+            ':ok: Task `{}` was deleted'.format(created_tasks[0].description),
+        ])
+        tasks_left = await tasks_document.TaskDocument.objects.find()
+        assert len(tasks_left) == 2

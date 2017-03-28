@@ -76,7 +76,7 @@ async def test_template_list_with_subtitle_renderer(build_context):
         created_tasks = await ctx.add_tasks([{
             'description': 'fry toasts',
             'user_id': ctx.user['_id'],
-            'status': 'open',
+            'state': 'open',
             'created_at': created_at,
         }])
 

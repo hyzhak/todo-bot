@@ -42,7 +42,7 @@ def build_context():
 
             logger.debug('after setup stories')
             await self.story.start()
-            logger.debug('after start stories')
+            logger.debug('after stadsrt stories')
             self.user = await self.db_interface.new_user(
                 facebook_user_id='facebook_user_id',
             )

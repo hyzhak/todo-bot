@@ -4,8 +4,8 @@ from todo.orm import document, query
 
 class TaskDocument(document.BaseDocument):
     def details(self):
-        return 'Status: {}\n' \
-               'Created: {}'.format(getattr(self, 'status', '?'),
+        return 'State: {}\n' \
+               'Created: {}'.format(getattr(self, 'state', '?'),
                                     humanize.naturaltime(getattr(self, 'created_at', None)))
 
 

@@ -26,8 +26,8 @@ def stop_task_payload(task):
 
 
 async def render(story, user, task):
-    status = getattr(task, 'status', 'Unknown')
-    if status == 'in progress':
+    state = getattr(task, 'state', 'Unknown')
+    if state == 'in progress':
         buttons = [{
             'type': 'postback',
             'title': 'Stop',
@@ -37,7 +37,7 @@ async def render(story, user, task):
             'title': 'Done',
             'payload': done_task_payload(task),
         }, ]
-    elif status == 'close':
+    elif state == 'close':
         buttons = [{
             'type': 'postback',
             'title': 'Reopen',

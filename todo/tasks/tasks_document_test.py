@@ -17,8 +17,8 @@ def test_task_details():
     created_at = datetime.datetime(year=2017, month=3, day=27, hour=23, minute=46)
     task = tasks_document.TaskDocument(**{
         'created_at': created_at,
-        'status': 'open',
+        'state': 'open',
     })
 
-    assert task.details() == 'Status: open\n' \
+    assert task.details() == 'State: open\n' \
                              'Created: {}'.format(humanize.naturaltime(created_at))

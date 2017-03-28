@@ -13,19 +13,19 @@ async def test_render_task_details(build_context):
             'user_id': ctx.user['_id'],
             'created_at': datetime.datetime(2017, 1, 1),
             'updated_at': datetime.datetime(2017, 1, 1),
-            'status': 'close',
+            'state': 'close',
         }, {
             'description': 'go to gym',
             'user_id': ctx.user['_id'],
             'created_at': datetime.datetime(2017, 1, 2),
             'updated_at': datetime.datetime(2017, 1, 2),
-            'status': 'in progress',
+            'state': 'in progress',
         }, {
             'description': 'go to work',
             'user_id': ctx.user['_id'],
             'created_at': datetime.datetime(2017, 1, 3),
             'updated_at': datetime.datetime(2017, 1, 3),
-            'status': 'open',
+            'state': 'open',
         },
         ])
 
@@ -33,7 +33,7 @@ async def test_render_task_details(build_context):
 
         await task_details_renderer.render(story, ctx.user, target_task)
         task_test_helper.assert_task_message(
-            target_task, ctx, next_statuses=[{
+            target_task, ctx, next_states=[{
                 'title': 'Reopen',
                 'payload': 'REOPEN_TASK_{}',
             }])
