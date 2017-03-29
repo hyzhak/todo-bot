@@ -49,6 +49,11 @@ def setup(story):
         async def try_to_open_task(ctx):
             try:
                 task = await task_story_helper.current_task(ctx)
+                if task.state == 'done':
+                    await story.say(
+                        'Task `{}` is already done'.format(task.description),
+                        user=ctx['user'])
+                    return
                 task.state = 'done'
                 await task.save()
                 await story.say(

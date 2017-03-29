@@ -66,7 +66,7 @@ def build_context():
             return await self.add_tasks([{
                 'description': 'coffee with friends',
                 'user_id': self.user['_id'],
-                'state': 'close',
+                'state': 'done',
                 'created_at': datetime.datetime(2017, 1, 1),
                 'updated_at': datetime.datetime(2017, 1, 1),
             }, {

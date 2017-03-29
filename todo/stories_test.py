@@ -482,9 +482,9 @@ async def test_react_on_last_task_when_there_is_no_any_task_yet(build_context):
                              ]),
                              ('in progress', [
                                  {'payload': 'STOP_TASK_{}', 'title': 'Stop'},
-                                 {'payload': 'CLOSE_TASK_{}', 'title': 'Done'}
+                                 {'payload': 'DONE_TASK_{}', 'title': 'Done'}
                              ]),
-                             ('close', [
+                             ('done', [
                                  {'payload': 'REOPEN_TASK_{}', 'title': 'Reopen'}
                              ]),
                          ])
@@ -494,7 +494,7 @@ async def test_send_task_details(build_context, current_states, next_states):
         created_tasks = await ctx.add_tasks([{
             'description': 'coffee with friends',
             'user_id': ctx.user['_id'],
-            'state': 'close',
+            'state': 'done',
             'created_at': datetime.datetime(2017, 1, 1),
             'updated_at': datetime.datetime(2017, 1, 1),
         }, {
@@ -578,6 +578,7 @@ async def test_remove_task_by_postback_fail_if_wrong_id(build_context):
 @pytest.mark.asyncio
 @pytest.mark.parametrize(('task_idx', 'command_tmpl', 'should_get_answer', 'should_get_state'), [
     (0, 'OPEN_TASK_{}', ':ok: Task `{}` was opened', 'open'),
+    (0, 'DONE_TASK_{}', 'Task `{}` is already done', 'done'),
     (1, 'STOP_TASK_{}', ':ok: Task `{}` was stopped', 'open'),
     (1, 'DONE_TASK_{}', ':ok: Task `{}` was done', 'done'),
     (2, 'START_TASK_{}', ':ok: Task `{}` was started', 'in progress'),

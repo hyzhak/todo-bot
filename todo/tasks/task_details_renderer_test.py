@@ -13,7 +13,7 @@ async def test_render_task_details(build_context):
             'user_id': ctx.user['_id'],
             'created_at': datetime.datetime(2017, 1, 1),
             'updated_at': datetime.datetime(2017, 1, 1),
-            'state': 'close',
+            'state': 'done',
         }, {
             'description': 'go to gym',
             'user_id': ctx.user['_id'],

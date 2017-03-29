@@ -2,7 +2,7 @@ import humanize
 
 
 def done_task_payload(task):
-    return 'CLOSE_TASK_{}'.format(task._id)
+    return 'DONE_TASK_{}'.format(task._id)
 
 
 def open_task_payload(task):
@@ -37,7 +37,7 @@ async def render(story, user, task):
             'title': 'Done',
             'payload': done_task_payload(task),
         }, ]
-    elif state == 'close':
+    elif state == 'done':
         buttons = [{
             'type': 'postback',
             'title': 'Reopen',
