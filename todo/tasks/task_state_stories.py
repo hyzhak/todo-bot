@@ -1,4 +1,4 @@
-from botstory.middlewares import option
+from botstory.middlewares import option, text
 import emoji
 import logging
 
@@ -81,6 +81,25 @@ def setup(story):
                 await task.save()
                 await story.say(
                     emoji.emojize(':ok: Task `{}` was started', use_aliases=True).format(task.description),
+                    user=ctx['user'])
+            except orm.errors.DoesNotExist:
+                pass
+
+    @story.on(text.Match('open last(?: task)?'))
+    def open_last_task_story():
+        @story.part()
+        async def try_to_open_last_task(ctx):
+            try:
+                task = await task_story_helper.last_task(ctx)
+                # if task.state == 'in progress':
+                #     await story.say(
+                #         'Task `{}` is already in progress'.format(task.description),
+                #         user=ctx['user'])
+                #     return
+                task.state = 'open'
+                await task.save()
+                await story.say(
+                    emoji.emojize(':ok: Task `{}` was opened', use_aliases=True).format(task.description),
                     user=ctx['user'])
             except orm.errors.DoesNotExist:
                 pass
