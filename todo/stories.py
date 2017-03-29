@@ -379,7 +379,7 @@ def setup(story):
                 'user_id': ctx['user']['_id'],
                 'list': 'list_1',
                 'description': task_description,
-                'state': 'new',
+                'state': 'open',
                 'created_at': datetime.datetime.now(),
                 'updated_at': datetime.datetime.now(),
             }).save()
