@@ -26,6 +26,11 @@ class BaseDocument:
             return self.fields[item]
         raise AttributeError(item)
 
+    def __eq__(self, other):
+        if not isinstance(other, dict):
+            return self == other
+        return self.fields == other
+
     def __repr__(self):
         try:
             return json.dumps({

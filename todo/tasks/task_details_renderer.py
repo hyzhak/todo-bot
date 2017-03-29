@@ -2,7 +2,7 @@ import humanize
 
 
 def done_task_payload(task):
-    return 'CLOSE_TASK_{}'.format(task._id)
+    return 'DONE_TASK_{}'.format(task._id)
 
 
 def open_task_payload(task):
@@ -26,8 +26,8 @@ def stop_task_payload(task):
 
 
 async def render(story, user, task):
-    status = getattr(task, 'status', 'Unknown')
-    if status == 'in progress':
+    state = getattr(task, 'state', 'Unknown')
+    if state == 'in progress':
         buttons = [{
             'type': 'postback',
             'title': 'Stop',
@@ -37,7 +37,7 @@ async def render(story, user, task):
             'title': 'Done',
             'payload': done_task_payload(task),
         }, ]
-    elif status == 'close':
+    elif state == 'done':
         buttons = [{
             'type': 'postback',
             'title': 'Reopen',
@@ -50,7 +50,7 @@ async def render(story, user, task):
             'payload': start_task_payload(task),
         }]
         # open by default
-        status = 'open'
+        # task.status = 'open'
 
     buttons.append({
         'type': 'postback',
@@ -65,9 +65,7 @@ async def render(story, user, task):
                 'title': 'Task: {}'.format(task.description),
                 # TODO: maybe we could generate individual images for each task
                 # 'image_url': 'https://petersfancybrownhats.com/company_image.png',
-                'subtitle': 'Status: {}\n'
-                            'Created: {}\n'.format(status,
-                                                   humanize.naturaltime(task.created_at)),
+                'subtitle': task.details(),
                 'buttons': buttons,
             }]
         },

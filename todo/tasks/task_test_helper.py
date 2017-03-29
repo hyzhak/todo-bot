@@ -4,12 +4,12 @@ from todo.tasks import task_details_renderer
 
 def assert_task_message(task,
                         ctx,
-                        next_statuses):
+                        next_states):
     buttons = [{
                    'type': 'postback',
-                   'title': status['title'],
-                   'payload': status['payload'].format(task._id)}
-               for status in next_statuses]
+                   'title': state['title'],
+                   'payload': state['payload'].format(task._id)}
+               for state in next_states]
     buttons.append({
         'type': 'postback',
         'title': 'Remove',
@@ -19,11 +19,10 @@ def assert_task_message(task,
     ctx.receive_answer({
         'template_type': 'generic',
         'title': 'Task: {}'.format(task.description),
-        'subtitle': 'Status: {}\n'
-                    'Created: {}\n'.format(getattr(task, 'status', ''),
-                                           humanize.naturaltime(task.created_at)),
+        'subtitle': 'State: {}\n'
+                    'Created: {}'.format(getattr(task, 'state', ''),
+                                         humanize.naturaltime(task.created_at)),
         'buttons': buttons,
     })
-
 
 __all__ = [assert_task_message]

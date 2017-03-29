@@ -1,4 +1,4 @@
-import asyncio
+from bson.objectid import ObjectId
 import logging
 import pymongo
 from todo.orm import errors
@@ -53,6 +53,13 @@ class Query:
             return l[0]
         else:
             raise errors.DoesNotExist()
+
+    async def find_by_id(self, _id):
+        if isinstance(_id, str):
+            _id = ObjectId(_id)
+        return await self.find_one({
+            '_id': _id,
+        })
 
     async def first(self):
         cursor = self.get_cursor()
