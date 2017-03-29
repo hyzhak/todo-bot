@@ -1,3 +1,4 @@
+import emoji
 import logging
 import pytest
 from todo.tasks import tasks_document
@@ -68,3 +69,38 @@ async def test_change_state_of_last_task(
             should_get_answer.format(task_after_command.description),
         ])
         assert task_after_command.state == should_get_state
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(('command', 'should_get_answer', 'should_get_state'), [
+    ('open all', ':ok: Tasks was opened:\n{}', 'open'),
+    # ('start all', ':ok: Task was started: {}', 'in progress'),
+    # ('stop all', ':ok: Task was stopped: {}', 'open'),
+    # ('done all', ':ok: Task was done: {}', 'done'),
+])
+async def test_change_state_of_all_tasks(
+        build_context, command, should_get_answer, should_get_state):
+    async with build_context() as ctx:
+        created_tasks = await ctx.add_test_tasks()
+
+        description_of_tasks_that_will_be_modified = [
+            t.description for t in created_tasks if t.state != should_get_state
+            ]
+
+        # Alice:
+        await ctx.dialog([
+            command,
+        ])
+
+        for t in created_tasks:
+            task_after_command = await tasks_document.TaskDocument.objects.find_by_id(t._id)
+            assert task_after_command.state == should_get_state
+
+        list_of_modified_tasks = '\n'.join(
+            [emoji.emojize(':white_medium_square: {}').format(t) for t in description_of_tasks_that_will_be_modified])
+
+        # Bob:
+        await ctx.dialog([
+            None,
+            should_get_answer.format(list_of_modified_tasks),
+        ])

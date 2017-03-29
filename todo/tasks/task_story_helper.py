@@ -18,3 +18,9 @@ async def last_task(ctx):
     }).sort(
         updated_at='desc',
     ).first()
+
+
+async def all_my_tasks(ctx):
+    return await tasks_document.TaskDocument.objects.find({
+        'user_id': ctx['user']['_id'],
+    })

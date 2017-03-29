@@ -21,6 +21,27 @@ def setup(story):
             emoji.emojize(':ok: Task `{}` was opened', use_aliases=True).format(task.description),
             user=ctx['user'])
 
+    async def open_many_task(ctx, tasks):
+        modified_descriptions = []
+        for task in tasks:
+            if task.state != 'open':
+                task.state = 'open'
+                await task.save()
+                modified_descriptions.append(task.description)
+
+        if len(modified_descriptions) == 0:
+            # TODO:
+            pass
+
+        modified_descriptions_list = '\n'.join(
+            [emoji.emojize(':white_medium_square: {}').format(t) for t in modified_descriptions])
+
+        await story.say(
+            emoji.emojize(':ok: Task{} was opened:\n{}', use_aliases=True).format(
+                's' if len(modified_descriptions) > 1 else '',
+                modified_descriptions_list),
+            user=ctx['user'])
+
     async def start_one_task(ctx, task):
         if task.state == 'in progress':
             await story.say(
@@ -67,6 +88,7 @@ def setup(story):
                 await open_one_task(ctx,
                                     task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
+                # TODO:
                 pass
 
     @story.on(option.Match('STOP_TASK_(.+)'))
@@ -77,6 +99,7 @@ def setup(story):
                 await stop_one_task(ctx,
                                     task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
+                # TODO:
                 pass
 
     @story.on(option.Match('DONE_TASK_(.+)'))
@@ -87,6 +110,7 @@ def setup(story):
                 await done_one_task(ctx,
                                     task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
+                # TODO:
                 pass
 
     @story.on(option.Match('START_TASK_(.+)'))
@@ -97,6 +121,7 @@ def setup(story):
                 await start_one_task(ctx,
                                      task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
+                # TODO:
                 pass
 
     # match "<do> last (task)"
@@ -109,6 +134,7 @@ def setup(story):
                 await open_one_task(ctx,
                                     task=await task_story_helper.last_task(ctx))
             except orm.errors.DoesNotExist:
+                # TODO:
                 pass
 
     @story.on(text.Match('start last(?: task)?'))
@@ -119,6 +145,7 @@ def setup(story):
                 await start_one_task(ctx,
                                      task=await task_story_helper.last_task(ctx))
             except orm.errors.DoesNotExist:
+                # TODO:
                 pass
 
     @story.on(text.Match('stop last(?: task)?'))
@@ -129,6 +156,7 @@ def setup(story):
                 await stop_one_task(ctx,
                                     task=await task_story_helper.last_task(ctx))
             except orm.errors.DoesNotExist:
+                # TODO:
                 pass
 
     @story.on(text.Match('done last(?: task)?'))
@@ -139,4 +167,17 @@ def setup(story):
                 await done_one_task(ctx,
                                     task=await task_story_helper.last_task(ctx))
             except orm.errors.DoesNotExist:
+                # TODO:
+                pass
+
+    # match "<do> all (task)"
+    @story.on(text.Match('open all(?: task)?'))
+    def open_all_my_task_story():
+        @story.part()
+        async def try_to_open_last_task(ctx):
+            try:
+                await open_many_task(ctx,
+                                     tasks=await task_story_helper.all_my_tasks(ctx))
+            except orm.errors.DoesNotExist:
+                # TODO:
                 pass
