@@ -21,6 +21,18 @@ def setup(story):
             emoji.emojize(':ok: Task `{}` was opened', use_aliases=True).format(task.description),
             user=ctx['user'])
 
+    async def start_one_task(ctx, task):
+        if task.state == 'in progress':
+            await story.say(
+                'Task `{}` is already in progress'.format(task.description),
+                user=ctx['user'])
+            return
+        task.state = 'in progress'
+        await task.save()
+        await story.say(
+            emoji.emojize(':ok: Task `{}` was started', use_aliases=True).format(task.description),
+            user=ctx['user'])
+
     @story.on(option.Match('REOPEN_TASK_(.+)'))
     def open_task_story():
         @story.part()
@@ -74,17 +86,8 @@ def setup(story):
         @story.part()
         async def try_to_open_task(ctx):
             try:
-                task = await task_story_helper.current_task(ctx)
-                if task.state == 'in progress':
-                    await story.say(
-                        'Task `{}` is already in progress'.format(task.description),
-                        user=ctx['user'])
-                    return
-                task.state = 'in progress'
-                await task.save()
-                await story.say(
-                    emoji.emojize(':ok: Task `{}` was started', use_aliases=True).format(task.description),
-                    user=ctx['user'])
+                await start_one_task(ctx,
+                                     task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
                 pass
 
@@ -95,5 +98,15 @@ def setup(story):
             try:
                 await open_one_task(ctx,
                                     task=await task_story_helper.last_task(ctx))
+            except orm.errors.DoesNotExist:
+                pass
+
+    @story.on(text.Match('start last(?: task)?'))
+    def start_last_task_story():
+        @story.part()
+        async def try_to_open_last_task(ctx):
+            try:
+                await start_one_task(ctx,
+                                     task=await task_story_helper.last_task(ctx))
             except orm.errors.DoesNotExist:
                 pass
