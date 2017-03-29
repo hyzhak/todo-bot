@@ -9,8 +9,7 @@ import re
 
 from todo import orm, pagination_list, reflection
 from todo.lists import lists_document
-from todo.tasks import tasks_document, task_details_renderer
-from todo import task_state_stories
+from todo.tasks import task_details_renderer, task_state_stories, tasks_document
 
 logger = logging.getLogger(__name__)
 
