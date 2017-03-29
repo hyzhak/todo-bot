@@ -9,22 +9,25 @@ logger = logging.getLogger(__name__)
 
 
 def setup(story):
+    async def open_one_task(ctx, task):
+        if task.state == 'open':
+            await story.say(
+                'Task `{}` is already opened'.format(task.description),
+                user=ctx['user'])
+            return
+        task.state = 'open'
+        await task.save()
+        await story.say(
+            emoji.emojize(':ok: Task `{}` was opened', use_aliases=True).format(task.description),
+            user=ctx['user'])
+
     @story.on(option.Match('REOPEN_TASK_(.+)'))
     def open_task_story():
         @story.part()
         async def try_to_open_task(ctx):
             try:
-                task = await task_story_helper.current_task(ctx)
-                if task.state == 'open':
-                    await story.say(
-                        'Task `{}` is already opened'.format(task.description),
-                        user=ctx['user'])
-                    return
-                task.state = 'open'
-                await task.save()
-                await story.say(
-                    emoji.emojize(':ok: Task `{}` was opened', use_aliases=True).format(task.description),
-                    user=ctx['user'])
+                await open_one_task(ctx,
+                                    task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
                 pass
 
@@ -90,16 +93,7 @@ def setup(story):
         @story.part()
         async def try_to_open_last_task(ctx):
             try:
-                task = await task_story_helper.last_task(ctx)
-                if task.state == 'open':
-                    await story.say(
-                        'Task `{}` is already opened'.format(task.description),
-                        user=ctx['user'])
-                    return
-                task.state = 'open'
-                await task.save()
-                await story.say(
-                    emoji.emojize(':ok: Task `{}` was opened', use_aliases=True).format(task.description),
-                    user=ctx['user'])
+                await open_one_task(ctx,
+                                    task=await task_story_helper.last_task(ctx))
             except orm.errors.DoesNotExist:
                 pass
