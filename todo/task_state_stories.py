@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def setup(story):
-    @story.on(option.Match('OPEN_TASK_(.+)'))
+    @story.on(option.Match('REOPEN_TASK_(.+)'))
     def open_task_story():
         @story.part()
         async def try_to_open_task(ctx):
@@ -35,7 +35,7 @@ def setup(story):
         async def try_to_open_task(ctx):
             try:
                 task = await task_story_helper.current_task(ctx)
-                task.state = 'open'
+                task.state = 'stop'
                 await task.save()
                 await story.say(
                     emoji.emojize(':ok: Task `{}` was stopped', use_aliases=True).format(task.description),
@@ -68,6 +68,11 @@ def setup(story):
         async def try_to_open_task(ctx):
             try:
                 task = await task_story_helper.current_task(ctx)
+                if task.state == 'in progress':
+                    await story.say(
+                        'Task `{}` is already in progress'.format(task.description),
+                        user=ctx['user'])
+                    return
                 task.state = 'in progress'
                 await task.save()
                 await story.say(
