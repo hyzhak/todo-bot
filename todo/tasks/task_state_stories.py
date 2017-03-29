@@ -45,6 +45,18 @@ def setup(story):
             emoji.emojize(':ok: Task `{}` was stopped', use_aliases=True).format(task.description),
             user=ctx['user'])
 
+    async def done_one_task(ctx, task):
+        if task.state == 'done':
+            await story.say(
+                'Task `{}` is already done'.format(task.description),
+                user=ctx['user'])
+            return
+        task.state = 'done'
+        await task.save()
+        await story.say(
+            emoji.emojize(':ok: Task `{}` was done', use_aliases=True).format(task.description),
+            user=ctx['user'])
+
     # postback commands
 
     @story.on(option.Match('REOPEN_TASK_(.+)'))
@@ -72,17 +84,8 @@ def setup(story):
         @story.part()
         async def try_to_open_task(ctx):
             try:
-                task = await task_story_helper.current_task(ctx)
-                if task.state == 'done':
-                    await story.say(
-                        'Task `{}` is already done'.format(task.description),
-                        user=ctx['user'])
-                    return
-                task.state = 'done'
-                await task.save()
-                await story.say(
-                    emoji.emojize(':ok: Task `{}` was done', use_aliases=True).format(task.description),
-                    user=ctx['user'])
+                await done_one_task(ctx,
+                                    task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
                 pass
 
@@ -124,6 +127,16 @@ def setup(story):
         async def try_to_stop_last_task(ctx):
             try:
                 await stop_one_task(ctx,
+                                    task=await task_story_helper.last_task(ctx))
+            except orm.errors.DoesNotExist:
+                pass
+
+    @story.on(text.Match('done last(?: task)?'))
+    def done_last_task_story():
+        @story.part()
+        async def try_to_done_last_task(ctx):
+            try:
+                await done_one_task(ctx,
                                     task=await task_story_helper.last_task(ctx))
             except orm.errors.DoesNotExist:
                 pass
