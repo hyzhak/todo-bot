@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
     (1, 'START_TASK_{}', 'Task `{}` is already in progress', 'in progress'),
     (2, 'START_TASK_{}', ':ok: Task `{}` was started', 'in progress'),
     (2, 'REOPEN_TASK_{}', 'Task `{}` is already opened', 'open'),
-    (2, 'STOP_TASK_{}', 'Task `{}` is already opened', 'open'),
+    (2, 'STOP_TASK_{}', 'Task `{}` is already stopped', 'open'),
 ])
 async def test_change_state_of_task_by_postback(
         build_context, task_idx, command_tmpl, should_get_answer, should_get_state):
@@ -44,6 +44,8 @@ async def test_change_state_of_task_by_postback(
     ('open', 'open last', 'Task `{}` is already opened', 'open'),
     ('open', 'start last', ':ok: Task `{}` was started', 'in progress'),
     ('in progress', 'start last', 'Task `{}` is already in progress', 'in progress'),
+    ('in progress', 'stop last', ':ok: Task `{}` was stopped', 'open'),
+    ('open', 'stop last', 'Task `{}` is already stopped', 'open'),
 ])
 async def test_change_state_of_last_task(
         build_context, init_state, command, should_get_answer, should_get_state):
