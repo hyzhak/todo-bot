@@ -9,8 +9,7 @@ import re
 
 from todo import orm, pagination_list, reflection
 from todo.lists import lists_document
-from todo.tasks import tasks_document, task_details_renderer
-from todo import task_state_stories
+from todo.tasks import task_details_renderer, task_state_stories, task_story_helper, tasks_document
 
 logger = logging.getLogger(__name__)
 
@@ -100,23 +99,19 @@ def setup(story):
         async def remove_last_job(ctx):
             logger.info('remove last job')
 
-            last_job = await tasks_document.TaskDocument.objects({
-                'user_id': ctx['user']['_id'],
-            }).sort(
-                updated_at='desc',
-            ).first()
-            if not last_job:
-                logger.warn('user doesnt have tickets to remove')
+            last_task = await task_story_helper.last_task(ctx)
+            if not last_task:
+                logger.warning('user doesnt have tickets to remove')
                 await story.say(emoji.emojize(
                     'You don\'t have any tickets yet.\n'
                     ':information_source: Please send my few words about it and I will add it to your TODO list.'),
                     user=ctx['user'],
                 )
                 return
-            desc = last_job.description
+            desc = last_task.description
             logger.debug('going to remove job `{}`'.format(desc))
             await tasks_document.TaskDocument.objects({
-                '_id': last_job._id,
+                '_id': last_task._id,
             }).delete_one()
             msg = emoji.emojize(':ok: job `{}` was removed'.format(desc), use_aliases=True)
             logger.info(msg)
@@ -265,11 +260,7 @@ def setup(story):
     def last_task_story():
         @story.part()
         async def send_last_task_details(ctx):
-            last_task = await tasks_document.TaskDocument.objects({
-                'user_id': ctx['user']['_id'],
-            }).sort(
-                updated_at='desc',
-            ).first()
+            last_task = await task_story_helper.last_task(ctx)
             if not last_task:
                 await story.ask('There is no last task yet. Please add few.',
                                 user=ctx['user'],
