@@ -91,11 +91,11 @@ def setup(story):
         async def try_to_open_last_task(ctx):
             try:
                 task = await task_story_helper.last_task(ctx)
-                # if task.state == 'in progress':
-                #     await story.say(
-                #         'Task `{}` is already in progress'.format(task.description),
-                #         user=ctx['user'])
-                #     return
+                if task.state == 'open':
+                    await story.say(
+                        'Task `{}` is already opened'.format(task.description),
+                        user=ctx['user'])
+                    return
                 task.state = 'open'
                 await task.save()
                 await story.say(
