@@ -322,20 +322,7 @@ async def test_ask_again_if_we_can_find_what_to_remove(build_context):
                          ['delete last', 'drop last', 'forget about last', 'kill last', 'remove last'])
 async def test_remove_last_added_job(build_context, command):
     async with build_context() as ctx:
-        await ctx.add_tasks([{
-            'description': 'coffee with friends',
-            'user_id': ctx.user['_id'],
-            'updated_at': datetime.datetime(2017, 1, 1),
-        }, {
-            'description': 'go to gym',
-            'user_id': ctx.user['_id'],
-            'updated_at': datetime.datetime(2017, 1, 2),
-        }, {
-            'description': 'go to work',
-            'user_id': ctx.user['_id'],
-            'updated_at': datetime.datetime(2017, 1, 3),
-        },
-        ])
+        await ctx.add_test_tasks()
 
         await ctx.dialog([
             # Alice:
@@ -357,20 +344,7 @@ async def test_remove_last_added_job(build_context, command):
 @pytest.mark.asyncio
 async def test_remove_certain_task_by_complete_name(build_context):
     async with build_context() as ctx:
-        await ctx.add_tasks([{
-            'description': 'coffee with friends',
-            'user_id': ctx.user['_id'],
-            'updated_at': datetime.datetime(2017, 1, 1),
-        }, {
-            'description': 'go to gym',
-            'user_id': ctx.user['_id'],
-            'updated_at': datetime.datetime(2017, 1, 2),
-        }, {
-            'description': 'go to work',
-            'user_id': ctx.user['_id'],
-            'updated_at': datetime.datetime(2017, 1, 3),
-        },
-        ])
+        await ctx.add_test_tasks()
 
         await ctx.dialog([
             # Alice:
@@ -406,20 +380,7 @@ async def test_remove_last_warn_if_we_do_not_have_any_tickets_now(build_context)
                          ['delete all', 'delete all tasks', 'delete all jobs', ])
 async def test_remove_all_job(build_context, command):
     async with build_context() as ctx:
-        await ctx.add_tasks([{
-            'description': 'coffee with friends',
-            'user_id': ctx.user['_id'],
-            'updated_at': datetime.datetime(2017, 1, 1),
-        }, {
-            'description': 'go to gym',
-            'user_id': ctx.user['_id'],
-            'updated_at': datetime.datetime(2017, 1, 2),
-        }, {
-            'description': 'go to work',
-            'user_id': ctx.user['_id'],
-            'updated_at': datetime.datetime(2017, 1, 3),
-        },
-        ])
+        await ctx.add_test_tasks()
 
         await ctx.dialog([
             # Alice:
@@ -453,20 +414,7 @@ async def test_remove_all_job(build_context, command):
                           ])
 async def test_remove_all_job_answer_in_different_way(build_context, answer, removed):
     async with build_context() as ctx:
-        await ctx.add_tasks([{
-            'description': 'coffee with friends',
-            'user_id': ctx.user['_id'],
-            'updated_at': datetime.datetime(2017, 1, 1),
-        }, {
-            'description': 'go to gym',
-            'user_id': ctx.user['_id'],
-            'updated_at': datetime.datetime(2017, 1, 2),
-        }, {
-            'description': 'go to work',
-            'user_id': ctx.user['_id'],
-            'updated_at': datetime.datetime(2017, 1, 3),
-        },
-        ])
+        await ctx.add_test_tasks()
 
         await ctx.dialog([
             # Alice::
@@ -499,26 +447,7 @@ async def test_remove_all_job_answer_in_different_way(build_context, answer, rem
 async def test_show_task_details_on_last_task(build_context, command):
     async with build_context() as ctx:
         facebook = ctx.fb_interface
-        created_tasks = await ctx.add_tasks([{
-            'description': 'coffee with friends',
-            'user_id': ctx.user['_id'],
-            'state': 'close',
-            'created_at': datetime.datetime(2017, 1, 1),
-            'updated_at': datetime.datetime(2017, 1, 1),
-        }, {
-            'description': 'go to gym',
-            'user_id': ctx.user['_id'],
-            'state': 'in progress',
-            'created_at': datetime.datetime(2017, 1, 2),
-            'updated_at': datetime.datetime(2017, 1, 2),
-        }, {
-            'description': 'go to work',
-            'user_id': ctx.user['_id'],
-            'state': 'open',
-            'created_at': datetime.datetime(2017, 1, 3),
-            'updated_at': datetime.datetime(2017, 1, 3),
-        },
-        ])
+        created_tasks = await ctx.add_test_tasks()
 
         # Alice:
         await facebook.handle(env.build_message({
@@ -599,26 +528,7 @@ async def test_send_task_details(build_context, current_states, next_states):
 async def test_show_details_of_task_by_exact_description(build_context):
     async with build_context() as ctx:
         facebook = ctx.fb_interface
-        created_tasks = await ctx.add_tasks([{
-            'description': 'coffee with friends',
-            'user_id': ctx.user['_id'],
-            'state': 'close',
-            'created_at': datetime.datetime(2017, 1, 1),
-            'updated_at': datetime.datetime(2017, 1, 1),
-        }, {
-            'description': 'go to gym',
-            'user_id': ctx.user['_id'],
-            'state': 'in progress',
-            'created_at': datetime.datetime(2017, 1, 2),
-            'updated_at': datetime.datetime(2017, 1, 2),
-        }, {
-            'description': 'go to work',
-            'user_id': ctx.user['_id'],
-            'state': 'open',
-            'created_at': datetime.datetime(2017, 1, 3),
-            'updated_at': datetime.datetime(2017, 1, 3),
-        },
-        ])
+        created_tasks = await ctx.add_test_tasks()
 
         # Alice:
         await facebook.handle(env.build_text(
@@ -637,26 +547,7 @@ async def test_show_details_of_task_by_exact_description(build_context):
 @pytest.mark.asyncio
 async def test_remove_task_by_postback(build_context):
     async with build_context() as ctx:
-        created_tasks = await ctx.add_tasks([{
-            'description': 'coffee with friends',
-            'user_id': ctx.user['_id'],
-            'state': 'close',
-            'created_at': datetime.datetime(2017, 1, 1),
-            'updated_at': datetime.datetime(2017, 1, 1),
-        }, {
-            'description': 'go to gym',
-            'user_id': ctx.user['_id'],
-            'state': 'in progress',
-            'created_at': datetime.datetime(2017, 1, 2),
-            'updated_at': datetime.datetime(2017, 1, 2),
-        }, {
-            'description': 'go to work',
-            'user_id': ctx.user['_id'],
-            'state': 'open',
-            'created_at': datetime.datetime(2017, 1, 3),
-            'updated_at': datetime.datetime(2017, 1, 3),
-        },
-        ])
+        created_tasks = await ctx.add_test_tasks()
 
         await ctx.dialog([
             # Alice:
@@ -671,26 +562,7 @@ async def test_remove_task_by_postback(build_context):
 @pytest.mark.asyncio
 async def test_remove_task_by_postback_fail_if_wrong_id(build_context):
     async with build_context() as ctx:
-        await ctx.add_tasks([{
-            'description': 'coffee with friends',
-            'user_id': ctx.user['_id'],
-            'state': 'close',
-            'created_at': datetime.datetime(2017, 1, 1),
-            'updated_at': datetime.datetime(2017, 1, 1),
-        }, {
-            'description': 'go to gym',
-            'user_id': ctx.user['_id'],
-            'state': 'in progress',
-            'created_at': datetime.datetime(2017, 1, 2),
-            'updated_at': datetime.datetime(2017, 1, 2),
-        }, {
-            'description': 'go to work',
-            'user_id': ctx.user['_id'],
-            'state': 'open',
-            'created_at': datetime.datetime(2017, 1, 3),
-            'updated_at': datetime.datetime(2017, 1, 3),
-        },
-        ])
+        await ctx.add_test_tasks()
 
         await ctx.dialog([
             # Alice:
@@ -704,33 +576,13 @@ async def test_remove_task_by_postback_fail_if_wrong_id(build_context):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    ('task_idx', 'command_tmpl', 'should_get_answer', 'should_get_state'), [
+@pytest.mark.parametrize(('task_idx', 'command_tmpl', 'should_get_answer', 'should_get_state'), [
     (0, 'OPEN_TASK_{}', ':ok: Task `{}` was opened', 'open'),
 ])
 async def test_start_task_by_postback(
         build_context, task_idx, command_tmpl, should_get_answer, should_get_state):
     async with build_context() as ctx:
-        created_tasks = await ctx.add_tasks([{
-            'description': 'coffee with friends',
-            'user_id': ctx.user['_id'],
-            'state': 'close',
-            'created_at': datetime.datetime(2017, 1, 1),
-            'updated_at': datetime.datetime(2017, 1, 1),
-        }, {
-            'description': 'go to gym',
-            'user_id': ctx.user['_id'],
-            'state': 'in progress',
-            'created_at': datetime.datetime(2017, 1, 2),
-            'updated_at': datetime.datetime(2017, 1, 2),
-        }, {
-            'description': 'go to work',
-            'user_id': ctx.user['_id'],
-            'state': 'open',
-            'created_at': datetime.datetime(2017, 1, 3),
-            'updated_at': datetime.datetime(2017, 1, 3),
-        },
-        ])
+        created_tasks = await ctx.add_test_tasks()
 
         target_task_id = created_tasks[task_idx]._id
 
@@ -742,6 +594,7 @@ async def test_start_task_by_postback(
         task_after_command = await tasks_document.TaskDocument.objects.find_by_id(target_task_id)
         # Bob:
         await ctx.dialog([
-            None, should_get_answer.format(task_after_command.description),
+            None,
+            should_get_answer.format(task_after_command.description),
         ])
         assert task_after_command.state == should_get_state

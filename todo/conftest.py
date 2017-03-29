@@ -1,6 +1,7 @@
 import botstory
 from botstory import di
 from botstory.integrations import fb, mongodb, mockhttp
+import datetime
 import emoji
 import logging
 import os
@@ -60,6 +61,28 @@ def build_context():
             await self.tasks_collection.drop()
 
             return self
+
+        async def add_test_tasks(self):
+            return await self.add_tasks([{
+                'description': 'coffee with friends',
+                'user_id': self.user['_id'],
+                'state': 'close',
+                'created_at': datetime.datetime(2017, 1, 1),
+                'updated_at': datetime.datetime(2017, 1, 1),
+            }, {
+                'description': 'go to gym',
+                'user_id': self.user['_id'],
+                'state': 'in progress',
+                'created_at': datetime.datetime(2017, 1, 2),
+                'updated_at': datetime.datetime(2017, 1, 2),
+            }, {
+                'description': 'go to work',
+                'user_id': self.user['_id'],
+                'state': 'open',
+                'created_at': datetime.datetime(2017, 1, 3),
+                'updated_at': datetime.datetime(2017, 1, 3),
+            },
+            ])
 
         async def __aexit__(self, exc_type, exc_val, exc_tb):
             await self.db_interface.clear_collections()
