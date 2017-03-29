@@ -578,6 +578,7 @@ async def test_remove_task_by_postback_fail_if_wrong_id(build_context):
 @pytest.mark.asyncio
 @pytest.mark.parametrize(('task_idx', 'command_tmpl', 'should_get_answer', 'should_get_state'), [
     (0, 'OPEN_TASK_{}', ':ok: Task `{}` was opened', 'open'),
+    (1, 'STOP_TASK_{}', ':ok: Task `{}` was stopped', 'open'),
 ])
 async def test_start_task_by_postback(
         build_context, task_idx, command_tmpl, should_get_answer, should_get_state):

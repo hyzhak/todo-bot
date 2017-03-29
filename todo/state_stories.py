@@ -28,3 +28,17 @@ def setup(story):
                     user=ctx['user'])
             except orm.errors.DoesNotExist:
                 pass
+
+    @story.on(option.Match('STOP_TASK_(.+)'))
+    def stop_task_story():
+        @story.part()
+        async def try_to_open_task(ctx):
+            try:
+                task = await task_story_helper.current_task(ctx)
+                task.state = 'open'
+                await task.save()
+                await story.say(
+                    emoji.emojize(':ok: Task `{}` was stopped', use_aliases=True).format(task.description),
+                    user=ctx['user'])
+            except orm.errors.DoesNotExist:
+                pass
