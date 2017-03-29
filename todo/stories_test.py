@@ -579,11 +579,12 @@ async def test_remove_task_by_postback_fail_if_wrong_id(build_context):
 @pytest.mark.parametrize(('task_idx', 'command_tmpl', 'should_get_answer', 'should_get_state'), [
     (0, 'REOPEN_TASK_{}', ':ok: Task `{}` was opened', 'open'),
     (0, 'DONE_TASK_{}', 'Task `{}` is already done', 'done'),
-    (1, 'STOP_TASK_{}', ':ok: Task `{}` was stopped', 'stop'),
+    (1, 'STOP_TASK_{}', ':ok: Task `{}` was stopped', 'open'),
     (1, 'DONE_TASK_{}', ':ok: Task `{}` was done', 'done'),
     (1, 'START_TASK_{}', 'Task `{}` is already in progress', 'in progress'),
     (2, 'START_TASK_{}', ':ok: Task `{}` was started', 'in progress'),
     (2, 'REOPEN_TASK_{}', 'Task `{}` is already opened', 'open'),
+    (2, 'STOP_TASK_{}', 'Task `{}` is already opened', 'open'),
 ])
 async def test_start_task_by_postback(
         build_context, task_idx, command_tmpl, should_get_answer, should_get_state):
