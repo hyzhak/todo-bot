@@ -10,6 +10,7 @@ import re
 from todo import orm, pagination_list, reflection
 from todo.lists import lists_document
 from todo.tasks import tasks_document, task_details_renderer
+from todo import state_stories
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,7 @@ logger.debug('parse stories')
 
 def setup(story):
     pagination_list.setup(story)
+    state_stories.setup(story)
 
     @story.on_start()
     def on_start_story():
@@ -123,7 +125,7 @@ def setup(story):
     @story.on(option.Match('REMOVE_TASK_(.+)'))
     def remove_task_story():
         @story.part()
-        async def send_task_details_back(ctx):
+        async def try_to_remove_task(ctx):
             task_id = story_context.get_message_data(ctx, 'option', 'matches')[0]
             try:
                 task = await tasks_document.TaskDocument.objects.find_one({
@@ -225,8 +227,11 @@ def setup(story):
             await story.say('We can\'t find `{}` what do you want to remove?'.format(target),
                             user=ctx['user'])
 
-    @story.on(text.Match('open(.+)'))
-    def open_task_story():
+    @story.on([
+        text.Match('more about(.+)'),
+        text.Match('see(.+)'),
+    ])
+    def task_details_story_by_text_match():
         @story.part()
         async def send_task_details(ctx):
             query = story_context.get_message_data(ctx, 'text', 'matches')[0].strip()
@@ -243,8 +248,8 @@ def setup(story):
                 # TODO:
                 pass
 
-    @story.on(option.Match('OPEN_TASK_(.+)'))
-    def task_details_story():
+    @story.on(option.Match('TASK_DETAILS_(.+)'))
+    def task_details_story_by_option_match():
         @story.part()
         async def send_task_details_back(ctx):
             task_id = story_context.get_message_data(ctx, 'option', 'matches')[0]

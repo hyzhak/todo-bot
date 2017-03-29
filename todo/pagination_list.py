@@ -88,7 +88,7 @@ def setup(story):
                             'buttons': [{
                                 'title': 'Task #{}'.format(start_index + index + 1),
                                 'type': 'postback',
-                                'payload': 'OPEN_TASK_{}'.format(item._id),
+                                'payload': 'TASK_DETAILS_{}'.format(item._id),
                             }]
                         }
                         for index, item in enumerate(items)]

@@ -92,6 +92,10 @@ def build_context():
             await self.fb_interface.handle(env.build_message(data))
 
         async def dialog(self, dialog_sequence):
+            # even if it is only one phrase we add empty answer to get dialog
+            if len(dialog_sequence) == 1:
+                dialog_sequence.append(None)
+
             for q_a in zip(
                     dialog_sequence[:-1][::2],
                     dialog_sequence[1:][::2],

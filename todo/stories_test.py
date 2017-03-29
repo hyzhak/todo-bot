@@ -587,7 +587,7 @@ async def test_send_task_details(build_context, current_states, next_states):
 
         # Alice:
         await facebook.handle(env.build_postback(
-            'OPEN_TASK_{}'.format(target_task._id)))
+            'TASK_DETAILS_{}'.format(target_task._id)))
 
         # Bob:
         task_test_helper.assert_task_message(target_task,
@@ -596,7 +596,7 @@ async def test_send_task_details(build_context, current_states, next_states):
 
 
 @pytest.mark.asyncio
-async def test_open_task_by_exact_description(build_context):
+async def test_show_details_of_task_by_exact_description(build_context):
     async with build_context() as ctx:
         facebook = ctx.fb_interface
         created_tasks = await ctx.add_tasks([{
@@ -622,7 +622,7 @@ async def test_open_task_by_exact_description(build_context):
 
         # Alice:
         await facebook.handle(env.build_text(
-            'open go to work',
+            'see go to work',
         ))
 
         # Bob:
@@ -704,7 +704,12 @@ async def test_remove_task_by_postback_fail_if_wrong_id(build_context):
 
 
 @pytest.mark.asyncio
-async def test_start_task_by_postback(build_context):
+@pytest.mark.parametrize(
+    ('task_idx', 'command_tmpl', 'should_get_answer', 'should_get_state'), [
+    (0, 'OPEN_TASK_{}', ':ok: Task `{}` was opened', 'open'),
+])
+async def test_start_task_by_postback(
+        build_context, task_idx, command_tmpl, should_get_answer, should_get_state):
     async with build_context() as ctx:
         created_tasks = await ctx.add_tasks([{
             'description': 'coffee with friends',
@@ -727,11 +732,16 @@ async def test_start_task_by_postback(build_context):
         },
         ])
 
+        target_task_id = created_tasks[task_idx]._id
+
+        # Alice:
         await ctx.dialog([
-            # Alice:
-            env.build_postback('REMOVE_TASK_{}'.format(created_tasks[0]._id)),
-            # Bob:
-            ':ok: Task `{}` was deleted'.format(created_tasks[0].description),
+            env.build_postback(command_tmpl.format(target_task_id)),
         ])
-        tasks_left = await tasks_document.TaskDocument.objects.find()
-        assert len(tasks_left) == 2
+
+        task_after_command = await tasks_document.TaskDocument.objects.find_by_id(target_task_id)
+        # Bob:
+        await ctx.dialog([
+            None, should_get_answer.format(task_after_command.description),
+        ])
+        assert task_after_command.state == should_get_state
