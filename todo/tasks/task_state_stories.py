@@ -54,6 +54,27 @@ def setup(story):
             emoji.emojize(':ok: Task `{}` was started', use_aliases=True).format(task.description),
             user=ctx['user'])
 
+    async def start_many_task(ctx, tasks):
+        modified_descriptions = []
+        for task in tasks:
+            if task.state not in ['in progress', 'done']:
+                task.state = 'in progress'
+                await task.save()
+                modified_descriptions.append(task.description)
+
+        if len(modified_descriptions) == 0:
+            # TODO:
+            pass
+
+        modified_descriptions_list = '\n'.join(
+            [emoji.emojize(':white_medium_square: {}').format(t) for t in modified_descriptions])
+
+        await story.say(
+            emoji.emojize(':ok: Task{} was started:\n{}', use_aliases=True).format(
+                's' if len(modified_descriptions) > 1 else '',
+                modified_descriptions_list),
+            user=ctx['user'])
+
     async def stop_one_task(ctx, task):
         if task.state == 'open':
             await story.say(
@@ -172,12 +193,23 @@ def setup(story):
 
     # match "<do> all (task)"
     @story.on(text.Match('open all(?: task)?'))
-    def open_all_my_task_story():
+    def open_all_my_tasks_story():
         @story.part()
-        async def try_to_open_last_task(ctx):
+        async def try_to_open_all_tasks(ctx):
             try:
                 await open_many_task(ctx,
                                      tasks=await task_story_helper.all_my_tasks(ctx))
+            except orm.errors.DoesNotExist:
+                # TODO:
+                pass
+
+    @story.on(text.Match('start all(?: task)?'))
+    def start_all_my_task_story():
+        @story.part()
+        async def try_to_start_all_tasks(ctx):
+            try:
+                await start_many_task(ctx,
+                                      tasks=await task_story_helper.all_my_tasks(ctx))
             except orm.errors.DoesNotExist:
                 # TODO:
                 pass
