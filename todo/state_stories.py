@@ -42,3 +42,17 @@ def setup(story):
                     user=ctx['user'])
             except orm.errors.DoesNotExist:
                 pass
+
+    @story.on(option.Match('DONE_TASK_(.+)'))
+    def stop_task_story():
+        @story.part()
+        async def try_to_open_task(ctx):
+            try:
+                task = await task_story_helper.current_task(ctx)
+                task.state = 'done'
+                await task.save()
+                await story.say(
+                    emoji.emojize(':ok: Task `{}` was done', use_aliases=True).format(task.description),
+                    user=ctx['user'])
+            except orm.errors.DoesNotExist:
+                pass
