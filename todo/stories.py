@@ -10,7 +10,7 @@ import re
 from todo import orm, pagination_list, reflection
 from todo.lists import lists_document
 from todo.tasks import tasks_document, task_details_renderer
-from todo import state_stories
+from todo import task_state_stories
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ logger.debug('parse stories')
 
 def setup(story):
     pagination_list.setup(story)
-    state_stories.setup(story)
+    task_state_stories.setup(story)
 
     @story.on_start()
     def on_start_story():
