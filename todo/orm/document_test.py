@@ -21,13 +21,24 @@ def build_mock_db():
             self.db = self.cx.get_database(os.environ.get('MONGODB_TEST_DB', 'test'))
             self.tasks = self.db.get_collection('tasks')
 
-            await self.tasks.insert({'description': 'chicane', 'level': 1})
-            await self.tasks.insert({'description': 'fooling around', 'level': 1})
-            await self.tasks.insert({'description': 'hokey-pokey', 'level': 2})
-            await self.tasks.insert({'description': 'monkey business', 'level': 2})
+            self.task_list = []
+
+            await self.add_tasks([
+                {'description': 'chicane', 'level': 1},
+                {'description': 'fooling around', 'level': 1},
+                {'description': 'hokey-pokey', 'level': 2},
+                {'description': 'monkey business', 'level': 2},
+            ])
 
             TaskDocument.set_collection(self.tasks)
-            return self.db
+            return self
+
+        async def add_tasks(self, tasks_to_add):
+            for t in tasks_to_add:
+                _id = await self.tasks.insert(t)
+                self.task_list.append(
+                    await self.tasks.find_one({'_id': _id})
+                )
 
         async def __aexit__(self, exc_type, exc_val, exc_tb):
             await self.tasks.drop()
@@ -194,3 +205,19 @@ async def test_get_first(build_mock_db):
     async with build_mock_db():
         first_item = await TaskDocument.objects.first()
         assert first_item.description == 'chicane'
+
+
+@pytest.mark.asyncio
+async def test_get_by_object_id(build_mock_db):
+    async with build_mock_db() as ctx:
+        target_item = ctx.task_list[0]
+        item = await TaskDocument.objects.find_by_id(target_item['_id'])
+        assert item == target_item
+
+
+@pytest.mark.asyncio
+async def test_get_by_str_id(build_mock_db):
+    async with build_mock_db() as ctx:
+        target_item = ctx.task_list[0]
+        item = await TaskDocument.objects.find_by_id(str(target_item['_id']))
+        assert item == target_item
