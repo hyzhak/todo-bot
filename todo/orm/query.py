@@ -64,7 +64,7 @@ class Query:
     async def first(self):
         cursor = self.get_cursor()
         if not await cursor.fetch_next:
-            return None
+            raise errors.DoesNotExist()
         return self.item_cls(**cursor.next_object())
 
     def get_cursor(self):

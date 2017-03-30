@@ -122,3 +122,21 @@ async def test_warn_if_there_is_no_tasks_to_apply_changes_for_all(
             # Bob:
             'There is no task to {}'.format(command_name),
         ])
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(('command', 'command_name'), [
+    ('open last', 'open'),
+    ('start last', 'start'),
+    ('stop last', 'stop'),
+    ('done last', 'done'),
+])
+async def test_warn_if_there_is_no_tasks_to_apply_changes_for_all(
+        build_context, command, command_name):
+    async with build_context() as ctx:
+        await ctx.dialog([
+            # Alice:
+            command,
+            # Bob:
+            'You do not have any task to {}'.format(command_name),
+        ])
