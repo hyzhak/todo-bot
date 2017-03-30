@@ -97,7 +97,7 @@ async def test_change_state_of_all_tasks(
             assert task_after_command.state in should_get_states
 
         list_of_modified_tasks = '\n'.join(
-            [emoji.emojize(':white_medium_square: {}').format(t) for t in description_of_tasks_that_will_be_modified])
+            [emoji.emojize(':white_check_mark: {}').format(t) for t in description_of_tasks_that_will_be_modified])
 
         # Bob:
         await ctx.dialog([

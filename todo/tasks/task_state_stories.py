@@ -38,7 +38,7 @@ def setup(story):
             pass
 
         modified_descriptions_list = '\n'.join(
-            [emoji.emojize(':white_medium_square: {}').format(t) for t in modified_descriptions])
+            [emoji.emojize(':white_check_mark: {}', use_aliases=True).format(t) for t in modified_descriptions])
 
         await story.say(
             emoji.emojize(':ok: Task{} opened:\n{}', use_aliases=True).format(
@@ -71,7 +71,7 @@ def setup(story):
             pass
 
         modified_descriptions_list = '\n'.join(
-            [emoji.emojize(':white_medium_square: {}').format(t) for t in modified_descriptions])
+            [emoji.emojize(':white_check_mark: {}', use_aliases=True).format(t) for t in modified_descriptions])
 
         await story.say(
             emoji.emojize(':ok: Task{} started:\n{}', use_aliases=True).format(
@@ -104,7 +104,7 @@ def setup(story):
             pass
 
         modified_descriptions_list = '\n'.join(
-            [emoji.emojize(':white_medium_square: {}').format(t) for t in modified_descriptions])
+            [emoji.emojize(':white_check_mark: {}', use_aliases=True).format(t) for t in modified_descriptions])
 
         await story.say(
             emoji.emojize(':ok: Task{} stopped:\n{}', use_aliases=True).format(
@@ -137,7 +137,7 @@ def setup(story):
             pass
 
         modified_descriptions_list = '\n'.join(
-            [emoji.emojize(':white_medium_square: {}').format(t) for t in modified_descriptions])
+            [emoji.emojize(':white_check_mark: {}', use_aliases=True).format(t) for t in modified_descriptions])
 
         await story.say(
             emoji.emojize(':ok: Task{} done:\n{}', use_aliases=True).format(
