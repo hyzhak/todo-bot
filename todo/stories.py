@@ -9,7 +9,12 @@ import re
 
 from todo import orm, pagination_list, reflection
 from todo.lists import lists_document
-from todo.tasks import task_details_renderer, task_state_stories, task_story_helper, tasks_document
+from todo.tasks import \
+    task_creation_stories, \
+    task_details_renderer, \
+    task_state_stories, \
+    task_story_helper, \
+    tasks_document
 
 logger = logging.getLogger(__name__)
 
@@ -354,28 +359,7 @@ def setup(story):
                 user=ctx['user'],
             )
 
-    @story.on(receive=text.Any())
-    def new_task_story():
-        """
-        Any text that doesn't match specific cases
-        consider as new task
-        """
-
-        @story.part()
-        async def add_new_task(ctx):
-            logger.info('new task')
-            task_description = text.get_raw_text(ctx)
-
-            await tasks_document.TaskDocument(**{
-                'user_id': ctx['user']['_id'],
-                'list': 'list_1',
-                'description': task_description,
-                'state': 'open',
-                'created_at': datetime.datetime.now(),
-                'updated_at': datetime.datetime.now(),
-            }).save()
-
-            await story.say('Task `{}` was added to the job list.'.format(task_description), ctx['user'])
+    task_creation_stories.setup(story)
 
     @story.on(receive=any.Any())
     def any_story():
