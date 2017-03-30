@@ -8,6 +8,10 @@ from todo.tasks import task_story_helper
 logger = logging.getLogger(__name__)
 
 
+def singular_vs_plural(singular):
+    return ' was' if singular else 's were'
+
+
 def setup(story):
     async def open_one_task(ctx, task):
         if task.state == 'open':
@@ -24,7 +28,7 @@ def setup(story):
     async def open_many_task(ctx, tasks):
         modified_descriptions = []
         for task in tasks:
-            if task.state not in ['open', 'in progress']:
+            if task.state == 'done':
                 task.state = 'open'
                 await task.save()
                 modified_descriptions.append(task.description)
@@ -37,8 +41,8 @@ def setup(story):
             [emoji.emojize(':white_medium_square: {}').format(t) for t in modified_descriptions])
 
         await story.say(
-            emoji.emojize(':ok: Task{} was opened:\n{}', use_aliases=True).format(
-                's' if len(modified_descriptions) > 1 else '',
+            emoji.emojize(':ok: Task{} opened:\n{}', use_aliases=True).format(
+                singular_vs_plural(len(modified_descriptions) == 1),
                 modified_descriptions_list),
             user=ctx['user'])
 
@@ -57,7 +61,7 @@ def setup(story):
     async def start_many_task(ctx, tasks):
         modified_descriptions = []
         for task in tasks:
-            if task.state not in ['in progress', 'done']:
+            if task.state == 'open':
                 task.state = 'in progress'
                 await task.save()
                 modified_descriptions.append(task.description)
@@ -70,8 +74,8 @@ def setup(story):
             [emoji.emojize(':white_medium_square: {}').format(t) for t in modified_descriptions])
 
         await story.say(
-            emoji.emojize(':ok: Task{} was started:\n{}', use_aliases=True).format(
-                's' if len(modified_descriptions) > 1 else '',
+            emoji.emojize(':ok: Task{} started:\n{}', use_aliases=True).format(
+                singular_vs_plural(len(modified_descriptions) == 1),
                 modified_descriptions_list),
             user=ctx['user'])
 
@@ -90,7 +94,7 @@ def setup(story):
     async def stop_many_task(ctx, tasks):
         modified_descriptions = []
         for task in tasks:
-            if task.state not in ['open', 'done']:
+            if task.state == 'in progress':
                 task.state = 'open'
                 await task.save()
                 modified_descriptions.append(task.description)
@@ -103,8 +107,8 @@ def setup(story):
             [emoji.emojize(':white_medium_square: {}').format(t) for t in modified_descriptions])
 
         await story.say(
-            emoji.emojize(':ok: Task{} was stopped:\n{}', use_aliases=True).format(
-                's' if len(modified_descriptions) > 1 else '',
+            emoji.emojize(':ok: Task{} stopped:\n{}', use_aliases=True).format(
+                singular_vs_plural(len(modified_descriptions) == 1),
                 modified_descriptions_list),
             user=ctx['user'])
 
@@ -118,6 +122,27 @@ def setup(story):
         await task.save()
         await story.say(
             emoji.emojize(':ok: Task `{}` was done', use_aliases=True).format(task.description),
+            user=ctx['user'])
+
+    async def done_many_task(ctx, tasks):
+        modified_descriptions = []
+        for task in tasks:
+            if task.state != 'done':
+                task.state = 'done'
+                await task.save()
+                modified_descriptions.append(task.description)
+
+        if len(modified_descriptions) == 0:
+            # TODO:
+            pass
+
+        modified_descriptions_list = '\n'.join(
+            [emoji.emojize(':white_medium_square: {}').format(t) for t in modified_descriptions])
+
+        await story.say(
+            emoji.emojize(':ok: Task{} done:\n{}', use_aliases=True).format(
+                singular_vs_plural(len(modified_descriptions) == 1),
+                modified_descriptions_list),
             user=ctx['user'])
 
     # postback commands
@@ -241,6 +266,17 @@ def setup(story):
         async def try_to_stop_all_tasks(ctx):
             try:
                 await stop_many_task(ctx,
+                                     tasks=await task_story_helper.all_my_tasks(ctx))
+            except orm.errors.DoesNotExist:
+                # TODO:
+                pass
+
+    @story.on(text.Match('done all(?: task)?'))
+    def done_all_my_task_story():
+        @story.part()
+        async def try_to_done_all_tasks(ctx):
+            try:
+                await done_many_task(ctx,
                                      tasks=await task_story_helper.all_my_tasks(ctx))
             except orm.errors.DoesNotExist:
                 # TODO:
