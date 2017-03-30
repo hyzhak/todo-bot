@@ -40,7 +40,6 @@ async def test_add_simple_task_(build_context):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip('I am going to add it soon')
 async def test_add_few_tasks_from_sequence_of_actions(build_context):
     async with build_context() as ctx:
         await ctx.dialog([

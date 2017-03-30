@@ -60,9 +60,9 @@ def setup(story):
                     await build_task(ctx, t)
 
                 await story.say(
-                    'Tasks were added:\n{}'.format(
+                    emoji.emojize('Tasks were added:\n{}'.format(
                         '\n'.join([':white_medium_square: {}'.format(t) for t in task_titles])
-                    ),
+                    )),
                     user=ctx['user'],
                 )
             else:
