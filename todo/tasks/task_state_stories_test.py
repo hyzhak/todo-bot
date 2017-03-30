@@ -73,9 +73,9 @@ async def test_change_state_of_last_task(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(('command', 'should_get_answer', 'should_get_states'), [
-    ('open all', ':ok: Tasks was opened:\n{}', ['open']),
+    ('open all', ':ok: Task was opened:\n{}', ['open', 'in progress']),
     ('start all', ':ok: Task was started:\n{}', ['in progress', 'done']),
-    # ('stop all', ':ok: Task was stopped:\n{}', 'open'),
+    ('stop all', ':ok: Task was stopped:\n{}', ['open', 'done']),
     # ('done all', ':ok: Task was done:\n{}', 'done'),
 ])
 async def test_change_state_of_all_tasks(
