@@ -28,6 +28,23 @@ def split_by_linked_words(tokens):
     yield sentence
 
 
+PUNCTUATION_WORDS = ['!', '?', '_', '(', ')', '#', '@', '%', '^', '\'', '"', '`']
+
+
+def join_punctuation(tokens):
+    for sentence in tokens:
+        word = ''
+        new_sentence = []
+        for w in sentence:
+            if w in PUNCTUATION_WORDS or len(word) == 0:
+                word += w
+            else:
+                new_sentence.append(word)
+                word = w
+        new_sentence.append(word)
+        yield new_sentence
+
+
 def flatten_sentences(tokens):
     return [' '.join(t) for t in tokens]
 
@@ -40,7 +57,8 @@ def extract_sense(text):
     tokens = tokenize(text.strip())
     tokens = strip_tokens(tokens)
     tokens = strip_empty_words(tokens)
-    tokens = list(split_by_linked_words(tokens))
+    tokens = split_by_linked_words(tokens)
+    tokens = join_punctuation(tokens)
     tokens = flatten_sentences(tokens)
     tokens = strip_empty_words(tokens)
     return [{

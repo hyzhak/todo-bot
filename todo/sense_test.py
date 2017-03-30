@@ -34,3 +34,12 @@ def test_multi_lines_tasks_sentence():
             'title': 'gift card',
         }],
     }]
+
+
+def test_sentence_with_punctuation():
+    assert sense.extract_sense('gift!') == [{
+        'intent': 'ADD_NEW_TASK',
+        'entities': [{
+            'title': 'gift!',
+        }],
+    }]

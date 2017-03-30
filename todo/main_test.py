@@ -34,7 +34,7 @@ async def test_text_echo(event_loop):
                                           "message": {
                                               "mid": "mid.1457764197618:41d102a3e1ae206a38",
                                               "seq": 73,
-                                              "text": "hello, world!",
+                                              "text": "hello world!",
                                           }
                                       }]
                                   }]
@@ -43,7 +43,7 @@ async def test_text_echo(event_loop):
         assert len(sandbox.fb.history) == 1
         assert await sandbox.fb.history[0]['request'].json() == {
             'message': {
-                'text': 'Task `hello, world!` was added to the job list.'
+                'text': 'Task `hello world!` was added to the job list.'
             },
             'recipient': {'id': 'USER_ID'},
         }

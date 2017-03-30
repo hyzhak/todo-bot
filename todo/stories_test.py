@@ -22,14 +22,14 @@ async def test_new_task_story(build_context, mocker):
         mocker.patch.object(stories.tasks_document, 'TaskDocument', return_value=task)
 
         await facebook.handle(env.build_message({
-            'text': 'hello, world!'
+            'text': 'hello world!'
         }))
 
         assert stories.tasks_document.TaskDocument.called
         _, obj = stories.tasks_document.TaskDocument.call_args
 
         assert obj['list'] == 'list_1'
-        assert obj['description'] == 'hello, world!'
+        assert obj['description'] == 'hello world!'
         assert obj['state'] == 'open'
         assert 'created_at' in obj
         assert 'updated_at' in obj
