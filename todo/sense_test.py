@@ -21,3 +21,16 @@ def test_enumerate_tasks_sentence():
             'title': 'gift card',
         }],
     }]
+
+
+def test_multi_lines_tasks_sentence():
+    assert sense.extract_sense('candies\nflowers\ngift card') == [{
+        'intent': 'ADD_NEW_TASK',
+        'entities': [{
+            'title': 'candies',
+        }, {
+            'title': 'flowers',
+        }, {
+            'title': 'gift card',
+        }],
+    }]
