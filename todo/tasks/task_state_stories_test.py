@@ -104,3 +104,21 @@ async def test_change_state_of_all_tasks(
             None,
             should_get_answer.format(list_of_modified_tasks),
         ])
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(('command', 'command_name'), [
+    ('open all', 'open'),
+    ('start all', 'start'),
+    ('stop all', 'stop'),
+    ('done all', 'done'),
+])
+async def test_warn_if_there_is_no_tasks_to_apply_changes_for_all(
+        build_context, command, command_name):
+    async with build_context() as ctx:
+        await ctx.dialog([
+            # Alice:
+            command,
+            # Bob:
+            'There is no task to {}'.format(command_name),
+        ])

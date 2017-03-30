@@ -34,8 +34,9 @@ def setup(story):
                 modified_descriptions.append(task.description)
 
         if len(modified_descriptions) == 0:
-            # TODO:
-            pass
+            await story.say('There is no task to open',
+                            user=ctx['user'])
+            return
 
         modified_descriptions_list = '\n'.join(
             [emoji.emojize(':white_check_mark: {}', use_aliases=True).format(t) for t in modified_descriptions])
@@ -67,8 +68,9 @@ def setup(story):
                 modified_descriptions.append(task.description)
 
         if len(modified_descriptions) == 0:
-            # TODO:
-            pass
+            await story.say('There is no task to start',
+                            user=ctx['user'])
+            return
 
         modified_descriptions_list = '\n'.join(
             [emoji.emojize(':white_check_mark: {}', use_aliases=True).format(t) for t in modified_descriptions])
@@ -100,8 +102,9 @@ def setup(story):
                 modified_descriptions.append(task.description)
 
         if len(modified_descriptions) == 0:
-            # TODO:
-            pass
+            await story.say('There is no task to stop',
+                            user=ctx['user'])
+            return
 
         modified_descriptions_list = '\n'.join(
             [emoji.emojize(':white_check_mark: {}', use_aliases=True).format(t) for t in modified_descriptions])
@@ -133,8 +136,9 @@ def setup(story):
                 modified_descriptions.append(task.description)
 
         if len(modified_descriptions) == 0:
-            # TODO:
-            pass
+            await story.say('There is no task to done',
+                            user=ctx['user'])
+            return
 
         modified_descriptions_list = '\n'.join(
             [emoji.emojize(':white_check_mark: {}', use_aliases=True).format(t) for t in modified_descriptions])
