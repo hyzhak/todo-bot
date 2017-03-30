@@ -99,23 +99,23 @@ def setup(story):
         async def remove_last_job(ctx):
             logger.info('remove last job')
 
-            last_task = await task_story_helper.last_task(ctx)
-            if not last_task:
+            try:
+                last_task = await task_story_helper.last_task(ctx)
+                desc = last_task.description
+                logger.debug('going to remove job `{}`'.format(desc))
+                await tasks_document.TaskDocument.objects({
+                    '_id': last_task._id,
+                }).delete_one()
+                msg = emoji.emojize(':ok: job `{}` was removed'.format(desc), use_aliases=True)
+                logger.info(msg)
+                await story.say(msg, user=ctx['user'])
+            except orm.errors.DoesNotExist:
                 logger.warning('user doesnt have tickets to remove')
                 await story.say(emoji.emojize(
                     'You don\'t have any tickets yet.\n'
                     ':information_source: Please send my few words about it and I will add it to your TODO list.'),
                     user=ctx['user'],
                 )
-                return
-            desc = last_task.description
-            logger.debug('going to remove job `{}`'.format(desc))
-            await tasks_document.TaskDocument.objects({
-                '_id': last_task._id,
-            }).delete_one()
-            msg = emoji.emojize(':ok: job `{}` was removed'.format(desc), use_aliases=True)
-            logger.info(msg)
-            await story.say(msg, user=ctx['user'])
 
     @story.on(option.Match('REMOVE_TASK_(.+)'))
     def remove_task_story():
@@ -260,16 +260,16 @@ def setup(story):
     def last_task_story():
         @story.part()
         async def send_last_task_details(ctx):
-            last_task = await task_story_helper.last_task(ctx)
-            if not last_task:
+            try:
+                await task_details_renderer.render(story, ctx['user'],
+                                                   task=await task_story_helper.last_task(ctx))
+            except orm.errors.DoesNotExist:
                 await story.ask('There is no last task yet. Please add few.',
                                 user=ctx['user'],
                                 quick_replies=[{
                                     'title': emoji.emojize('Add New Task', use_aliases=True),
                                     'payload': 'ADD_NEW_TASK'
                                 }])
-            else:
-                await task_details_renderer.render(story, ctx['user'], last_task)
 
     @story.on(receive=sticker.Like())
     def like_story():

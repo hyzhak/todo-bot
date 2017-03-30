@@ -97,10 +97,46 @@ async def test_change_state_of_all_tasks(
             assert task_after_command.state in should_get_states
 
         list_of_modified_tasks = '\n'.join(
-            [emoji.emojize(':white_medium_square: {}').format(t) for t in description_of_tasks_that_will_be_modified])
+            [emoji.emojize(':white_check_mark: {}').format(t) for t in description_of_tasks_that_will_be_modified])
 
         # Bob:
         await ctx.dialog([
             None,
             should_get_answer.format(list_of_modified_tasks),
+        ])
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(('command', 'command_name'), [
+    ('open all', 'open'),
+    ('start all', 'start'),
+    ('stop all', 'stop'),
+    ('done all', 'done'),
+])
+async def test_warn_if_there_is_no_tasks_to_apply_changes_for_all(
+        build_context, command, command_name):
+    async with build_context() as ctx:
+        await ctx.dialog([
+            # Alice:
+            command,
+            # Bob:
+            'There is no task to {}'.format(command_name),
+        ])
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(('command', 'command_name'), [
+    ('open last', 'open'),
+    ('start last', 'start'),
+    ('stop last', 'stop'),
+    ('done last', 'done'),
+])
+async def test_warn_if_there_is_no_tasks_to_apply_changes_for_all(
+        build_context, command, command_name):
+    async with build_context() as ctx:
+        await ctx.dialog([
+            # Alice:
+            command,
+            # Bob:
+            'You do not have any task to {}'.format(command_name),
         ])
