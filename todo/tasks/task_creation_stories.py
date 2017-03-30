@@ -23,6 +23,8 @@ def setup(story):
 
         @story.part()
         async def add_new_task(ctx):
+            # ctx = task_entities.extract_entities(text.get_raw_text(ctx))
+            #
             logger.info('new task')
             task_description = text.get_raw_text(ctx)
 
