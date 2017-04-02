@@ -55,7 +55,10 @@ def setup(story):
                 task_id = await build_task(ctx, task_description)
 
                 await story.ask(
-                    'Task `{}` was added to the job list.'.format(task_description),
+                    emoji.emojize(
+                        ':ok: Task `{}` was added'.format(task_description),
+                        use_aliases=True,
+                    ),
                     quick_replies=[{
                        'title': 'start task',
                        'payload': 'START_TASK_{}'.format(task_id),

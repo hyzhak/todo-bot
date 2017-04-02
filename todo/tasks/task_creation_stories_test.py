@@ -19,7 +19,7 @@ async def test_add_simple_task(build_context):
             # Alice:
             'Buy a bread',
             # Bob:
-            'Task `Buy a bread` was added to the job list.',
+            ':ok: Task `Buy a bread` was added',
         ])
 
 
@@ -35,7 +35,7 @@ async def test_add_simple_task_(build_context):
             'I need to buy a bread',
             'I want to buy a bread',
             # Bob:
-            'Task `Buy a bread` was added to the job list.',
+            ':ok: Task `Buy a bread` was added',
         ])
 
 

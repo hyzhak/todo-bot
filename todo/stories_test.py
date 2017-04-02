@@ -168,7 +168,7 @@ async def test_after_the_end_of_infinity_list_of_active_tasks(build_context, mon
             # Alice:
             'next',
             # Bob:
-            'Task `next` was added to the job list.',
+            ':ok: Task `next` was added',
         ])
 
 
@@ -203,7 +203,7 @@ async def test_immediatly_reach_the_end_of_pagination_list_and_all_upcoming_comm
             # Alice:
             'next',
             # Bob:
-            'Task `next` was added to the job list.',
+            ':ok: Task `next` was added',
         ])
 
 
