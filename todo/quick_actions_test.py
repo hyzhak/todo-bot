@@ -212,3 +212,36 @@ async def test_quick_actions_on_done_all(build_context):
                 ],
             },
         ])
+
+
+@pytest.mark.asyncio
+async def test_quick_actions_on_remove_all(build_context):
+    async with build_context() as ctx:
+        await ctx.add_test_tasks()
+
+        await ctx.dialog([
+            # Alice:
+            'remove all',
+            # Bob:
+            ':question: Do you really want to remove all your tasks '
+            'of current list?',
+            # Alice:
+            'yes',
+            # Bob:
+            {
+                'quick_actions': [{
+                    'title': 'remove the following task',
+                    'payload': 'REMOVE_LAST_TASK',
+                }, {
+                    'title': 'details about the next task',
+                    'payload': 'LAST_TASK_DETAILS',
+                }, {
+                    'title': 'add new task',
+                    'payload': 'ADD_NEW_TASK',
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                },
+                ],
+            },
+        ])

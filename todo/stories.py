@@ -113,7 +113,22 @@ def setup(story):
                 }).delete_one()
                 msg = emoji.emojize(':ok: job `{}` was removed'.format(desc), use_aliases=True)
                 logger.info(msg)
-                await story.say(msg, user=ctx['user'])
+                await story.ask(msg,
+                                quick_replies=[{
+                                    'title': 'remove the following task',
+                                    'payload': 'REMOVE_LAST_TASK',
+                                }, {
+                                    'title': 'details about the next task',
+                                    'payload': 'LAST_TASK_DETAILS',
+                                }, {
+                                    'title': 'add new task',
+                                    'payload': 'ADD_NEW_TASK',
+                                }, {
+                                    'title': 'list tasks',
+                                    'payload': 'LIST_TASKS_NEW_FIRST',
+                                },
+                                ],
+                                user=ctx['user'])
             except orm.errors.DoesNotExist:
                 logger.warning('user doesnt have tickets to remove')
                 await story.say(emoji.emojize(
@@ -182,7 +197,22 @@ def setup(story):
 
                 msg = emoji.emojize(':ok: {} tasks were removed'.format(tasks_count), use_aliases=True)
                 logger.info(msg)
-                await story.say(msg, user=ctx['user'])
+                await story.ask(msg,
+                                quick_replies=[{
+                                    'title': 'remove the following task',
+                                    'payload': 'REMOVE_LAST_TASK',
+                                }, {
+                                    'title': 'details about the next task',
+                                    'payload': 'LAST_TASK_DETAILS',
+                                }, {
+                                    'title': 'add new task',
+                                    'payload': 'ADD_NEW_TASK',
+                                }, {
+                                    'title': 'list tasks',
+                                    'payload': 'LIST_TASKS_NEW_FIRST',
+                                },
+                                ],
+                                user=ctx['user'])
 
     @story.on([
         text.Match('delete (.*)'),

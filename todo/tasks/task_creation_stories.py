@@ -60,14 +60,14 @@ def setup(story):
                         use_aliases=True,
                     ),
                     quick_replies=[{
-                       'title': 'start task',
-                       'payload': 'START_TASK_{}'.format(task_id),
+                        'title': 'start task',
+                        'payload': 'START_TASK_{}'.format(task_id),
                     }, {
-                       'title': 'task details',
-                       'payload': 'TASK_DETAILS_{}'.format(task_id),
+                        'title': 'task details',
+                        'payload': 'TASK_DETAILS_{}'.format(task_id),
                     }, {
-                       'title': 'list tasks',
-                       'payload': 'LIST_TASKS_NEW_FIRST',
+                        'title': 'list tasks',
+                        'payload': 'LIST_TASKS_NEW_FIRST',
                     }, ],
                     user=ctx['user']
                 )
