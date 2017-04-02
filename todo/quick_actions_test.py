@@ -95,3 +95,34 @@ async def test_quick_actions_on_stop_task(build_context):
                 ],
             },
         ])
+
+
+@pytest.mark.asyncio
+async def test_quick_actions_on_done_task(build_context):
+    async with build_context() as ctx:
+        created_tasks = await ctx.add_test_tasks(
+            last_task_state='in progress')
+        last_task_id = created_tasks[-1]._id
+
+        await ctx.dialog([
+            # Alice:
+            'done last',
+        ])
+
+        await ctx.dialog([
+            None,
+            # Bob:
+            {
+                'quick_actions': [{
+                    'title': 'add new task',
+                    'payload': 'ADD_NEW_TASK',
+                }, {
+                    'title': 'details about the next task',
+                    'payload': 'LAST_TASK_DETAILS',
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                },
+                ],
+            },
+        ])

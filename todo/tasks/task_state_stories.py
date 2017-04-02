@@ -147,8 +147,19 @@ def setup(story):
             return
         task.state = 'done'
         await task.save()
-        await story.say(
+        await story.ask(
             emoji.emojize(':ok: Task `{}` was done', use_aliases=True).format(task.description),
+            quick_replies=[{
+                'title': 'add new task',
+                'payload': 'ADD_NEW_TASK',
+            }, {
+                'title': 'details about the next task',
+                'payload': 'LAST_TASK_DETAILS',
+            }, {
+                'title': 'list tasks',
+                'payload': 'LIST_TASKS_NEW_FIRST',
+
+            }, ],
             user=ctx['user'])
 
     async def done_many_task(ctx, tasks):
