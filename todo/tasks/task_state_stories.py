@@ -55,8 +55,19 @@ def setup(story):
             return
         task.state = 'in progress'
         await task.save()
-        await story.say(
+        task_id = task._id
+        await story.ask(
             emoji.emojize(':ok: Task `{}` was started', use_aliases=True).format(task.description),
+            quick_replies=[{
+                'title': 'done',
+                'payload': 'DONE_TASK_{}'.format(task_id),
+            }, {
+                'title': 'task details',
+                'payload': 'TASK_DETAILS_{}'.format(task_id),
+            }, {
+                'title': 'stop',
+                'payload': 'STOP_TASK_{}'.format(task_id),
+            }, ],
             user=ctx['user'])
 
     async def start_many_task(ctx, tasks):
