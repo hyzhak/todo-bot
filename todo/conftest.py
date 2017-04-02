@@ -155,6 +155,16 @@ def build_context():
             assert 'json' in obj
             assert obj['json']['recipient']['id'] == self.user['facebook_user_id']
 
+            if 'quick_actions' in message:
+                assert 'quick_replies' in obj['json']['message']
+                for should_reply_action in message['quick_actions']:
+                    logger.debug('check `{}`'.format(should_reply_action))
+                    if isinstance(should_reply_action, str):
+                        assert any(
+                            reply['title'] == should_reply_action for reply in obj['json']['message']['quick_replies'])
+
+                return
+
             if isinstance(message, list):
                 list_of_messages = message
                 posted_list = obj['json']['message']['attachment']['payload']['elements']

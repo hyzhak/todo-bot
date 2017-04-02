@@ -23,7 +23,7 @@ def extract_tasks(sense_list):
 
 
 async def build_task(ctx, title):
-    await tasks_document.TaskDocument(**{
+    return await tasks_document.TaskDocument(**{
         'user_id': ctx['user']['_id'],
         'list': 'list_1',
         'description': title,
@@ -52,9 +52,22 @@ def setup(story):
 
             if len(task_titles) == 1:
                 task_description = task_titles[0]
-                await build_task(ctx, task_description)
+                task_id = await build_task(ctx, task_description)
 
-                await story.say('Task `{}` was added to the job list.'.format(task_description), ctx['user'])
+                await story.ask(
+                    'Task `{}` was added to the job list.'.format(task_description),
+                    quick_replies=[{
+                       'title': 'start task',
+                       'payload': 'START_TASK_{}'.format(task_id),
+                    }, {
+                       'title': 'task details',
+                       'payload': 'TASK_DETAILS_{}'.format(task_id),
+                    }, {
+                       'title': 'list of tasks',
+                       'payload': 'LIST_TASKS_NEW_FIRST',
+                    }, ],
+                    user=ctx['user']
+                )
             elif len(task_titles) > 1:
                 for t in task_titles:
                     await build_task(ctx, t)
