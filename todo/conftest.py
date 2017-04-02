@@ -162,6 +162,11 @@ def build_context():
                     if isinstance(should_reply_action, str):
                         assert any(
                             reply['title'] == should_reply_action for reply in obj['json']['message']['quick_replies'])
+                    elif isinstance(should_reply_action, dict):
+                        assert any(
+                            reply['title'] == should_reply_action['title'] and
+                            reply['payload'] == should_reply_action['payload'] for reply in
+                            obj['json']['message']['quick_replies'])
 
                 return
 

@@ -12,9 +12,11 @@ async def current_task(ctx):
     return await tasks_document.TaskDocument.objects.find_by_id(task_id)
 
 
-async def last_task(ctx):
+async def last_task(ctx=None, user=None):
+    if ctx:
+        user = ctx['user']
     return await tasks_document.TaskDocument.objects({
-        'user_id': ctx['user']['_id'],
+        'user_id': user['_id'],
     }).sort(
         updated_at='desc',
     ).first()
