@@ -154,3 +154,31 @@ async def test_quick_actions_on_start_all(build_context):
                 ],
             },
         ])
+
+@pytest.mark.asyncio
+async def test_quick_actions_on_stop_all(build_context):
+    async with build_context() as ctx:
+        await ctx.add_test_tasks()
+
+        await ctx.dialog([
+            # Alice:
+            'stop all',
+        ])
+
+        await ctx.dialog([
+            None,
+            # Bob:
+            {
+                'quick_actions': [{
+                    'title': 'start all again',
+                    'payload': 'START_ALL_TASKS',
+                }, {
+                    'title': 'remove all',
+                    'payload': 'REMOVE_ALL_TASKS',
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                },
+                ],
+            },
+        ])

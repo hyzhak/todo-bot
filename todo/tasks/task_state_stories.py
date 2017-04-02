@@ -144,10 +144,21 @@ def setup(story):
         modified_descriptions_list = '\n'.join(
             [emoji.emojize(':white_check_mark: {}', use_aliases=True).format(t) for t in modified_descriptions])
 
-        await story.say(
+        await story.ask(
             emoji.emojize(':ok: Task{} stopped:\n{}', use_aliases=True).format(
                 singular_vs_plural(len(modified_descriptions) == 1),
                 modified_descriptions_list),
+            quick_replies=[{
+                'title': 'start all again',
+                'payload': 'START_ALL_TASKS',
+            }, {
+                'title': 'remove all',
+                'payload': 'REMOVE_ALL_TASKS',
+            }, {
+                'title': 'list tasks',
+                'payload': 'LIST_TASKS_NEW_FIRST',
+            },
+            ],
             user=ctx['user'])
 
     async def done_one_task(ctx, task):
