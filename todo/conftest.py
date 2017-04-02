@@ -62,7 +62,7 @@ def build_context():
 
             return self
 
-        async def add_test_tasks(self, last_state='open'):
+        async def add_test_tasks(self, last_task_state='open'):
             return await self.add_tasks([{
                 'description': 'coffee with friends',
                 'user_id': self.user['_id'],
@@ -78,7 +78,7 @@ def build_context():
             }, {
                 'description': 'go to work',
                 'user_id': self.user['_id'],
-                'state': last_state,
+                'state': last_task_state,
                 'created_at': datetime.datetime(2017, 1, 3),
                 'updated_at': datetime.datetime(2017, 1, 3),
             },

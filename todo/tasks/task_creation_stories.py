@@ -66,7 +66,7 @@ def setup(story):
                        'title': 'task details',
                        'payload': 'TASK_DETAILS_{}'.format(task_id),
                     }, {
-                       'title': 'list of tasks',
+                       'title': 'list tasks',
                        'payload': 'LIST_TASKS_NEW_FIRST',
                     }, ],
                     user=ctx['user']

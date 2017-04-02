@@ -55,18 +55,17 @@ def setup(story):
             return
         task.state = 'in progress'
         await task.save()
-        task_id = task._id
         await story.ask(
             emoji.emojize(':ok: Task `{}` was started', use_aliases=True).format(task.description),
             quick_replies=[{
                 'title': 'done',
-                'payload': 'DONE_TASK_{}'.format(task_id),
+                'payload': 'DONE_TASK_{}'.format(task._id),
             }, {
                 'title': 'task details',
-                'payload': 'TASK_DETAILS_{}'.format(task_id),
+                'payload': 'TASK_DETAILS_{}'.format(task._id),
             }, {
                 'title': 'stop',
-                'payload': 'STOP_TASK_{}'.format(task_id),
+                'payload': 'STOP_TASK_{}'.format(task._id),
             }, ],
             user=ctx['user'])
 
@@ -100,8 +99,22 @@ def setup(story):
             return
         task.state = 'open'
         await task.save()
-        await story.say(
+        await story.ask(
             emoji.emojize(':ok: Task `{}` was stopped', use_aliases=True).format(task.description),
+            quick_replies=[{
+                'title': 'start again',
+                'payload': 'START_TASK_{}'.format(task._id),
+            }, {
+                'title': 'remove task',
+                'payload': 'REMOVE_TASK_{}'.format(task._id),
+            }, {
+                'title': 'details',
+                'payload': 'TASK_DETAILS_{}'.format(task._id),
+            }, {
+                'title': 'list tasks',
+                'payload': 'LIST_TASKS_NEW_FIRST',
+            },
+            ],
             user=ctx['user'])
 
     async def stop_many_task(ctx, tasks):
