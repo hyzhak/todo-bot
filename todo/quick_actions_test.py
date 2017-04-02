@@ -106,10 +106,6 @@ async def test_quick_actions_on_done_task(build_context):
         await ctx.dialog([
             # Alice:
             'done last',
-        ])
-
-        await ctx.dialog([
-            None,
             # Bob:
             {
                 'quick_actions': [{
@@ -161,10 +157,6 @@ async def test_quick_actions_on_start_all(build_context):
         await ctx.dialog([
             # Alice:
             'start all',
-        ])
-
-        await ctx.dialog([
-            None,
             # Bob:
             {
                 'quick_actions': [{
@@ -190,10 +182,6 @@ async def test_quick_actions_on_stop_all(build_context):
         await ctx.dialog([
             # Alice:
             'stop all',
-        ])
-
-        await ctx.dialog([
-            None,
             # Bob:
             {
                 'quick_actions': [{
@@ -219,10 +207,6 @@ async def test_quick_actions_on_done_all(build_context):
         await ctx.dialog([
             # Alice:
             'done all',
-        ])
-
-        await ctx.dialog([
-            None,
             # Bob:
             {
                 'quick_actions': [{
