@@ -34,7 +34,12 @@ def setup(story):
         @story.part()
         async def greetings(message):
             logger.info('greetings')
-            await story.say('<Motivate user to act>', message['user'])
+            await story.ask('<Motivate user to act>',
+                            quick_replies=[{
+                                'title': 'add new task',
+                                'payload': 'ADD_NEW_TASK',
+                            }],
+                            user=message['user'])
 
     @story.on(text.text.EqualCaseIgnore('all'))
     def list_of_lists_story():

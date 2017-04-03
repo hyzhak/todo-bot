@@ -1,6 +1,8 @@
+from botstory.middlewares.option.option import OnStart
 import logging
 import pytest
 from todo.tasks import task_story_helper
+from todo.test_helpers import env
 
 logger = logging.getLogger(__name__)
 
@@ -251,6 +253,23 @@ async def test_quick_actions_on_remove_all(build_context):
                 }, {
                     'title': 'list tasks',
                     'payload': 'LIST_TASKS_NEW_FIRST',
+                },
+                ],
+            },
+        ])
+
+
+@pytest.mark.asyncio
+async def test_quick_actions_on_start(build_context):
+    async with build_context() as ctx:
+        await ctx.dialog([
+            # Alice:
+            env.build_postback(OnStart.DEFAULT_OPTION_PAYLOAD),
+            # Bob:
+            {
+                'quick_actions': [{
+                    'title': 'add new task',
+                    'payload': 'ADD_NEW_TASK',
                 },
                 ],
             },
