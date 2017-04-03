@@ -72,13 +72,24 @@ def setup(story):
                     user=ctx['user']
                 )
             elif len(task_titles) > 1:
-                for t in task_titles:
-                    await build_task(ctx, t)
 
-                await story.say(
+                added_tasks = []
+                for t in task_titles:
+                    added_tasks.append(
+                        await build_task(ctx, t)
+                    )
+
+                await story.ask(
                     emoji.emojize('Tasks were added:\n{}'.format(
                         '\n'.join([':white_medium_square: {}'.format(t) for t in task_titles])
                     )),
+                    quick_replies=[{
+                        'title': 'start all of them',
+                        'payload': 'START_TASKS_{}'.format(','.join(map(str, added_tasks))),
+                    }, {
+                        'title': 'list tasks',
+                        'payload': 'LIST_TASKS_NEW_FIRST',
+                    }, ],
                     user=ctx['user'],
                 )
             else:

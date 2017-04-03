@@ -12,14 +12,20 @@ async def current_task(ctx):
     return await tasks_document.TaskDocument.objects.find_by_id(task_id)
 
 
-async def last_task(ctx=None, user=None):
+async def last_task(ctx=None, user=None, count_of_tasks=1):
     if ctx:
         user = ctx['user']
-    return await tasks_document.TaskDocument.objects({
+
+    cursor = tasks_document.TaskDocument.objects({
         'user_id': user['_id'],
     }).sort(
         updated_at='desc',
-    ).first()
+    )
+
+    if count_of_tasks == 1:
+        return await cursor.first()
+
+    return reversed(await cursor.limit(count_of_tasks))
 
 
 async def all_my_tasks(ctx):

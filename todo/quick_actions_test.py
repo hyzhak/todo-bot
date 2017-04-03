@@ -274,3 +274,30 @@ async def test_quick_actions_on_start(build_context):
                 ],
             },
         ])
+
+
+@pytest.mark.asyncio
+async def test_quick_actions_on_add_few_tasks(build_context):
+    async with build_context() as ctx:
+        await ctx.dialog([
+            # Alice:
+            'eggs and bacon',
+        ])
+
+        added_tasks = await task_story_helper.last_task(user=ctx.user,
+                                                        count_of_tasks=2)
+
+        await ctx.dialog([
+            None,
+            # Bob:
+            {
+                'quick_actions': [{
+                    'title': 'start all of them',
+                    'payload': 'START_TASKS_{}'.format(','.join([str(t._id) for t in added_tasks])),
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                },
+                ],
+            },
+        ])
