@@ -66,6 +66,39 @@ async def test_quick_actions_on_start_task(build_context):
 
 
 @pytest.mark.asyncio
+async def test_quick_actions_on_start_task_already_in_progress(build_context):
+    async with build_context() as ctx:
+        created_tasks = await ctx.add_test_tasks('in progress')
+        last_task_id = created_tasks[-1]._id
+
+        await ctx.dialog([
+            # Alice:
+            'start last',
+        ])
+
+        await ctx.dialog([
+            None,
+            # Bob:
+            {
+                'quick_actions': [{
+                    'title': 'stop',
+                    'payload': 'STOP_TASK_{}'.format(last_task_id),
+                }, {
+                    'title': 'done',
+                    'payload': 'DONE_TASK_{}'.format(last_task_id),
+                }, {
+                    'title': 'details',
+                    'payload': 'TASK_DETAILS_{}'.format(last_task_id),
+                }, {
+                    'title': 'stop',
+                    'payload': 'STOP_TASK_{}'.format(last_task_id),
+                },
+                ],
+            },
+        ])
+
+
+@pytest.mark.asyncio
 async def test_quick_actions_on_stop_task(build_context):
     async with build_context() as ctx:
         created_tasks = await ctx.add_test_tasks(

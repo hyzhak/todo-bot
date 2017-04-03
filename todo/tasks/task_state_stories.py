@@ -49,8 +49,21 @@ def setup(story):
 
     async def start_one_task(ctx, task):
         if task.state == 'in progress':
-            await story.say(
+            await story.ask(
                 'Task `{}` is already in progress'.format(task.description),
+                quick_replies=[{
+                    'title': 'stop',
+                    'payload': 'DONE_TASK_{}'.format(task._id),
+                }, {
+                    'title': 'done',
+                    'payload': 'DONE_TASK_{}'.format(task._id),
+                }, {
+                    'title': 'details',
+                    'payload': 'TASK_DETAILS_{}'.format(task._id),
+                }, {
+                    'title': 'stop',
+                    'payload': 'STOP_TASK_{}'.format(task._id),
+                }, ],
                 user=ctx['user'])
             return
         task.state = 'in progress'
