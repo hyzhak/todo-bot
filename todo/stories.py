@@ -34,7 +34,12 @@ def setup(story):
         @story.part()
         async def greetings(message):
             logger.info('greetings')
-            await story.say('<Motivate user to act>', message['user'])
+            await story.ask('<Motivate user to act>',
+                            quick_replies=[{
+                                'title': 'add new task',
+                                'payload': 'ADD_NEW_TASK',
+                            }],
+                            user=message['user'])
 
     @story.on(text.text.EqualCaseIgnore('all'))
     def list_of_lists_story():
@@ -113,12 +118,31 @@ def setup(story):
                 }).delete_one()
                 msg = emoji.emojize(':ok: job `{}` was removed'.format(desc), use_aliases=True)
                 logger.info(msg)
-                await story.say(msg, user=ctx['user'])
+                await story.ask(msg,
+                                quick_replies=[{
+                                    'title': 'remove the following task',
+                                    'payload': 'REMOVE_LAST_TASK',
+                                }, {
+                                    'title': 'details about the next task',
+                                    'payload': 'LAST_TASK_DETAILS',
+                                }, {
+                                    'title': 'add new task',
+                                    'payload': 'ADD_NEW_TASK',
+                                }, {
+                                    'title': 'list tasks',
+                                    'payload': 'LIST_TASKS_NEW_FIRST',
+                                },
+                                ],
+                                user=ctx['user'])
             except orm.errors.DoesNotExist:
                 logger.warning('user doesnt have tickets to remove')
-                await story.say(emoji.emojize(
+                await story.ask(emoji.emojize(
                     'You don\'t have any tickets yet.\n'
                     ':information_source: Please send my few words about it and I will add it to your TODO list.'),
+                    quick_replies=[{
+                        'title': 'add new task',
+                        'payload': 'ADD_NEW_TASK',
+                    }],
                     user=ctx['user'],
                 )
 
@@ -182,7 +206,22 @@ def setup(story):
 
                 msg = emoji.emojize(':ok: {} tasks were removed'.format(tasks_count), use_aliases=True)
                 logger.info(msg)
-                await story.say(msg, user=ctx['user'])
+                await story.ask(msg,
+                                quick_replies=[{
+                                    'title': 'remove the following task',
+                                    'payload': 'REMOVE_LAST_TASK',
+                                }, {
+                                    'title': 'details about the next task',
+                                    'payload': 'LAST_TASK_DETAILS',
+                                }, {
+                                    'title': 'add new task',
+                                    'payload': 'ADD_NEW_TASK',
+                                }, {
+                                    'title': 'list tasks',
+                                    'payload': 'LIST_TASKS_NEW_FIRST',
+                                },
+                                ],
+                                user=ctx['user'])
 
     @story.on([
         text.Match('delete (.*)'),

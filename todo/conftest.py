@@ -62,23 +62,30 @@ def build_context():
 
             return self
 
-        async def add_test_tasks(self, last_state='open'):
+        async def add_test_tasks(self, last_task_state='open', props=None):
+            if props is None:
+                props = [{}, {}, {}]
+            else:
+                props += [{}] * (3 - len(props))
+
+            props = [p if p is not None else {} for p in props]
+
             return await self.add_tasks([{
                 'description': 'coffee with friends',
                 'user_id': self.user['_id'],
-                'state': 'done',
+                'state': props[0].get('state', 'done'),
                 'created_at': datetime.datetime(2017, 1, 1),
                 'updated_at': datetime.datetime(2017, 1, 1),
             }, {
                 'description': 'go to gym',
                 'user_id': self.user['_id'],
-                'state': 'in progress',
+                'state': props[1].get('state', 'in progress'),
                 'created_at': datetime.datetime(2017, 1, 2),
                 'updated_at': datetime.datetime(2017, 1, 2),
             }, {
                 'description': 'go to work',
                 'user_id': self.user['_id'],
-                'state': last_state,
+                'state': props[2].get('state', last_task_state),
                 'created_at': datetime.datetime(2017, 1, 3),
                 'updated_at': datetime.datetime(2017, 1, 3),
             },
@@ -154,6 +161,23 @@ def build_context():
             _, obj = self.http_interface.post.call_args
             assert 'json' in obj
             assert obj['json']['recipient']['id'] == self.user['facebook_user_id']
+
+            if 'quick_actions' in message:
+                assert 'quick_replies' in obj['json']['message']
+                logger.debug("obj['json']['message']['quick_replies']")
+                logger.debug(obj['json']['message']['quick_replies'])
+                for should_reply_action in message['quick_actions']:
+                    logger.debug('check `{}`'.format(should_reply_action))
+                    if isinstance(should_reply_action, str):
+                        assert any(
+                            reply['title'] == should_reply_action for reply in obj['json']['message']['quick_replies'])
+                    elif isinstance(should_reply_action, dict):
+                        assert any(
+                            reply['title'] == should_reply_action['title'] and
+                            reply['payload'] == should_reply_action['payload'] for reply in
+                            obj['json']['message']['quick_replies'])
+
+                return
 
             if isinstance(message, list):
                 list_of_messages = message
