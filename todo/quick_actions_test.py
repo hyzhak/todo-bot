@@ -193,7 +193,7 @@ async def test_quick_actions_on_done_task(build_context):
 
 
 @pytest.mark.asyncio
-async def test_quick_actions_on_done_task_thast_already_is_done(build_context):
+async def test_quick_actions_on_done_task_that_already_is_done(build_context):
     async with build_context() as ctx:
         created_tasks = await ctx.add_test_tasks(props=[
             None,
@@ -230,7 +230,7 @@ async def test_quick_actions_on_done_task_thast_already_is_done(build_context):
 
 
 @pytest.mark.asyncio
-async def test_quick_actions_on_remvoe_task(build_context):
+async def test_quick_actions_on_remove_task(build_context):
     async with build_context() as ctx:
         await ctx.add_test_tasks(
             last_task_state='in progress')
@@ -251,6 +251,22 @@ async def test_quick_actions_on_remvoe_task(build_context):
                     'payload': 'LIST_TASKS_NEW_FIRST',
                 },
                 ],
+            },
+        ])
+
+
+@pytest.mark.asyncio
+async def test_quick_actions_on_remove_task_but_got_none(build_context):
+    async with build_context() as ctx:
+        await ctx.dialog([
+            # Alice:
+            'remove last',
+            # Bob:
+            {
+                'quick_actions': [{
+                    'title': 'add new task',
+                    'payload': 'ADD_NEW_TASK',
+                }],
             },
         ])
 
@@ -401,6 +417,7 @@ async def test_quick_actions_on_done_all(build_context):
                 ],
             },
         ])
+
 
 @pytest.mark.asyncio
 async def test_quick_actions_on_done_all_but_got_none(build_context):

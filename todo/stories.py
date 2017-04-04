@@ -136,9 +136,13 @@ def setup(story):
                                 user=ctx['user'])
             except orm.errors.DoesNotExist:
                 logger.warning('user doesnt have tickets to remove')
-                await story.say(emoji.emojize(
+                await story.ask(emoji.emojize(
                     'You don\'t have any tickets yet.\n'
                     ':information_source: Please send my few words about it and I will add it to your TODO list.'),
+                    quick_replies=[{
+                        'title': 'add new task',
+                        'payload': 'ADD_NEW_TASK',
+                    }],
                     user=ctx['user'],
                 )
 
