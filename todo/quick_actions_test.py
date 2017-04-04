@@ -402,6 +402,33 @@ async def test_quick_actions_on_done_all(build_context):
             },
         ])
 
+@pytest.mark.asyncio
+async def test_quick_actions_on_done_all_but_got_none(build_context):
+    async with build_context() as ctx:
+        await ctx.add_test_tasks(props=[{
+            'state': 'done',
+        }, {
+            'state': 'done',
+        }, {
+            'state': 'done',
+        }, ])
+
+        await ctx.dialog([
+            # Alice:
+            'done all',
+            # Bob:
+            {
+                'quick_actions': [{
+                    'title': 'add new task',
+                    'payload': 'ADD_NEW_TASK',
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                },
+                ],
+            },
+        ])
+
 
 @pytest.mark.asyncio
 async def test_quick_actions_on_remove_all(build_context):

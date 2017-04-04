@@ -253,7 +253,15 @@ def setup(story):
                 modified_descriptions.append(task.description)
 
         if len(modified_descriptions) == 0:
-            await story.say('There is no task to done',
+            await story.ask('There is no task to done',
+                            quick_replies=[{
+                                'title': 'add new task',
+                                'payload': 'ADD_NEW_TASK',
+                            }, {
+                                'title': 'list tasks',
+                                'payload': 'LIST_TASKS_NEW_FIRST',
+                            },
+                            ],
                             user=ctx['user'])
             return
 
