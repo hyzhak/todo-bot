@@ -127,8 +127,22 @@ def setup(story):
 
     async def stop_one_task(ctx, task):
         if task.state == 'open':
-            await story.say(
+            await story.ask(
                 'Task `{}` is already stopped'.format(task.description),
+                quick_replies=[{
+                    'title': 'start',
+                    'payload': 'START_TASK_{}'.format(task._id),
+                }, {
+                    'title': 'remove',
+                    'payload': 'REMOVE_TASK_{}'.format(task._id),
+                }, {
+                    'title': 'details',
+                    'payload': 'TASK_DETAILS_{}'.format(task._id),
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                },
+                ],
                 user=ctx['user'])
             return
         task.state = 'open'
