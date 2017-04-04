@@ -173,8 +173,18 @@ def setup(story):
                 await task.save()
                 modified_descriptions.append(task.description)
 
+        logger.debug('modified_descriptions')
+        logger.debug(modified_descriptions)
         if len(modified_descriptions) == 0:
-            await story.say('There is no task to stop',
+            await story.ask('There is no task to stop',
+                            quick_replies=[{
+                                'title': 'add new task',
+                                'payload': 'ADD_NEW_TASK',
+                            }, {
+                                'title': 'list tasks',
+                                'payload': 'LIST_TASKS_NEW_FIRST',
+                            },
+                            ],
                             user=ctx['user'])
             return
 

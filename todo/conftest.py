@@ -73,19 +73,19 @@ def build_context():
             return await self.add_tasks([{
                 'description': 'coffee with friends',
                 'user_id': self.user['_id'],
-                'state': getattr(props, 'state', 'done'),
+                'state': props[0].get('state', 'done'),
                 'created_at': datetime.datetime(2017, 1, 1),
                 'updated_at': datetime.datetime(2017, 1, 1),
             }, {
                 'description': 'go to gym',
                 'user_id': self.user['_id'],
-                'state': getattr(props, 'state', 'in progress'),
+                'state': props[1].get('state', 'in progress'),
                 'created_at': datetime.datetime(2017, 1, 2),
                 'updated_at': datetime.datetime(2017, 1, 2),
             }, {
                 'description': 'go to work',
                 'user_id': self.user['_id'],
-                'state': getattr(props, 'state', last_task_state),
+                'state': props[2].get('state', last_task_state),
                 'created_at': datetime.datetime(2017, 1, 3),
                 'updated_at': datetime.datetime(2017, 1, 3),
             },
@@ -164,6 +164,8 @@ def build_context():
 
             if 'quick_actions' in message:
                 assert 'quick_replies' in obj['json']['message']
+                logger.debug("obj['json']['message']['quick_replies']")
+                logger.debug(obj['json']['message']['quick_replies'])
                 for should_reply_action in message['quick_actions']:
                     logger.debug('check `{}`'.format(should_reply_action))
                     if isinstance(should_reply_action, str):

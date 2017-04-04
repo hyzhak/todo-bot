@@ -314,6 +314,34 @@ async def test_quick_actions_on_stop_all(build_context):
 
 
 @pytest.mark.asyncio
+async def test_quick_actions_on_stop_all_but_got_none_to_stop(build_context):
+    async with build_context() as ctx:
+        await ctx.add_test_tasks(props=[{
+            'state': 'open',
+        }, {
+            'state': 'open',
+        }, {
+            'state': 'open',
+        }, ])
+
+        await ctx.dialog([
+            # Alice:
+            'stop all',
+            # Bob:
+            {
+                'quick_actions': [{
+                    'title': 'add new task',
+                    'payload': 'ADD_NEW_TASK',
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                },
+                ],
+            },
+        ])
+
+
+@pytest.mark.asyncio
 async def test_quick_actions_on_done_all(build_context):
     async with build_context() as ctx:
         await ctx.add_test_tasks()
