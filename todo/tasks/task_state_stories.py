@@ -91,7 +91,17 @@ def setup(story):
                 modified_descriptions.append(task.description)
 
         if len(modified_descriptions) == 0:
-            await story.say('There is no task to start',
+            quick_replies = [{
+                'title': 'add new task',
+                'payload': 'ADD_NEW_TASK',
+            }]
+            if len(await task_story_helper.all_my_tasks(ctx)) > 0:
+                quick_replies.append({
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                })
+            await story.ask('There is no task to start',
+                            quick_replies=quick_replies,
                             user=ctx['user'])
             return
 

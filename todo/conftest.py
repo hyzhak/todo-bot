@@ -62,23 +62,30 @@ def build_context():
 
             return self
 
-        async def add_test_tasks(self, last_task_state='open'):
+        async def add_test_tasks(self, last_task_state='open', props=None):
+            if props is None:
+                props = [{}, {}, {}]
+            else:
+                props += [{}] * (3 - len(props))
+
+            props = [p if p is not None else {} for p in props]
+
             return await self.add_tasks([{
                 'description': 'coffee with friends',
                 'user_id': self.user['_id'],
-                'state': 'done',
+                'state': getattr(props, 'state', 'done'),
                 'created_at': datetime.datetime(2017, 1, 1),
                 'updated_at': datetime.datetime(2017, 1, 1),
             }, {
                 'description': 'go to gym',
                 'user_id': self.user['_id'],
-                'state': 'in progress',
+                'state': getattr(props, 'state', 'in progress'),
                 'created_at': datetime.datetime(2017, 1, 2),
                 'updated_at': datetime.datetime(2017, 1, 2),
             }, {
                 'description': 'go to work',
                 'user_id': self.user['_id'],
-                'state': last_task_state,
+                'state': getattr(props, 'state', last_task_state),
                 'created_at': datetime.datetime(2017, 1, 3),
                 'updated_at': datetime.datetime(2017, 1, 3),
             },
