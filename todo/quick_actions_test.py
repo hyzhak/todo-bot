@@ -456,24 +456,22 @@ async def test_quick_actions_on_remove_all(build_context):
             # Alice:
             'remove all',
             # Bob:
-            ':question: Do you really want to remove all your tasks '
-            'of current list?',
+            {
+                'quick_actions': [{
+                    'title': 'Sure, remove all!',
+                    'payload': 'CONFIRM_REMOVE_ALL'
+                }, {
+                    'title': 'Nope.',
+                    'payload': 'REFUSE_REMOVE_ALL'
+                }],
+            },
             # Alice:
             'yes',
             # Bob:
             {
                 'quick_actions': [{
-                    'title': 'remove the following task',
-                    'payload': 'REMOVE_LAST_TASK',
-                }, {
-                    'title': 'details about the next task',
-                    'payload': 'LAST_TASK_DETAILS',
-                }, {
                     'title': 'add new task',
                     'payload': 'ADD_NEW_TASK',
-                }, {
-                    'title': 'list tasks',
-                    'payload': 'LIST_TASKS_NEW_FIRST',
                 },
                 ],
             },
