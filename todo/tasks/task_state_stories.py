@@ -54,17 +54,33 @@ def setup(story):
                 modified_descriptions.append(task.description)
 
         if len(modified_descriptions) == 0:
-            await story.say('There is no task to open',
+            await story.ask('There is no task to open',
+                            quick_replies=[{
+                                'title': 'add new task',
+                                'payload': 'ADD_NEW_TASK',
+                            }, {
+                                'title': 'list tasks',
+                                'payload': 'LIST_TASKS_NEW_FIRST',
+                            },
+                            ],
                             user=ctx['user'])
             return
 
         modified_descriptions_list = '\n'.join(
             [emoji.emojize(':white_check_mark: {}', use_aliases=True).format(t) for t in modified_descriptions])
 
-        await story.say(
+        await story.ask(
             emoji.emojize(':ok: Task{} opened:\n{}', use_aliases=True).format(
                 singular_vs_plural(len(modified_descriptions) == 1),
                 modified_descriptions_list),
+            quick_replies=[{
+                'title': 'start all',
+                'payload': 'START_ALL_TASKS',
+            }, {
+                'title': 'list tasks',
+                'payload': 'LIST_TASKS_NEW_FIRST',
+            },
+            ],
             user=ctx['user'])
 
     async def start_one_task(ctx, task):
