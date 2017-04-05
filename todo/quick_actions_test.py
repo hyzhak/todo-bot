@@ -99,6 +99,66 @@ async def test_quick_actions_on_start_task_already_in_progress(build_context):
 
 
 @pytest.mark.asyncio
+async def test_quick_actions_on_reopen_task(build_context):
+    async with build_context() as ctx:
+        created_tasks = await ctx.add_test_tasks(props=[{
+            'state': 'done',
+        }, {
+            'state': 'done',
+        }, {
+            'state': 'done',
+        }, ])
+        last_task_id = created_tasks[-1]._id
+
+        await ctx.dialog([
+            # Alice:
+            'reopen last',
+
+            # Bob:
+            {
+                'quick_actions': [{
+                    'title': 'start',
+                    'payload': 'START_TASK_{}'.format(last_task_id),
+                }, {
+                    'title': 'details',
+                    'payload': 'TASK_DETAILS_{}'.format(last_task_id),
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                },
+                ],
+            },
+        ])
+
+
+@pytest.mark.asyncio
+async def test_quick_actions_on_reopen_task_that_already_is_opened(build_context):
+    async with build_context() as ctx:
+        created_tasks = await ctx.add_test_tasks()
+        last_task_id = created_tasks[-1]._id
+
+        await ctx.dialog([
+            # Alice:
+            'open last',
+
+            # Bob:
+            {
+                'quick_actions': [{
+                    'title': 'start',
+                    'payload': 'START_TASK_{}'.format(last_task_id),
+                }, {
+                    'title': 'details',
+                    'payload': 'TASK_DETAILS_{}'.format(last_task_id),
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                },
+                ],
+            },
+        ])
+
+
+@pytest.mark.asyncio
 async def test_quick_actions_on_stop_task(build_context):
     async with build_context() as ctx:
         created_tasks = await ctx.add_test_tasks(
@@ -310,6 +370,62 @@ async def test_quick_actions_on_start_all_but_got_none_to_start(build_context):
         await ctx.dialog([
             # Alice:
             'start all',
+            # Bob:
+            {
+                'quick_actions': [{
+                    'title': 'add new task',
+                    'payload': 'ADD_NEW_TASK',
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                },
+                ],
+            },
+        ])
+
+
+@pytest.mark.asyncio
+async def test_quick_actions_on_reopen_all(build_context):
+    async with build_context() as ctx:
+        await ctx.add_test_tasks(props=[{
+            'state': 'done',
+        }, {
+            'state': 'done',
+        }, {
+            'state': 'done',
+        }])
+
+        await ctx.dialog([
+            # Alice:
+            'open all',
+            # Bob:
+            {
+                'quick_actions': [{
+                    'title': 'start all',
+                    'payload': 'START_ALL_TASKS',
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                },
+                ],
+            },
+        ])
+
+
+@pytest.mark.asyncio
+async def test_quick_actions_on_reopen_all_but_got_none_to_start(build_context):
+    async with build_context() as ctx:
+        await ctx.add_test_tasks(props=[{
+            'state': 'open',
+        }, {
+            'state': 'open',
+        }, {
+            'state': 'open',
+        }])
+
+        await ctx.dialog([
+            # Alice:
+            'open all',
             # Bob:
             {
                 'quick_actions': [{

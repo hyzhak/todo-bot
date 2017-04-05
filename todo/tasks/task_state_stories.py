@@ -15,14 +15,34 @@ def singular_vs_plural(singular):
 def setup(story):
     async def open_one_task(ctx, task):
         if task.state == 'open':
-            await story.say(
+            await story.ask(
                 'Task `{}` is already opened'.format(task.description),
+                quick_replies=[{
+                    'title': 'start',
+                    'payload': 'START_TASK_{}'.format(task._id),
+                }, {
+                    'title': 'details',
+                    'payload': 'TASK_DETAILS_{}'.format(task._id),
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                }, ],
                 user=ctx['user'])
             return
         task.state = 'open'
         await task.save()
-        await story.say(
+        await story.ask(
             emoji.emojize(':ok: Task `{}` was opened', use_aliases=True).format(task.description),
+            quick_replies=[{
+                'title': 'start',
+                'payload': 'START_TASK_{}'.format(task._id),
+            }, {
+                'title': 'details',
+                'payload': 'TASK_DETAILS_{}'.format(task._id),
+            }, {
+                'title': 'list tasks',
+                'payload': 'LIST_TASKS_NEW_FIRST',
+            }, ],
             user=ctx['user'])
 
     async def open_many_task(ctx, tasks):
@@ -34,17 +54,33 @@ def setup(story):
                 modified_descriptions.append(task.description)
 
         if len(modified_descriptions) == 0:
-            await story.say('There is no task to open',
+            await story.ask('There is no task to open',
+                            quick_replies=[{
+                                'title': 'add new task',
+                                'payload': 'ADD_NEW_TASK',
+                            }, {
+                                'title': 'list tasks',
+                                'payload': 'LIST_TASKS_NEW_FIRST',
+                            },
+                            ],
                             user=ctx['user'])
             return
 
         modified_descriptions_list = '\n'.join(
             [emoji.emojize(':white_check_mark: {}', use_aliases=True).format(t) for t in modified_descriptions])
 
-        await story.say(
+        await story.ask(
             emoji.emojize(':ok: Task{} opened:\n{}', use_aliases=True).format(
                 singular_vs_plural(len(modified_descriptions) == 1),
                 modified_descriptions_list),
+            quick_replies=[{
+                'title': 'start all',
+                'payload': 'START_ALL_TASKS',
+            }, {
+                'title': 'list tasks',
+                'payload': 'LIST_TASKS_NEW_FIRST',
+            },
+            ],
             user=ctx['user'])
 
     async def start_one_task(ctx, task):
@@ -341,7 +377,12 @@ def setup(story):
                 await open_one_task(ctx,
                                     task=await task_story_helper.last_task(ctx))
             except orm.errors.DoesNotExist:
-                await story.say('You do not have any task to open',
+                await story.ask('You do not have any task to open',
+                                quick_replies=[{
+                                    'title': 'add new task',
+                                    'payload': 'ADD_NEW_TASK',
+                                },
+                                ],
                                 user=ctx['user'])
 
     @story.on(text.Match('start last(?: task)?'))
@@ -352,7 +393,12 @@ def setup(story):
                 await start_one_task(ctx,
                                      task=await task_story_helper.last_task(ctx))
             except orm.errors.DoesNotExist:
-                await story.say('You do not have any task to start',
+                await story.ask('You do not have any task to start',
+                                quick_replies=[{
+                                    'title': 'add new task',
+                                    'payload': 'ADD_NEW_TASK',
+                                },
+                                ],
                                 user=ctx['user'])
 
     @story.on(text.Match('stop last(?: task)?'))
@@ -363,7 +409,12 @@ def setup(story):
                 await stop_one_task(ctx,
                                     task=await task_story_helper.last_task(ctx))
             except orm.errors.DoesNotExist:
-                await story.say('You do not have any task to stop',
+                await story.ask('You do not have any task to stop',
+                                quick_replies=[{
+                                    'title': 'add new task',
+                                    'payload': 'ADD_NEW_TASK',
+                                },
+                                ],
                                 user=ctx['user'])
 
     @story.on(text.Match('done last(?: task)?'))
@@ -374,7 +425,12 @@ def setup(story):
                 await done_one_task(ctx,
                                     task=await task_story_helper.last_task(ctx))
             except orm.errors.DoesNotExist:
-                await story.say('You do not have any task to done',
+                await story.ask('You do not have any task to done',
+                                quick_replies=[{
+                                    'title': 'add new task',
+                                    'payload': 'ADD_NEW_TASK',
+                                },
+                                ],
                                 user=ctx['user'])
 
     # match "<do> all (task)"
