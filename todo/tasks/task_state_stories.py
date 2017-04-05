@@ -377,7 +377,12 @@ def setup(story):
                 await open_one_task(ctx,
                                     task=await task_story_helper.last_task(ctx))
             except orm.errors.DoesNotExist:
-                await story.say('You do not have any task to open',
+                await story.ask('You do not have any task to open',
+                                quick_replies=[{
+                                    'title': 'add new task',
+                                    'payload': 'ADD_NEW_TASK',
+                                },
+                                ],
                                 user=ctx['user'])
 
     @story.on(text.Match('start last(?: task)?'))
@@ -388,7 +393,12 @@ def setup(story):
                 await start_one_task(ctx,
                                      task=await task_story_helper.last_task(ctx))
             except orm.errors.DoesNotExist:
-                await story.say('You do not have any task to start',
+                await story.ask('You do not have any task to start',
+                                quick_replies=[{
+                                    'title': 'add new task',
+                                    'payload': 'ADD_NEW_TASK',
+                                },
+                                ],
                                 user=ctx['user'])
 
     @story.on(text.Match('stop last(?: task)?'))
@@ -399,7 +409,12 @@ def setup(story):
                 await stop_one_task(ctx,
                                     task=await task_story_helper.last_task(ctx))
             except orm.errors.DoesNotExist:
-                await story.say('You do not have any task to stop',
+                await story.ask('You do not have any task to stop',
+                                quick_replies=[{
+                                    'title': 'add new task',
+                                    'payload': 'ADD_NEW_TASK',
+                                },
+                                ],
                                 user=ctx['user'])
 
     @story.on(text.Match('done last(?: task)?'))
@@ -410,7 +425,12 @@ def setup(story):
                 await done_one_task(ctx,
                                     task=await task_story_helper.last_task(ctx))
             except orm.errors.DoesNotExist:
-                await story.say('You do not have any task to done',
+                await story.ask('You do not have any task to done',
+                                quick_replies=[{
+                                    'title': 'add new task',
+                                    'payload': 'ADD_NEW_TASK',
+                                },
+                                ],
                                 user=ctx['user'])
 
     # match "<do> all (task)"
