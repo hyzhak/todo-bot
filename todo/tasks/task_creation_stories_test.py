@@ -60,3 +60,24 @@ async def test_add_few_tasks_from_sequence_of_actions(build_context):
         assert res_lists[0].description == 'Tom'
         assert res_lists[1].description == 'Dick'
         assert res_lists[2].description == 'Harry'
+
+
+@pytest.mark.async
+async def test_add_task_on_postback_message(build_context):
+    async with build_context() as ctx:
+        await ctx.dialog([
+            # Alice:
+            env.build_postback('ADD_NEW_TASK'),
+
+            # Bob:
+            'Please give name of your task (max 140 symbols).\n'
+            ':information_source: You can also enumerate tasks by comma (laptop, charger, passport).',
+
+            # Alice:
+            'Buy a bread',
+
+            # Bob:
+            ':ok: Task `Buy a bread` was added',
+        ])
+
+# TODO: quick replay to cancel 'add new task' story
