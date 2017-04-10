@@ -162,11 +162,14 @@ def build_context():
             assert 'json' in obj
             assert obj['json']['recipient']['id'] == self.user['facebook_user_id']
 
-            if 'quick_actions' in message:
+            if 'text' in message:
+                assert obj['json']['message']['text'] == all_emoji(message['text'])
+
+            if 'quick_replies' in message:
                 assert 'quick_replies' in obj['json']['message']
                 logger.debug("obj['json']['message']['quick_replies']")
                 logger.debug(obj['json']['message']['quick_replies'])
-                for should_reply_action in message['quick_actions']:
+                for should_reply_action in message['quick_replies']:
                     logger.debug('check `{}`'.format(should_reply_action))
                     if isinstance(should_reply_action, str):
                         assert any(

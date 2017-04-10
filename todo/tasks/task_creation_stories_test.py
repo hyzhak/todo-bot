@@ -80,4 +80,36 @@ async def test_add_task_on_postback_message(build_context):
             ':ok: Task `Buy a bread` was added',
         ])
 
-# TODO: quick replay to cancel 'add new task' story
+
+@pytest.mark.async
+async def test_cancel_add_task_on_postback_message(build_context):
+    async with build_context() as ctx:
+        await ctx.dialog([
+            # Alice:
+            env.build_postback('ADD_NEW_TASK'),
+
+            # Bob:
+            {
+                'text': 'Please give name of your task (max 140 symbols).\n'
+                        ':information_source: You can also enumerate tasks by comma (laptop, charger, passport).',
+                'quick_replies': [{
+                    'title': 'cancel',
+                    'payload': 'CANCEL',
+                }],
+            },
+
+            # Alice:
+            'Cancel',
+
+            # Bob:
+            {
+                'text': 'OK, lets create task next time.',
+                'quick_replies': [{
+                    'title': 'add new task',
+                    'payload': 'ADD_NEW_TASK',
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                }],
+            },
+        ])

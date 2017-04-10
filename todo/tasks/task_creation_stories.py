@@ -1,5 +1,5 @@
 from botstory.ast import forking
-from botstory.middlewares import option, text
+from botstory.middlewares import any, option, text
 import datetime
 import emoji
 import logging
@@ -96,17 +96,50 @@ def setup(story):
                 emoji.emojize(
                     'Please give name of your task (max 140 symbols).\n'
                     ':information_source: You can also enumerate tasks by comma (laptop, charger, passport).'),
+                quick_replies=[{
+                    'title': 'cancel',
+                    'payload': 'CANCEL',
+                }],
                 user=ctx['user'],
             )
 
-        # TODO: add story path to cancel add new task story
-        # @story.part()
-        # async def add_new_task(ctx):
-        #     return forking.SwitchOnValue()
+        @story.case([
+            option.Equal('CANCEL'),
+            text.EqualCaseIgnore('cancel'),
+        ])
+        def handle_cancel_message():
+            @story.part()
+            async def message_on_cancel_new_task(ctx):
+                await story.ask('OK, lets create task next time.',
+                                quick_replies=[{
+                                    'title': 'add new task',
+                                    'payload': 'ADD_NEW_TASK',
+                                }, {
+                                    'title': 'list tasks',
+                                    'payload': 'LIST_TASKS_NEW_FIRST',
+                                }],
+                                user=ctx['user'],
+                                )
 
-        @story.part()
-        async def add_new_task(ctx):
-            await add_new_task_command(ctx)
+        @story.case(text.Any())
+        def handle_text_message():
+            @story.part()
+            async def add_new_task(ctx):
+                await add_new_task_command(ctx)
+
+        @story.case(any.Any())
+        def handle_all_other_messages():
+            @story.part()
+            async def allow_only_text_message(ctx):
+                await story.ask('Right now I can only work with text based tasks',
+                                quick_replies=[{
+                                    'title': 'add new task',
+                                    'payload': 'ADD_NEW_TASK',
+                                }, {
+                                    'title': 'cancel',
+                                    'payload': 'CANCEL',
+                                }],
+                                user=ctx['user'])
 
     @story.on(receive=text.Any())
     def new_task_story():
