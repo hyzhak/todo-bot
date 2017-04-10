@@ -454,16 +454,12 @@ async def test_remove_all_job_answer_in_different_way(build_context, answer, rem
 ])
 async def test_show_task_details_on_last_task(build_context, command):
     async with build_context() as ctx:
-        facebook = ctx.fb_interface
         created_tasks = await ctx.add_test_tasks()
 
         # Alice:
         await ctx.dialog([
             command,
         ])
-        # await facebook.handle(env.build_message({
-        #     'text': command,
-        # }))
 
         # Bob:
         task_test_helper.assert_task_message(created_tasks[-1],
@@ -566,6 +562,14 @@ async def test_remove_task_by_postback(build_context):
             # Bob:
             {
                 'text': ':ok: Task `{}` was deleted'.format(created_tasks[0].description),
+                'quick_replies': [{
+                    'title': 'add new task',
+                    'payload': 'ADD_NEW_TASK',
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                },
+                ]
             },
         ])
         tasks_left = await tasks_document.TaskDocument.objects.find()

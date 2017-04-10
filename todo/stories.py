@@ -163,8 +163,16 @@ def setup(story):
                 await tasks_document.TaskDocument.objects({
                     '_id': task._id,
                 }).delete_one()
-                await story.say(emoji.emojize(
-                    ':ok: Task `{}` was deleted', use_aliases=True).format(task.description), user=ctx['user'])
+                await story.ask(emoji.emojize(':ok: Task `{}` was deleted', use_aliases=True).format(task.description),
+                                quick_replies=[{
+                                    'title': 'add new task',
+                                    'payload': 'ADD_NEW_TASK',
+                                }, {
+                                    'title': 'list tasks',
+                                    'payload': 'LIST_TASKS_NEW_FIRST',
+                                },
+                                ],
+                                user=ctx['user'])
             except orm.errors.DoesNotExist:
                 await story.say(emoji.emojize(':confused: Can\'t find task with id 58d99754e61713000143a2e1.\n'
                                               'It seems that it was already removed.', use_aliases=True).format(
