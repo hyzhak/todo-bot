@@ -62,7 +62,7 @@ async def test_add_few_tasks_from_sequence_of_actions(build_context):
         assert res_lists[2].description == 'Harry'
 
 
-@pytest.mark.async
+@pytest.mark.asyncio
 async def test_add_task_on_postback_message(build_context):
     async with build_context() as ctx:
         await ctx.dialog([
@@ -81,7 +81,7 @@ async def test_add_task_on_postback_message(build_context):
         ])
 
 
-@pytest.mark.async
+@pytest.mark.asyncio
 async def test_cancel_add_task_on_postback_message(build_context):
     async with build_context() as ctx:
         await ctx.dialog([
