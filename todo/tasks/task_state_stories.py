@@ -367,6 +367,13 @@ def setup(story):
                 # TODO:
                 pass
 
+    @story.on(option.Match('START_TASKS_(.+)'))
+    def start_few_of_my_tasks_story():
+        @story.part()
+        async def try_to_start_few_tasks(ctx):
+            await start_many_task(ctx,
+                                  tasks=await task_story_helper.current_tasks(ctx))
+
     # match "<do> last (task)"
 
     @story.on(text.Match('open last(?: task)?'))
@@ -434,28 +441,40 @@ def setup(story):
                                 user=ctx['user'])
 
     # match "<do> all (task)"
-    @story.on(text.Match('open all(?: task)?'))
+    @story.on([
+        option.Equal('REOPEN_ALL_TASK'),
+        text.Match('open all(?: task)?'),
+    ])
     def open_all_my_tasks_story():
         @story.part()
         async def try_to_open_all_tasks(ctx):
             await open_many_task(ctx,
                                  tasks=await task_story_helper.all_my_tasks(ctx))
 
-    @story.on(text.Match('start all(?: task)?'))
+    @story.on([
+        option.Equal('START_ALL_TASK'),
+        text.Match('start all(?: task)?'),
+    ])
     def start_all_my_task_story():
         @story.part()
         async def try_to_start_all_tasks(ctx):
             await start_many_task(ctx,
                                   tasks=await task_story_helper.all_my_tasks(ctx))
 
-    @story.on(text.Match('stop all(?: task)?'))
+    @story.on([
+        option.Equal('STOP_ALL_TASK'),
+        text.Match('stop all(?: task)?'),
+    ])
     def stop_all_my_task_story():
         @story.part()
         async def try_to_stop_all_tasks(ctx):
             await stop_many_task(ctx,
                                  tasks=await task_story_helper.all_my_tasks(ctx))
 
-    @story.on(text.Match('done all(?: task)?'))
+    @story.on([
+        option.Equal('DONE_ALL_TASK'),
+        text.Match('done all(?: task)?'),
+    ])
     def done_all_my_task_story():
         @story.part()
         async def try_to_done_all_tasks(ctx):

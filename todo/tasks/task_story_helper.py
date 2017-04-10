@@ -12,6 +12,20 @@ async def current_task(ctx):
     return await tasks_document.TaskDocument.objects.find_by_id(task_id)
 
 
+async def current_tasks(ctx):
+    """
+    get current tasks from ctx
+    :param ctx:
+    :return:
+    """
+    task_ids = story_context.get_message_data(ctx, 'option', 'matches')[0].split(',')
+
+    tasks = []
+    for task_id in task_ids:
+        tasks.append(await tasks_document.TaskDocument.objects.find_by_id(task_id))
+    return tasks
+
+
 async def last_task(ctx=None, user=None, count_of_tasks=1):
     if ctx:
         user = ctx['user']

@@ -38,7 +38,11 @@ async def test_new_task_story(build_context, mocker):
 
 
 @pytest.mark.parametrize('command',
-                         ['list', 'todo'])
+                         [
+                             'list',
+                             'todo',
+                             env.build_postback('LIST_TASKS_NEW_FIRST'),
+                         ])
 @pytest.mark.asyncio
 async def test_list_of_active_tasks_on_list(build_context, command):
     async with build_context() as ctx:
@@ -61,11 +65,13 @@ async def test_list_of_active_tasks_on_list(build_context, command):
             # 'created_at': datetime.datetime.now(),
         }, ])
 
-        await facebook.handle(env.build_message({
-            'text': command
-        }))
+        await ctx.dialog([
+            # Alice
+            command,
+        ])
 
         ctx.receive_answer([
+            # Bob
             'fry toasts',
             'fry eggs',
             'drop cheese',
@@ -377,7 +383,8 @@ async def test_remove_last_warn_if_we_do_not_have_any_tickets_now(build_context)
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('command',
-                         ['delete all', 'delete all tasks', 'delete all jobs', ])
+                         ['delete all', 'delete all tasks', 'delete all jobs',
+                          env.build_postback('REMOVE_ALL_TASKS')])
 async def test_remove_all_job(build_context, command):
     async with build_context() as ctx:
         await ctx.add_test_tasks()
@@ -443,6 +450,7 @@ async def test_remove_all_job_answer_in_different_way(build_context, answer, rem
 @pytest.mark.parametrize('command', [
     'last task',
     'last',
+    env.build_postback('LAST_TASK_DETAILS'),
 ])
 async def test_show_task_details_on_last_task(build_context, command):
     async with build_context() as ctx:
@@ -450,9 +458,12 @@ async def test_show_task_details_on_last_task(build_context, command):
         created_tasks = await ctx.add_test_tasks()
 
         # Alice:
-        await facebook.handle(env.build_message({
-            'text': command,
-        }))
+        await ctx.dialog([
+            command,
+        ])
+        # await facebook.handle(env.build_message({
+        #     'text': command,
+        # }))
 
         # Bob:
         task_test_helper.assert_task_message(created_tasks[-1],

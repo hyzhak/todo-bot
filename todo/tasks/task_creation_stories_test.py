@@ -60,3 +60,56 @@ async def test_add_few_tasks_from_sequence_of_actions(build_context):
         assert res_lists[0].description == 'Tom'
         assert res_lists[1].description == 'Dick'
         assert res_lists[2].description == 'Harry'
+
+
+@pytest.mark.asyncio
+async def test_add_task_on_postback_message(build_context):
+    async with build_context() as ctx:
+        await ctx.dialog([
+            # Alice:
+            env.build_postback('ADD_NEW_TASK'),
+
+            # Bob:
+            'Please give name of your task (max 140 symbols).\n'
+            ':information_source: You can also enumerate tasks by comma (laptop, charger, passport).',
+
+            # Alice:
+            'Buy a bread',
+
+            # Bob:
+            ':ok: Task `Buy a bread` was added',
+        ])
+
+
+@pytest.mark.asyncio
+async def test_cancel_add_task_on_postback_message(build_context):
+    async with build_context() as ctx:
+        await ctx.dialog([
+            # Alice:
+            env.build_postback('ADD_NEW_TASK'),
+
+            # Bob:
+            {
+                'text': 'Please give name of your task (max 140 symbols).\n'
+                        ':information_source: You can also enumerate tasks by comma (laptop, charger, passport).',
+                'quick_replies': [{
+                    'title': 'cancel',
+                    'payload': 'CANCEL',
+                }],
+            },
+
+            # Alice:
+            'Cancel',
+
+            # Bob:
+            {
+                'text': 'OK, lets create task next time.',
+                'quick_replies': [{
+                    'title': 'add new task',
+                    'payload': 'ADD_NEW_TASK',
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                }],
+            },
+        ])

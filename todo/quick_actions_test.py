@@ -20,7 +20,7 @@ async def test_quick_actions_for_new_task(build_context):
             None,
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'start task',
                     'payload': 'START_TASK_{}'.format(task_id),
                 }, {
@@ -50,7 +50,7 @@ async def test_quick_actions_on_start_task(build_context):
             None,
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'done',
                     'payload': 'DONE_TASK_{}'.format(last_task_id),
                 }, {
@@ -80,7 +80,7 @@ async def test_quick_actions_on_start_task_already_in_progress(build_context):
             None,
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'stop',
                     'payload': 'STOP_TASK_{}'.format(last_task_id),
                 }, {
@@ -116,7 +116,7 @@ async def test_quick_actions_on_reopen_task(build_context):
 
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'start',
                     'payload': 'START_TASK_{}'.format(last_task_id),
                 }, {
@@ -143,7 +143,7 @@ async def test_quick_actions_on_reopen_task_that_already_is_opened(build_context
 
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'start',
                     'payload': 'START_TASK_{}'.format(last_task_id),
                 }, {
@@ -174,7 +174,7 @@ async def test_quick_actions_on_stop_task(build_context):
             None,
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'start again',
                     'payload': 'START_TASK_{}'.format(last_task_id),
                 }, {
@@ -208,7 +208,7 @@ async def test_quick_actions_on_stop_task_already_stopped(build_context):
             None,
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'start',
                     'payload': 'START_TASK_{}'.format(last_task_id),
                 }, {
@@ -237,7 +237,7 @@ async def test_quick_actions_on_done_task(build_context):
             'done last',
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'add new task',
                     'payload': 'ADD_NEW_TASK',
                 }, {
@@ -271,7 +271,7 @@ async def test_quick_actions_on_done_task_that_already_is_done(build_context):
             'done last',
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'start',
                     'payload': 'START_TASK_{}'.format(last_task_id),
                 }, {
@@ -300,7 +300,7 @@ async def test_quick_actions_on_remove_task(build_context):
             'remove last',
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'add new task',
                     'payload': 'ADD_NEW_TASK',
                 }, {
@@ -323,7 +323,7 @@ async def test_quick_actions_on_remove_task_but_got_none(build_context):
             'remove last',
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'add new task',
                     'payload': 'ADD_NEW_TASK',
                 }],
@@ -341,7 +341,7 @@ async def test_quick_actions_on_start_all(build_context):
             'start all',
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'stop all',
                     'payload': 'STOP_ALL_TASKS',
                 }, {
@@ -372,7 +372,7 @@ async def test_quick_actions_on_start_all_but_got_none_to_start(build_context):
             'start all',
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'add new task',
                     'payload': 'ADD_NEW_TASK',
                 }, {
@@ -400,7 +400,7 @@ async def test_quick_actions_on_reopen_all(build_context):
             'open all',
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'start all',
                     'payload': 'START_ALL_TASKS',
                 }, {
@@ -428,7 +428,7 @@ async def test_quick_actions_on_reopen_all_but_got_none_to_start(build_context):
             'open all',
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'add new task',
                     'payload': 'ADD_NEW_TASK',
                 }, {
@@ -448,7 +448,7 @@ async def test_quick_actions_on_start_all_but_got_none(build_context):
             'start all',
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'add new task',
                     'payload': 'ADD_NEW_TASK',
                 },
@@ -467,7 +467,7 @@ async def test_quick_actions_on_stop_all(build_context):
             'stop all',
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'start all again',
                     'payload': 'START_ALL_TASKS',
                 }, {
@@ -498,7 +498,7 @@ async def test_quick_actions_on_stop_all_but_got_none_to_stop(build_context):
             'stop all',
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'add new task',
                     'payload': 'ADD_NEW_TASK',
                 }, {
@@ -520,7 +520,7 @@ async def test_quick_actions_on_done_all(build_context):
             'done all',
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'reopen all',
                     'payload': 'REOPEN_ALL_TASKS',
                 }, {
@@ -551,7 +551,7 @@ async def test_quick_actions_on_done_all_but_got_none(build_context):
             'done all',
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'add new task',
                     'payload': 'ADD_NEW_TASK',
                 }, {
@@ -573,7 +573,7 @@ async def test_quick_actions_on_remove_all(build_context):
             'remove all',
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'Sure, remove all!',
                     'payload': 'CONFIRM_REMOVE_ALL'
                 }, {
@@ -585,7 +585,7 @@ async def test_quick_actions_on_remove_all(build_context):
             'yes',
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'add new task',
                     'payload': 'ADD_NEW_TASK',
                 },
@@ -602,7 +602,7 @@ async def test_quick_actions_on_start(build_context):
             env.build_postback(OnStart.DEFAULT_OPTION_PAYLOAD),
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'add new task',
                     'payload': 'ADD_NEW_TASK',
                 },
@@ -626,7 +626,7 @@ async def test_quick_actions_on_add_few_tasks(build_context):
             None,
             # Bob:
             {
-                'quick_actions': [{
+                'quick_replies': [{
                     'title': 'start all of them',
                     'payload': 'START_TASKS_{}'.format(','.join([str(t._id) for t in added_tasks])),
                 }, {

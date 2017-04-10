@@ -55,8 +55,11 @@ def setup(story):
                 **ctx,
             )
 
-    @story.on([text.text.EqualCaseIgnore('list'),
-               text.text.EqualCaseIgnore('todo')])
+    @story.on([
+        option.Equal('LIST_TASKS_NEW_FIRST'),
+        text.text.EqualCaseIgnore('list'),
+        text.text.EqualCaseIgnore('todo'),
+    ])
     def list_of_tasks_story():
         @story.part()
         async def list_of_tasks(ctx):
@@ -138,7 +141,9 @@ def setup(story):
                 logger.warning('user doesnt have tickets to remove')
                 await story.ask(emoji.emojize(
                     'You don\'t have any tickets yet.\n'
-                    ':information_source: Please send my few words about it and I will add it to your TODO list.'),
+                    ':information_source: Please send my few words about it and I will add it to your TODO list.',
+                    use_aliases=True,
+                ),
                     quick_replies=[{
                         'title': 'add new task',
                         'payload': 'ADD_NEW_TASK',
@@ -166,6 +171,7 @@ def setup(story):
                     task_id), user=ctx['user'])
 
     @story.on([
+        option.Equal('REMOVE_ALL_TASKS'),
         text.Match('delete all(?: tasks)?(?: jobs)?'),
         text.Match('drop all(?: tasks)?'),
         text.Match('forget all(?: tasks)?'),
@@ -189,7 +195,7 @@ def setup(story):
             }], user=ctx['user'])
 
         @story.case([
-            option.Match('CONFIRM_REMOVE_ALL'),
+            option.Equal('CONFIRM_REMOVE_ALL'),
             sticker.Like(),
             text.Match('(.*) remove all (.*)', flags=re.IGNORECASE),
             text.Match('ok', flags=re.IGNORECASE),
@@ -300,7 +306,10 @@ def setup(story):
             except orm.errors.DoesNotExist:
                 await story.say('Can\'t find task details. With id {}'.format(task_id), user=ctx['user'])
 
-    @story.on(text.Match('last(?: task)?'))
+    @story.on([
+        option.Equal('LAST_TASK_DETAILS'),
+        text.Match('last(?: task)?'),
+    ])
     def last_task_story():
         @story.part()
         async def send_last_task_details(ctx):
