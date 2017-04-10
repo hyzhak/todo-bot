@@ -444,6 +444,7 @@ async def test_remove_all_job_answer_in_different_way(build_context, answer, rem
 @pytest.mark.parametrize('command', [
     'last task',
     'last',
+    env.build_postback('LAST_TASK_DETAILS'),
 ])
 async def test_show_task_details_on_last_task(build_context, command):
     async with build_context() as ctx:
@@ -451,9 +452,12 @@ async def test_show_task_details_on_last_task(build_context, command):
         created_tasks = await ctx.add_test_tasks()
 
         # Alice:
-        await facebook.handle(env.build_message({
-            'text': command,
-        }))
+        await ctx.dialog([
+            command,
+        ])
+        # await facebook.handle(env.build_message({
+        #     'text': command,
+        # }))
 
         # Bob:
         task_test_helper.assert_task_message(created_tasks[-1],

@@ -301,7 +301,10 @@ def setup(story):
             except orm.errors.DoesNotExist:
                 await story.say('Can\'t find task details. With id {}'.format(task_id), user=ctx['user'])
 
-    @story.on(text.Match('last(?: task)?'))
+    @story.on([
+        option.Equal('LAST_TASK_DETAILS'),
+        text.Match('last(?: task)?'),
+    ])
     def last_task_story():
         @story.part()
         async def send_last_task_details(ctx):
