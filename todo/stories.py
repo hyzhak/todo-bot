@@ -174,9 +174,17 @@ def setup(story):
                                 ],
                                 user=ctx['user'])
             except orm.errors.DoesNotExist:
-                await story.say(emoji.emojize(':confused: Can\'t find task with id 58d99754e61713000143a2e1.\n'
-                                              'It seems that it was already removed.', use_aliases=True).format(
-                    task_id), user=ctx['user'])
+                await story.ask(emoji.emojize(':confused: Can\'t find task.\n'
+                                              'It seems that it was already removed.', use_aliases=True),
+                                quick_replies=[{
+                                    'title': 'add new task',
+                                    'payload': 'ADD_NEW_TASK',
+                                }, {
+                                    'title': 'list tasks',
+                                    'payload': 'LIST_TASKS_NEW_FIRST',
+                                },
+                                ],
+                                user=ctx['user'])
 
     @story.on([
         option.Equal('REMOVE_ALL_TASKS'),
@@ -313,9 +321,16 @@ def setup(story):
                 })
                 await task_details_renderer.render(story, ctx['user'], task)
             except orm.errors.DoesNotExist:
-                await story.say(emoji.emojize(
-                    ':confused: Can\'t find task details. With id {}'.format(task_id),
+                await story.ask(emoji.emojize(
+                    ':confused: Can\'t find task details.',
                     use_aliases=True),
+                    quick_replies=[{
+                        'title': 'add new task',
+                        'payload': 'ADD_NEW_TASK',
+                    }, {
+                        'title': 'list tasks',
+                        'payload': 'LIST_TASKS_NEW_FIRST',
+                    }],
                     user=ctx['user'])
 
     @story.on([

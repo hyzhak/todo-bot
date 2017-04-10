@@ -585,8 +585,17 @@ async def test_remove_task_by_postback_fail_if_wrong_id(build_context):
             # Alice:
             env.build_postback('REMOVE_TASK_58d99754e61713000143a2e1'),
             # Bob:
-            ':confused: Can\'t find task with id 58d99754e61713000143a2e1.\n'
-            'It seems that it was already removed.',
+            {
+                'text': ':confused: Can\'t find task.\n'
+                        'It seems that it was already removed.',
+                'quick_replies': [{
+                    'title': 'add new task',
+                    'payload': 'ADD_NEW_TASK',
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                }],
+            }
         ])
         tasks_left = await tasks_document.TaskDocument.objects.find()
         assert len(tasks_left) == 3
