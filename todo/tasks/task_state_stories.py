@@ -455,7 +455,10 @@ def setup(story):
             await stop_many_task(ctx,
                                  tasks=await task_story_helper.all_my_tasks(ctx))
 
-    @story.on(text.Match('done all(?: task)?'))
+    @story.on([
+        option.Equal('DONE_ALL_TASK'),
+        text.Match('done all(?: task)?'),
+    ])
     def done_all_my_task_story():
         @story.part()
         async def try_to_done_all_tasks(ctx):

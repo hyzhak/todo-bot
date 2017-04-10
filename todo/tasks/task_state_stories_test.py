@@ -77,6 +77,7 @@ async def test_change_state_of_last_task(
     ('start all', ':ok: Task was started:\n{}', ['in progress', 'done']),
     ('stop all', ':ok: Task was stopped:\n{}', ['open', 'done']),
     ('done all', ':ok: Tasks were done:\n{}', ['done']),
+    (env.build_postback('DONE_ALL_TASK'), ':ok: Tasks were done:\n{}', ['done']),
 ])
 async def test_change_state_of_all_tasks(
         build_context, command, should_get_answer, should_get_states):
