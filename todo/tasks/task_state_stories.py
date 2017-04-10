@@ -441,7 +441,10 @@ def setup(story):
             await open_many_task(ctx,
                                  tasks=await task_story_helper.all_my_tasks(ctx))
 
-    @story.on(text.Match('start all(?: task)?'))
+    @story.on([
+        option.Equal('START_ALL_TASK'),
+        text.Match('start all(?: task)?'),
+    ])
     def start_all_my_task_story():
         @story.part()
         async def try_to_start_all_tasks(ctx):
