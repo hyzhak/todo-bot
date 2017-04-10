@@ -590,3 +590,27 @@ async def test_remove_task_by_postback_fail_if_wrong_id(build_context):
         ])
         tasks_left = await tasks_document.TaskDocument.objects.find()
         assert len(tasks_left) == 3
+
+
+@pytest.mark.asyncio
+async def test_react_on_unknown_command(build_context):
+    async with build_context() as ctx:
+        await ctx.add_test_tasks()
+
+        await ctx.dialog([
+            # Alice:
+            env.build_postback('WRONG_POSTBACK_MESSGE'),
+
+            # Bob:
+            {
+                'text': ':confused: Sorry I don\'t know, how to react on such message yet.\n'
+                        'Here are few things that you can do quickly',
+                'quick_replies': [{
+                    'title': 'add new task',
+                    'payload': 'ADD_NEW_TASK',
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                }],
+            },
+        ])

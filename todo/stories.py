@@ -430,4 +430,15 @@ def setup(story):
         @story.part()
         async def something_else(message):
             logger.info('something_else')
-            await story.say('<React on unknown message>', message['user'])
+            await story.ask(
+                emoji.emojize(':confused: Sorry I don\'t know, how to react on such message yet.\n'
+                              'Here are few things that you can do quickly',
+                              use_aliases=True),
+                quick_replies=[{
+                    'title': 'add new task',
+                    'payload': 'ADD_NEW_TASK',
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                }],
+                user=message['user'])
