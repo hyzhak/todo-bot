@@ -141,7 +141,9 @@ def setup(story):
                 logger.warning('user doesnt have tickets to remove')
                 await story.ask(emoji.emojize(
                     'You don\'t have any tickets yet.\n'
-                    ':information_source: Please send my few words about it and I will add it to your TODO list.'),
+                    ':information_source: Please send my few words about it and I will add it to your TODO list.',
+                    use_aliases=True,
+                ),
                     quick_replies=[{
                         'title': 'add new task',
                         'payload': 'ADD_NEW_TASK',
