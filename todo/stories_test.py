@@ -377,7 +377,8 @@ async def test_remove_last_warn_if_we_do_not_have_any_tickets_now(build_context)
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('command',
-                         ['delete all', 'delete all tasks', 'delete all jobs', ])
+                         ['delete all', 'delete all tasks', 'delete all jobs',
+                          env.build_postback('REMOVE_ALL_TASKS')])
 async def test_remove_all_job(build_context, command):
     async with build_context() as ctx:
         await ctx.add_test_tasks()

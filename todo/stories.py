@@ -166,6 +166,7 @@ def setup(story):
                     task_id), user=ctx['user'])
 
     @story.on([
+        option.Equal('REMOVE_ALL_TASKS'),
         text.Match('delete all(?: tasks)?(?: jobs)?'),
         text.Match('drop all(?: tasks)?'),
         text.Match('forget all(?: tasks)?'),
@@ -189,7 +190,7 @@ def setup(story):
             }], user=ctx['user'])
 
         @story.case([
-            option.Match('CONFIRM_REMOVE_ALL'),
+            option.Equal('CONFIRM_REMOVE_ALL'),
             sticker.Like(),
             text.Match('(.*) remove all (.*)', flags=re.IGNORECASE),
             text.Match('ok', flags=re.IGNORECASE),
