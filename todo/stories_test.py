@@ -564,7 +564,9 @@ async def test_remove_task_by_postback(build_context):
             # Alice:
             env.build_postback('REMOVE_TASK_{}'.format(created_tasks[0]._id)),
             # Bob:
-            ':ok: Task `{}` was deleted'.format(created_tasks[0].description),
+            {
+                'text': ':ok: Task `{}` was deleted'.format(created_tasks[0].description),
+            },
         ])
         tasks_left = await tasks_document.TaskDocument.objects.find()
         assert len(tasks_left) == 2

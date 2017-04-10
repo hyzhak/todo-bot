@@ -161,6 +161,7 @@ def build_context():
             _, obj = self.http_interface.post.call_args
             assert 'json' in obj
             assert obj['json']['recipient']['id'] == self.user['facebook_user_id']
+            assert 'message' in obj['json']
 
             if 'text' in message:
                 assert obj['json']['message']['text'] == all_emoji(message['text'])
@@ -212,9 +213,7 @@ def build_context():
                 assert template_elements[0]['title'] == message['title']
                 assert template_elements[0]['subtitle'] == message['subtitle']
                 assert template_elements[0]['buttons'] == message['buttons']
-            else:
-                assert 'message' in obj['json']
-                assert 'text' in obj['json']['message']
+            elif isinstance(message, str):
                 assert obj['json']['message']['text'] == all_emoji(message)
 
     return AsyncContext
