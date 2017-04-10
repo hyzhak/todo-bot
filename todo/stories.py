@@ -277,7 +277,8 @@ def setup(story):
                                 user=ctx['user'])
                 return
 
-            await story.say('We can\'t find `{}` what do you want to remove?'.format(target),
+            await story.say(emoji.emojize(':confused: We can\'t find `{}` what do you want to remove?'.format(target),
+                                          use_aliases=True),
                             user=ctx['user'])
 
     @story.on([
@@ -312,7 +313,10 @@ def setup(story):
                 })
                 await task_details_renderer.render(story, ctx['user'], task)
             except orm.errors.DoesNotExist:
-                await story.say('Can\'t find task details. With id {}'.format(task_id), user=ctx['user'])
+                await story.say(emoji.emojize(
+                    ':confused: Can\'t find task details. With id {}'.format(task_id),
+                    use_aliases=True),
+                    user=ctx['user'])
 
     @story.on([
         option.Equal('LAST_TASK_DETAILS'),

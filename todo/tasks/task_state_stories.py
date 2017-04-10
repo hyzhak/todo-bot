@@ -331,7 +331,7 @@ def setup(story):
                 await open_one_task(ctx,
                                     task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
-                # TODO:
+                # await story.ask()
                 pass
 
     @story.on(option.Match('STOP_TASK_(.+)'))

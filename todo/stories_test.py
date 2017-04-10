@@ -313,7 +313,7 @@ async def test_ask_again_if_we_can_find_what_to_remove(build_context):
             # Alice:
             'remove uncertainty',
             # Bob:
-            'We can\'t find `uncertainty` what do you want to remove?',
+            ':confused: We can\'t find `uncertainty` what do you want to remove?',
         ])
 
         res_lists = await lists.ListDocument.objects.find({
