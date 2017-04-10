@@ -72,6 +72,33 @@ async def test_change_state_of_last_task(
 
 
 @pytest.mark.asyncio
+async def test_start_certain_task(build_context):
+    async with build_context() as ctx:
+        created_tasks = await ctx.add_test_tasks(props=[{
+            'state': 'open',
+        }, {
+            'state': 'open',
+        }, {
+            'state': 'open',
+        }])
+        task_1 = created_tasks[-1]
+        task_2 = created_tasks[-2]
+
+        list_of_modified_tasks = '\n'.join(
+            [emoji.emojize(':white_check_mark: {}').format(t) for t in [
+                task_1.description, task_2.description
+            ]])
+
+        await ctx.dialog([
+            # Alice:
+            env.build_postback('START_TASKS_{},{}'.format(task_1._id, task_2._id)),
+
+            # Bob:
+            ':ok: Tasks were started:\n{}'.format(list_of_modified_tasks),
+        ])
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize(('command', 'should_get_answer', 'should_get_states'), [
     ('open all', ':ok: Task was opened:\n{}', ['open', 'in progress']),
     (env.build_postback('REOPEN_ALL_TASK'), ':ok: Task was opened:\n{}', ['open', 'in progress']),

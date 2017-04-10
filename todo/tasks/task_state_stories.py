@@ -367,6 +367,13 @@ def setup(story):
                 # TODO:
                 pass
 
+    @story.on(option.Match('START_TASKS_(.+)'))
+    def start_few_of_my_tasks_story():
+        @story.part()
+        async def try_to_start_few_tasks(ctx):
+            await start_many_task(ctx,
+                                  tasks=await task_story_helper.current_tasks(ctx))
+
     # match "<do> last (task)"
 
     @story.on(text.Match('open last(?: task)?'))
