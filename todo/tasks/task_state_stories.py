@@ -434,7 +434,10 @@ def setup(story):
                                 user=ctx['user'])
 
     # match "<do> all (task)"
-    @story.on(text.Match('open all(?: task)?'))
+    @story.on([
+        option.Equal('REOPEN_ALL_TASK'),
+        text.Match('open all(?: task)?'),
+    ])
     def open_all_my_tasks_story():
         @story.part()
         async def try_to_open_all_tasks(ctx):
