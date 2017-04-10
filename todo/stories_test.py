@@ -38,7 +38,11 @@ async def test_new_task_story(build_context, mocker):
 
 
 @pytest.mark.parametrize('command',
-                         ['list', 'todo'])
+                         [
+                             'list',
+                             'todo',
+                             env.build_postback('LIST_TASKS_NEW_FIRST'),
+                         ])
 @pytest.mark.asyncio
 async def test_list_of_active_tasks_on_list(build_context, command):
     async with build_context() as ctx:
@@ -61,11 +65,13 @@ async def test_list_of_active_tasks_on_list(build_context, command):
             # 'created_at': datetime.datetime.now(),
         }, ])
 
-        await facebook.handle(env.build_message({
-            'text': command
-        }))
+        await ctx.dialog([
+            # Alice
+            command,
+        ])
 
         ctx.receive_answer([
+            # Bob
             'fry toasts',
             'fry eggs',
             'drop cheese',

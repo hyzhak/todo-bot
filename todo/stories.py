@@ -55,8 +55,11 @@ def setup(story):
                 **ctx,
             )
 
-    @story.on([text.text.EqualCaseIgnore('list'),
-               text.text.EqualCaseIgnore('todo')])
+    @story.on([
+        option.Equal('LIST_TASKS_NEW_FIRST'),
+        text.text.EqualCaseIgnore('list'),
+        text.text.EqualCaseIgnore('todo'),
+    ])
     def list_of_tasks_story():
         @story.part()
         async def list_of_tasks(ctx):
