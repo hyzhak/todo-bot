@@ -331,8 +331,19 @@ def setup(story):
                 await open_one_task(ctx,
                                     task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
-                # await story.ask()
-                pass
+                await story.ask(
+                    emoji.emojize('confused: I can\'t find that tast. Maybe you mean another one?',
+                                  use_aliases=True),
+                    quick_replies=[{
+                        'title': 'add new task',
+                        'payload': 'ADD_NEW_TASK',
+                    }, {
+                        'title': 'list tasks',
+                        'payload': 'LIST_TASKS_NEW_FIRST',
+                    },
+                    ],
+                    user=ctx['user'],
+                )
 
     @story.on(option.Match('STOP_TASK_(.+)'))
     def stop_task_story():
@@ -342,8 +353,19 @@ def setup(story):
                 await stop_one_task(ctx,
                                     task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
-                # TODO:
-                pass
+                await story.ask(
+                    emoji.emojize('confused: I can\'t find that tast. Maybe you mean another one?',
+                                  use_aliases=True),
+                    quick_replies=[{
+                        'title': 'add new task',
+                        'payload': 'ADD_NEW_TASK',
+                    }, {
+                        'title': 'list tasks',
+                        'payload': 'LIST_TASKS_NEW_FIRST',
+                    },
+                    ],
+                    user=ctx['user'],
+                )
 
     @story.on(option.Match('DONE_TASK_(.+)'))
     def done_task_story():
@@ -353,8 +375,19 @@ def setup(story):
                 await done_one_task(ctx,
                                     task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
-                # TODO:
-                pass
+                await story.ask(
+                    emoji.emojize('confused: I can\'t find that tast. Maybe you mean another one?',
+                                  use_aliases=True),
+                    quick_replies=[{
+                        'title': 'add new task',
+                        'payload': 'ADD_NEW_TASK',
+                    }, {
+                        'title': 'list tasks',
+                        'payload': 'LIST_TASKS_NEW_FIRST',
+                    },
+                    ],
+                    user=ctx['user'],
+                )
 
     @story.on(option.Match('START_TASK_(.+)'))
     def start_task_story():
@@ -364,8 +397,19 @@ def setup(story):
                 await start_one_task(ctx,
                                      task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
-                # TODO:
-                pass
+                await story.ask(
+                    emoji.emojize('confused: I can\'t find that tast. Maybe you mean another one?',
+                                  use_aliases=True),
+                    quick_replies=[{
+                        'title': 'add new task',
+                        'payload': 'ADD_NEW_TASK',
+                    }, {
+                        'title': 'list tasks',
+                        'payload': 'LIST_TASKS_NEW_FIRST',
+                    },
+                    ],
+                    user=ctx['user'],
+                )
 
     @story.on(option.Match('START_TASKS_(.+)'))
     def start_few_of_my_tasks_story():

@@ -171,3 +171,30 @@ async def test_warn_if_there_is_no_tasks_to_apply_changes_for_all(
             # Bob:
             'You do not have any task to {}'.format(command_name),
         ])
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('command', [
+    env.build_postback('STOP_TASK_58ec13b91c8dea00012fa1a2'),
+    env.build_postback('DONE_TASK_58ec13b91c8dea00012fa1a2'),
+    env.build_postback('START_TASK_58ec13b91c8dea00012fa1a2'),
+    env.build_postback('START_TASK_58ec13b91c8dea00012fa1a2'),
+])
+async def test_warn_if_there_is_no_tasks_to_apply_changes_for_all(build_context, command):
+    async with build_context() as ctx:
+        await ctx.dialog([
+            # Alice:
+            command,
+            # Bob:
+            {
+                'text': 'confused: I can\'t find that tast. Maybe you mean another one?',
+                'quick_replies': [{
+                    'title': 'add new task',
+                    'payload': 'ADD_NEW_TASK',
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                },
+                ],
+            },
+        ])
