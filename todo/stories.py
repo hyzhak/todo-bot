@@ -123,16 +123,16 @@ def setup(story):
                 logger.info(msg)
                 await story.ask(msg,
                                 quick_replies=[{
-                                    'title': 'remove the following task',
+                                    'title': 'remove next',
                                     'payload': 'REMOVE_LAST_TASK',
                                 }, {
-                                    'title': 'details about the next task',
+                                    'title': 'next details',
                                     'payload': 'LAST_TASK_DETAILS',
                                 }, {
-                                    'title': 'add new task',
+                                    'title': 'add task',
                                     'payload': 'ADD_NEW_TASK',
                                 }, {
-                                    'title': 'list tasks',
+                                    'title': 'list',
                                     'payload': 'LIST_TASKS_NEW_FIRST',
                                 },
                                 ],
@@ -230,16 +230,16 @@ def setup(story):
                 logger.info(msg)
                 await story.ask(msg,
                                 quick_replies=[{
-                                    'title': 'remove the following task',
+                                    'title': 'remove next',
                                     'payload': 'REMOVE_LAST_TASK',
                                 }, {
-                                    'title': 'details about the next task',
+                                    'title': 'next details',
                                     'payload': 'LAST_TASK_DETAILS',
                                 }, {
-                                    'title': 'add new task',
+                                    'title': 'add task',
                                     'payload': 'ADD_NEW_TASK',
                                 }, {
-                                    'title': 'list tasks',
+                                    'title': 'list',
                                     'payload': 'LIST_TASKS_NEW_FIRST',
                                 },
                                 ],
