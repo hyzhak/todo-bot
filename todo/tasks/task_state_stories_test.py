@@ -187,7 +187,7 @@ async def test_warn_if_there_is_no_tasks_to_apply_changes_for_all(build_context,
             command,
             # Bob:
             {
-                'text': 'confused: I can\'t find that tast. Maybe you mean another one?',
+                'text': ':confused: I can\'t find that task. Do you mean something else?',
                 'quick_replies': [{
                     'title': 'add new task',
                     'payload': 'ADD_NEW_TASK',

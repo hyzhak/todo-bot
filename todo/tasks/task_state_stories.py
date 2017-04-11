@@ -332,7 +332,7 @@ def setup(story):
                                     task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
                 await story.ask(
-                    emoji.emojize('confused: I can\'t find that tast. Maybe you mean another one?',
+                    emoji.emojize(':confused: I can\'t find that task. Do you mean something else?',
                                   use_aliases=True),
                     quick_replies=[{
                         'title': 'add new task',
@@ -354,7 +354,7 @@ def setup(story):
                                     task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
                 await story.ask(
-                    emoji.emojize('confused: I can\'t find that tast. Maybe you mean another one?',
+                    emoji.emojize(':confused: I can\'t find that task. Do you mean something else?',
                                   use_aliases=True),
                     quick_replies=[{
                         'title': 'add new task',
@@ -376,7 +376,7 @@ def setup(story):
                                     task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
                 await story.ask(
-                    emoji.emojize('confused: I can\'t find that tast. Maybe you mean another one?',
+                    emoji.emojize(':confused: I can\'t find that task. Do you mean something else?',
                                   use_aliases=True),
                     quick_replies=[{
                         'title': 'add new task',
@@ -398,7 +398,7 @@ def setup(story):
                                      task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
                 await story.ask(
-                    emoji.emojize('confused: I can\'t find that tast. Maybe you mean another one?',
+                    emoji.emojize(':confused: I can\'t find that task. Do you mean something else?',
                                   use_aliases=True),
                     quick_replies=[{
                         'title': 'add new task',
