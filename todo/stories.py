@@ -101,11 +101,11 @@ def setup(story):
                             'Now you can add tasks to it.'.format(list_name), user=ctx['user'])
 
     @story.on([
-        text.Match('delete last'),
-        text.Match('drop last'),
-        text.Match('forget about last'),
-        text.Match('kill last'),
-        text.Match('remove last'),
+        text.Match('delete last', flags=re.IGNORECASE),
+        text.Match('drop last', flags=re.IGNORECASE),
+        text.Match('forget about last', flags=re.IGNORECASE),
+        text.Match('kill last', flags=re.IGNORECASE),
+        text.Match('remove last', flags=re.IGNORECASE),
     ])
     def remove_last_job_story():
         @story.part()
@@ -188,11 +188,11 @@ def setup(story):
 
     @story.on([
         option.Equal('REMOVE_ALL_TASKS'),
-        text.Match('delete all(?: tasks)?(?: jobs)?'),
-        text.Match('drop all(?: tasks)?'),
-        text.Match('forget all(?: tasks)?'),
-        text.Match('kill all(?: tasks)?'),
-        text.Match('remove all(?: tasks)?'),
+        text.Match('delete all(?: tasks)?(?: jobs)?', flags=re.IGNORECASE),
+        text.Match('drop all(?: tasks)?', flags=re.IGNORECASE),
+        text.Match('forget all(?: tasks)?', flags=re.IGNORECASE),
+        text.Match('kill all(?: tasks)?', flags=re.IGNORECASE),
+        text.Match('remove all(?: tasks)?', flags=re.IGNORECASE),
     ])
     def remove_all_jobs_story():
         @story.part()
@@ -246,11 +246,11 @@ def setup(story):
                                 user=ctx['user'])
 
     @story.on([
-        text.Match('delete (.*)'),
-        text.Match('drop (.*)'),
-        text.Match('forget about (.*)'),
-        text.Match('kill (.*)'),
-        text.Match('remove (.*)'),
+        text.Match('delete (.*)', flags=re.IGNORECASE),
+        text.Match('drop (.*)', flags=re.IGNORECASE),
+        text.Match('forget about (.*)', flags=re.IGNORECASE),
+        text.Match('kill (.*)', flags=re.IGNORECASE),
+        text.Match('remove (.*)', flags=re.IGNORECASE),
     ])
     def remove_something_story():
         """
@@ -290,8 +290,8 @@ def setup(story):
                             user=ctx['user'])
 
     @story.on([
-        text.Match('more about(.+)'),
-        text.Match('see(.+)'),
+        text.Match('more about(.+)', flags=re.IGNORECASE),
+        text.Match('see(.+)', flags=re.IGNORECASE),
     ])
     def task_details_story_by_text_match():
         @story.part()
@@ -335,7 +335,7 @@ def setup(story):
 
     @story.on([
         option.Equal('LAST_TASK_DETAILS'),
-        text.Match('last(?: task)?'),
+        text.Match('last(?: task)?', flags=re.IGNORECASE),
     ])
     def last_task_story():
         @story.part()
