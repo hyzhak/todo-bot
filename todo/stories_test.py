@@ -313,7 +313,7 @@ async def test_ask_again_if_we_can_find_what_to_remove(build_context):
             # Alice:
             'remove uncertainty',
             # Bob:
-            'We can\'t find `uncertainty` what do you want to remove?',
+            ':confused: We can\'t find `uncertainty` what do you want to remove?',
         ])
 
         res_lists = await lists.ListDocument.objects.find({
@@ -325,7 +325,8 @@ async def test_ask_again_if_we_can_find_what_to_remove(build_context):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('command',
-                         ['delete last', 'drop last', 'forget about last', 'kill last', 'remove last'])
+                         ['delete last', 'drop last', 'forget about last', 'kill last', 'remove last',
+                          env.build_postback('REMOVE_LAST_TASK')])
 async def test_remove_last_added_job(build_context, command):
     async with build_context() as ctx:
         await ctx.add_test_tasks()
@@ -454,16 +455,12 @@ async def test_remove_all_job_answer_in_different_way(build_context, answer, rem
 ])
 async def test_show_task_details_on_last_task(build_context, command):
     async with build_context() as ctx:
-        facebook = ctx.fb_interface
         created_tasks = await ctx.add_test_tasks()
 
         # Alice:
         await ctx.dialog([
             command,
         ])
-        # await facebook.handle(env.build_message({
-        #     'text': command,
-        # }))
 
         # Bob:
         task_test_helper.assert_task_message(created_tasks[-1],
@@ -564,7 +561,17 @@ async def test_remove_task_by_postback(build_context):
             # Alice:
             env.build_postback('REMOVE_TASK_{}'.format(created_tasks[0]._id)),
             # Bob:
-            ':ok: Task `{}` was deleted'.format(created_tasks[0].description),
+            {
+                'text': ':ok: Task `{}` was deleted'.format(created_tasks[0].description),
+                'quick_replies': [{
+                    'title': 'add new task',
+                    'payload': 'ADD_NEW_TASK',
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                },
+                ]
+            },
         ])
         tasks_left = await tasks_document.TaskDocument.objects.find()
         assert len(tasks_left) == 2
@@ -579,8 +586,41 @@ async def test_remove_task_by_postback_fail_if_wrong_id(build_context):
             # Alice:
             env.build_postback('REMOVE_TASK_58d99754e61713000143a2e1'),
             # Bob:
-            ':confused: Can\'t find task with id 58d99754e61713000143a2e1.\n'
-            'It seems that it was already removed.',
+            {
+                'text': ':confused: Can\'t find task.\n'
+                        'It seems that it was already removed.',
+                'quick_replies': [{
+                    'title': 'add new task',
+                    'payload': 'ADD_NEW_TASK',
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                }],
+            }
         ])
         tasks_left = await tasks_document.TaskDocument.objects.find()
         assert len(tasks_left) == 3
+
+
+@pytest.mark.asyncio
+async def test_react_on_unknown_command(build_context):
+    async with build_context() as ctx:
+        await ctx.add_test_tasks()
+
+        await ctx.dialog([
+            # Alice:
+            env.build_postback('WRONG_POSTBACK_MESSGE'),
+
+            # Bob:
+            {
+                'text': ':confused: Sorry I don\'t know, how to react on such message yet.\n'
+                        'Here are few things that you can do quickly',
+                'quick_replies': [{
+                    'title': 'add new task',
+                    'payload': 'ADD_NEW_TASK',
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                }],
+            },
+        ])

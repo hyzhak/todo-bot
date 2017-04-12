@@ -1,6 +1,7 @@
 from botstory.middlewares import option, text
 import emoji
 import logging
+import re
 
 from todo import orm
 from todo.tasks import task_story_helper
@@ -331,8 +332,19 @@ def setup(story):
                 await open_one_task(ctx,
                                     task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
-                # TODO:
-                pass
+                await story.ask(
+                    emoji.emojize(':confused: I can\'t find that task. Do you mean something else?',
+                                  use_aliases=True),
+                    quick_replies=[{
+                        'title': 'add new task',
+                        'payload': 'ADD_NEW_TASK',
+                    }, {
+                        'title': 'list tasks',
+                        'payload': 'LIST_TASKS_NEW_FIRST',
+                    },
+                    ],
+                    user=ctx['user'],
+                )
 
     @story.on(option.Match('STOP_TASK_(.+)'))
     def stop_task_story():
@@ -342,8 +354,19 @@ def setup(story):
                 await stop_one_task(ctx,
                                     task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
-                # TODO:
-                pass
+                await story.ask(
+                    emoji.emojize(':confused: I can\'t find that task. Do you mean something else?',
+                                  use_aliases=True),
+                    quick_replies=[{
+                        'title': 'add new task',
+                        'payload': 'ADD_NEW_TASK',
+                    }, {
+                        'title': 'list tasks',
+                        'payload': 'LIST_TASKS_NEW_FIRST',
+                    },
+                    ],
+                    user=ctx['user'],
+                )
 
     @story.on(option.Match('DONE_TASK_(.+)'))
     def done_task_story():
@@ -353,8 +376,19 @@ def setup(story):
                 await done_one_task(ctx,
                                     task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
-                # TODO:
-                pass
+                await story.ask(
+                    emoji.emojize(':confused: I can\'t find that task. Do you mean something else?',
+                                  use_aliases=True),
+                    quick_replies=[{
+                        'title': 'add new task',
+                        'payload': 'ADD_NEW_TASK',
+                    }, {
+                        'title': 'list tasks',
+                        'payload': 'LIST_TASKS_NEW_FIRST',
+                    },
+                    ],
+                    user=ctx['user'],
+                )
 
     @story.on(option.Match('START_TASK_(.+)'))
     def start_task_story():
@@ -364,8 +398,19 @@ def setup(story):
                 await start_one_task(ctx,
                                      task=await task_story_helper.current_task(ctx))
             except orm.errors.DoesNotExist:
-                # TODO:
-                pass
+                await story.ask(
+                    emoji.emojize(':confused: I can\'t find that task. Do you mean something else?',
+                                  use_aliases=True),
+                    quick_replies=[{
+                        'title': 'add new task',
+                        'payload': 'ADD_NEW_TASK',
+                    }, {
+                        'title': 'list tasks',
+                        'payload': 'LIST_TASKS_NEW_FIRST',
+                    },
+                    ],
+                    user=ctx['user'],
+                )
 
     @story.on(option.Match('START_TASKS_(.+)'))
     def start_few_of_my_tasks_story():
@@ -376,7 +421,7 @@ def setup(story):
 
     # match "<do> last (task)"
 
-    @story.on(text.Match('open last(?: task)?'))
+    @story.on(text.Match('open last(?: task)?', flags=re.IGNORECASE))
     def open_last_task_story():
         @story.part()
         async def try_to_open_last_task(ctx):
@@ -392,7 +437,7 @@ def setup(story):
                                 ],
                                 user=ctx['user'])
 
-    @story.on(text.Match('start last(?: task)?'))
+    @story.on(text.Match('start last(?: task)?', flags=re.IGNORECASE))
     def start_last_task_story():
         @story.part()
         async def try_to_start_last_task(ctx):
@@ -408,7 +453,7 @@ def setup(story):
                                 ],
                                 user=ctx['user'])
 
-    @story.on(text.Match('stop last(?: task)?'))
+    @story.on(text.Match('stop last(?: task)?', flags=re.IGNORECASE))
     def stop_last_task_story():
         @story.part()
         async def try_to_stop_last_task(ctx):
@@ -424,7 +469,7 @@ def setup(story):
                                 ],
                                 user=ctx['user'])
 
-    @story.on(text.Match('done last(?: task)?'))
+    @story.on(text.Match('done last(?: task)?', flags=re.IGNORECASE))
     def done_last_task_story():
         @story.part()
         async def try_to_done_last_task(ctx):
@@ -443,7 +488,7 @@ def setup(story):
     # match "<do> all (task)"
     @story.on([
         option.Equal('REOPEN_ALL_TASK'),
-        text.Match('open all(?: task)?'),
+        text.Match('open all(?: task)?', flags=re.IGNORECASE),
     ])
     def open_all_my_tasks_story():
         @story.part()
@@ -453,7 +498,7 @@ def setup(story):
 
     @story.on([
         option.Equal('START_ALL_TASK'),
-        text.Match('start all(?: task)?'),
+        text.Match('start all(?: task)?', flags=re.IGNORECASE),
     ])
     def start_all_my_task_story():
         @story.part()
@@ -463,7 +508,7 @@ def setup(story):
 
     @story.on([
         option.Equal('STOP_ALL_TASK'),
-        text.Match('stop all(?: task)?'),
+        text.Match('stop all(?: task)?', flags=re.IGNORECASE),
     ])
     def stop_all_my_task_story():
         @story.part()
@@ -473,7 +518,7 @@ def setup(story):
 
     @story.on([
         option.Equal('DONE_ALL_TASK'),
-        text.Match('done all(?: task)?'),
+        text.Match('done all(?: task)?', flags=re.IGNORECASE),
     ])
     def done_all_my_task_story():
         @story.part()

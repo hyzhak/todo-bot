@@ -101,11 +101,12 @@ def setup(story):
                             'Now you can add tasks to it.'.format(list_name), user=ctx['user'])
 
     @story.on([
-        text.Match('delete last'),
-        text.Match('drop last'),
-        text.Match('forget about last'),
-        text.Match('kill last'),
-        text.Match('remove last'),
+        option.Equal('REMOVE_LAST_TASK'),
+        text.Match('delete last', flags=re.IGNORECASE),
+        text.Match('drop last', flags=re.IGNORECASE),
+        text.Match('forget about last', flags=re.IGNORECASE),
+        text.Match('kill last', flags=re.IGNORECASE),
+        text.Match('remove last', flags=re.IGNORECASE),
     ])
     def remove_last_job_story():
         @story.part()
@@ -123,16 +124,16 @@ def setup(story):
                 logger.info(msg)
                 await story.ask(msg,
                                 quick_replies=[{
-                                    'title': 'remove the following task',
+                                    'title': 'remove next',
                                     'payload': 'REMOVE_LAST_TASK',
                                 }, {
-                                    'title': 'details about the next task',
+                                    'title': 'next details',
                                     'payload': 'LAST_TASK_DETAILS',
                                 }, {
-                                    'title': 'add new task',
+                                    'title': 'add task',
                                     'payload': 'ADD_NEW_TASK',
                                 }, {
-                                    'title': 'list tasks',
+                                    'title': 'list',
                                     'payload': 'LIST_TASKS_NEW_FIRST',
                                 },
                                 ],
@@ -163,20 +164,36 @@ def setup(story):
                 await tasks_document.TaskDocument.objects({
                     '_id': task._id,
                 }).delete_one()
-                await story.say(emoji.emojize(
-                    ':ok: Task `{}` was deleted', use_aliases=True).format(task.description), user=ctx['user'])
+                await story.ask(emoji.emojize(':ok: Task `{}` was deleted', use_aliases=True).format(task.description),
+                                quick_replies=[{
+                                    'title': 'add new task',
+                                    'payload': 'ADD_NEW_TASK',
+                                }, {
+                                    'title': 'list tasks',
+                                    'payload': 'LIST_TASKS_NEW_FIRST',
+                                },
+                                ],
+                                user=ctx['user'])
             except orm.errors.DoesNotExist:
-                await story.say(emoji.emojize(':confused: Can\'t find task with id 58d99754e61713000143a2e1.\n'
-                                              'It seems that it was already removed.', use_aliases=True).format(
-                    task_id), user=ctx['user'])
+                await story.ask(emoji.emojize(':confused: Can\'t find task.\n'
+                                              'It seems that it was already removed.', use_aliases=True),
+                                quick_replies=[{
+                                    'title': 'add new task',
+                                    'payload': 'ADD_NEW_TASK',
+                                }, {
+                                    'title': 'list tasks',
+                                    'payload': 'LIST_TASKS_NEW_FIRST',
+                                },
+                                ],
+                                user=ctx['user'])
 
     @story.on([
         option.Equal('REMOVE_ALL_TASKS'),
-        text.Match('delete all(?: tasks)?(?: jobs)?'),
-        text.Match('drop all(?: tasks)?'),
-        text.Match('forget all(?: tasks)?'),
-        text.Match('kill all(?: tasks)?'),
-        text.Match('remove all(?: tasks)?'),
+        text.Match('delete all(?: tasks)?(?: jobs)?', flags=re.IGNORECASE),
+        text.Match('drop all(?: tasks)?', flags=re.IGNORECASE),
+        text.Match('forget all(?: tasks)?', flags=re.IGNORECASE),
+        text.Match('kill all(?: tasks)?', flags=re.IGNORECASE),
+        text.Match('remove all(?: tasks)?', flags=re.IGNORECASE),
     ])
     def remove_all_jobs_story():
         @story.part()
@@ -190,7 +207,7 @@ def setup(story):
                 'title': 'Sure, remove all!',
                 'payload': 'CONFIRM_REMOVE_ALL'
             }, {
-                'title': 'Nope.',
+                'title': 'Nope',
                 'payload': 'REFUSE_REMOVE_ALL'
             }], user=ctx['user'])
 
@@ -214,27 +231,27 @@ def setup(story):
                 logger.info(msg)
                 await story.ask(msg,
                                 quick_replies=[{
-                                    'title': 'remove the following task',
+                                    'title': 'remove next',
                                     'payload': 'REMOVE_LAST_TASK',
                                 }, {
-                                    'title': 'details about the next task',
+                                    'title': 'next details',
                                     'payload': 'LAST_TASK_DETAILS',
                                 }, {
-                                    'title': 'add new task',
+                                    'title': 'add task',
                                     'payload': 'ADD_NEW_TASK',
                                 }, {
-                                    'title': 'list tasks',
+                                    'title': 'list',
                                     'payload': 'LIST_TASKS_NEW_FIRST',
                                 },
                                 ],
                                 user=ctx['user'])
 
     @story.on([
-        text.Match('delete (.*)'),
-        text.Match('drop (.*)'),
-        text.Match('forget about (.*)'),
-        text.Match('kill (.*)'),
-        text.Match('remove (.*)'),
+        text.Match('delete (.*)', flags=re.IGNORECASE),
+        text.Match('drop (.*)', flags=re.IGNORECASE),
+        text.Match('forget about (.*)', flags=re.IGNORECASE),
+        text.Match('kill (.*)', flags=re.IGNORECASE),
+        text.Match('remove (.*)', flags=re.IGNORECASE),
     ])
     def remove_something_story():
         """
@@ -269,12 +286,13 @@ def setup(story):
                                 user=ctx['user'])
                 return
 
-            await story.say('We can\'t find `{}` what do you want to remove?'.format(target),
+            await story.say(emoji.emojize(':confused: We can\'t find `{}` what do you want to remove?'.format(target),
+                                          use_aliases=True),
                             user=ctx['user'])
 
     @story.on([
-        text.Match('more about(.+)'),
-        text.Match('see(.+)'),
+        text.Match('more about(.+)', flags=re.IGNORECASE),
+        text.Match('see(.+)', flags=re.IGNORECASE),
     ])
     def task_details_story_by_text_match():
         @story.part()
@@ -304,11 +322,21 @@ def setup(story):
                 })
                 await task_details_renderer.render(story, ctx['user'], task)
             except orm.errors.DoesNotExist:
-                await story.say('Can\'t find task details. With id {}'.format(task_id), user=ctx['user'])
+                await story.ask(emoji.emojize(
+                    ':confused: Can\'t find task details.',
+                    use_aliases=True),
+                    quick_replies=[{
+                        'title': 'add new task',
+                        'payload': 'ADD_NEW_TASK',
+                    }, {
+                        'title': 'list tasks',
+                        'payload': 'LIST_TASKS_NEW_FIRST',
+                    }],
+                    user=ctx['user'])
 
     @story.on([
         option.Equal('LAST_TASK_DETAILS'),
-        text.Match('last(?: task)?'),
+        text.Match('last(?: task)?', flags=re.IGNORECASE),
     ])
     def last_task_story():
         @story.part()
@@ -418,4 +446,15 @@ def setup(story):
         @story.part()
         async def something_else(message):
             logger.info('something_else')
-            await story.say('<React on unknown message>', message['user'])
+            await story.ask(
+                emoji.emojize(':confused: Sorry I don\'t know, how to react on such message yet.\n'
+                              'Here are few things that you can do quickly',
+                              use_aliases=True),
+                quick_replies=[{
+                    'title': 'add new task',
+                    'payload': 'ADD_NEW_TASK',
+                }, {
+                    'title': 'list tasks',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
+                }],
+                user=message['user'])
