@@ -206,7 +206,7 @@ def setup(story):
                 'title': 'Sure, remove all!',
                 'payload': 'CONFIRM_REMOVE_ALL'
             }, {
-                'title': 'Nope.',
+                'title': 'Nope',
                 'payload': 'REFUSE_REMOVE_ALL'
             }], user=ctx['user'])
 

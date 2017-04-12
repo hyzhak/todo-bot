@@ -301,13 +301,16 @@ async def test_quick_actions_on_remove_task(build_context):
             # Bob:
             {
                 'quick_replies': [{
-                    'title': 'add new task',
-                    'payload': 'ADD_NEW_TASK',
+                    'title': 'remove next',
+                    'payload': 'REMOVE_LAST_TASK',
                 }, {
-                    'title': 'details about the next task',
+                    'title': 'next details',
                     'payload': 'LAST_TASK_DETAILS',
                 }, {
-                    'title': 'list tasks',
+                    'title': 'add task',
+                    'payload': 'ADD_NEW_TASK',
+                }, {
+                    'title': 'list',
                     'payload': 'LIST_TASKS_NEW_FIRST',
                 },
                 ],
@@ -577,7 +580,7 @@ async def test_quick_actions_on_remove_all(build_context):
                     'title': 'Sure, remove all!',
                     'payload': 'CONFIRM_REMOVE_ALL'
                 }, {
-                    'title': 'Nope.',
+                    'title': 'Nope',
                     'payload': 'REFUSE_REMOVE_ALL'
                 }],
             },
@@ -586,8 +589,17 @@ async def test_quick_actions_on_remove_all(build_context):
             # Bob:
             {
                 'quick_replies': [{
-                    'title': 'add new task',
+                    'title': 'remove next',
+                    'payload': 'REMOVE_LAST_TASK',
+                }, {
+                    'title': 'next details',
+                    'payload': 'LAST_TASK_DETAILS',
+                }, {
+                    'title': 'add task',
                     'payload': 'ADD_NEW_TASK',
+                }, {
+                    'title': 'list',
+                    'payload': 'LIST_TASKS_NEW_FIRST',
                 },
                 ],
             },
