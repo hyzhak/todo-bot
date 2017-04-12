@@ -101,6 +101,7 @@ def setup(story):
                             'Now you can add tasks to it.'.format(list_name), user=ctx['user'])
 
     @story.on([
+        option.Equal('REMOVE_LAST_TASK'),
         text.Match('delete last', flags=re.IGNORECASE),
         text.Match('drop last', flags=re.IGNORECASE),
         text.Match('forget about last', flags=re.IGNORECASE),
