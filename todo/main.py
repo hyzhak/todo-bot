@@ -36,16 +36,20 @@ class Bot:
             # menu of the bot that user has access all the time
             persistent_menu=[{
                 'type': 'postback',
-                'title': 'All Tasks',
-                'payload': 'ALL_TASKS'
+                'title': 'My Tasks',
+                'payload': 'LIST_TASKS_NEW_FIRST'
             }, {
                 'type': 'postback',
                 'title': 'Add Task',
-                'payload': 'ADD_TASK'
+                'payload': 'ADD_NEW_TASK'
             }, {
                 'type': 'web_url',
                 'title': 'Source Code',
                 'url': 'https://github.com/botstory/bot-story/'
+            }, {
+                'type': 'postback',
+                'title': 'About',
+                'payload': 'ABOUT_ME'
             }],
             # should be the same as in admin panel for the Webhook Product
             webhook_url='/webhook{}'.format(os.environ.get('FB_WEBHOOK_URL_SECRET_PART', '')),
