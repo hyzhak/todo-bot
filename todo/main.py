@@ -27,29 +27,29 @@ class Bot:
     def init(self, auto_start, fake_http_session):
         self.story.use(fb.FBInterface(
             # will show on initial screen
-            greeting_text='Hello dear {{user_first_name}}! '
-                          'I''m TODO bot base on BotStory framework.'
-                          'I will help you to make things done'
+            greeting_text='Hello dear {{user_first_name}}!\n'
+                          'I\'m TODO bot based on BotStory framework.\n'
+                          'I will help you to make things done\n'
                           'and focus on current issues.',
             # you should get on admin panel for the Messenger Product in Token Generation section
             page_access_token=os.environ.get('FB_ACCESS_TOKEN', 'TEST_TOKEN'),
             # menu of the bot that user has access all the time
             persistent_menu=[{
                 'type': 'postback',
-                'title': 'All Tasks',
-                'payload': 'ALL_TASKS'
-            }, {
-                'type': 'postback',
-                'title': 'Current Tasks',
-                'payload': 'CURRENT_TASKS'
+                'title': 'My Tasks',
+                'payload': 'LIST_TASKS_NEW_FIRST'
             }, {
                 'type': 'postback',
                 'title': 'Add Task',
-                'payload': 'ADD_TASK'
+                'payload': 'ADD_NEW_TASK'
             }, {
                 'type': 'web_url',
                 'title': 'Source Code',
                 'url': 'https://github.com/botstory/bot-story/'
+            }, {
+                'type': 'postback',
+                'title': 'About',
+                'payload': 'ABOUT_ME'
             }],
             # should be the same as in admin panel for the Webhook Product
             webhook_url='/webhook{}'.format(os.environ.get('FB_WEBHOOK_URL_SECRET_PART', '')),
