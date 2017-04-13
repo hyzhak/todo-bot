@@ -137,8 +137,8 @@ def setup(story):
                                     'title': 'add new task',
                                     'payload': 'ADD_NEW_TASK',
                                 }, {
-                                    'title': 'cancel',
-                                    'payload': 'CANCEL',
+                                    'title': 'list tasks',
+                                    'payload': 'LIST_TASKS_NEW_FIRST',
                                 }],
                                 user=ctx['user'])
 
