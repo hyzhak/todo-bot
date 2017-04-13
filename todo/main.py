@@ -40,10 +40,6 @@ class Bot:
                 'payload': 'ALL_TASKS'
             }, {
                 'type': 'postback',
-                'title': 'Current Tasks',
-                'payload': 'CURRENT_TASKS'
-            }, {
-                'type': 'postback',
                 'title': 'Add Task',
                 'payload': 'ADD_TASK'
             }, {
