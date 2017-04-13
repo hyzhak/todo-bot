@@ -70,8 +70,8 @@ async def test_add_task_on_postback_message(build_context):
             env.build_postback('ADD_NEW_TASK'),
 
             # Bob:
-            'Please give name of your task (max 140 symbols).\n'
-            ':information_source: You can also enumerate tasks by comma (laptop, charger, passport).',
+            'Please enter the name of your task (max 140 symbols).\n'
+            ':information_source: You can also enumerate tasks by comma (get laptop, charger, passport).',
 
             # Alice:
             'Buy a bread',
@@ -90,8 +90,8 @@ async def test_cancel_add_task_on_postback_message(build_context):
 
             # Bob:
             {
-                'text': 'Please give name of your task (max 140 symbols).\n'
-                        ':information_source: You can also enumerate tasks by comma (laptop, charger, passport).',
+                'text': 'Please enter the name of your task (max 140 symbols).\n'
+                        ':information_source: You can also enumerate tasks by comma (get laptop, charger, passport).',
                 'quick_replies': [{
                     'title': 'cancel',
                     'payload': 'CANCEL',

@@ -27,9 +27,9 @@ class Bot:
     def init(self, auto_start, fake_http_session):
         self.story.use(fb.FBInterface(
             # will show on initial screen
-            greeting_text='Hello dear {{user_first_name}}! '
-                          'I''m TODO bot base on BotStory framework.'
-                          'I will help you to make things done'
+            greeting_text='Hello dear {{user_first_name}}!\n'
+                          'I\'m TODO bot based on BotStory framework.\n'
+                          'I will help you to make things done\n'
                           'and focus on current issues.',
             # you should get on admin panel for the Messenger Product in Token Generation section
             page_access_token=os.environ.get('FB_ACCESS_TOKEN', 'TEST_TOKEN'),

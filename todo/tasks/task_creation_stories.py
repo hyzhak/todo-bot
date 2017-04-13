@@ -94,8 +94,8 @@ def setup(story):
         async def ask_task_title(ctx):
             return await story.ask(
                 emoji.emojize(
-                    'Please give name of your task (max 140 symbols).\n'
-                    ':information_source: You can also enumerate tasks by comma (laptop, charger, passport).',
+                    'Please enter the name of your task (max 140 symbols).\n'
+                    ':information_source: You can also enumerate tasks by comma (get laptop, charger, passport).',
                     use_aliases=True),
                 quick_replies=[{
                     'title': 'cancel',
