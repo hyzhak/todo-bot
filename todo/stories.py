@@ -214,9 +214,11 @@ def setup(story):
         @story.case([
             option.Equal('CONFIRM_REMOVE_ALL'),
             sticker.Like(),
-            text.Match('(.*) remove all (.*)', flags=re.IGNORECASE),
+            text.Match('confirm', flags=re.IGNORECASE),
             text.Match('ok', flags=re.IGNORECASE),
-            text.Match('sure (.*)', flags=re.IGNORECASE),
+            text.Match('(.*)remove(.*)', flags=re.IGNORECASE),
+            text.Match('sure(.*)', flags=re.IGNORECASE),
+            text.Match('yeah', flags=re.IGNORECASE),
             text.Match('yes', flags=re.IGNORECASE),
         ])
         def confirm_to_remove_all():
