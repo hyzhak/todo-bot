@@ -88,7 +88,10 @@ def setup(story):
         else:
             raise NotImplemented()
 
-    @story.on(receive=option.Equal('ADD_NEW_TASK'))
+    @story.on([
+        option.Equal('ADD_NEW_TASK'),
+        text.EqualCaseIgnore('add new task'),
+    ])
     def request_new_task():
         @story.part()
         async def ask_task_title(ctx):
