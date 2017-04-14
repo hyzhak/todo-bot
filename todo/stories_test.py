@@ -40,6 +40,7 @@ async def test_new_task_story(build_context, mocker):
 @pytest.mark.parametrize('command',
                          [
                              'list',
+                             'list tasks',
                              'todo',
                              env.build_postback('LIST_TASKS_NEW_FIRST'),
                          ])

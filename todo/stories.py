@@ -57,8 +57,8 @@ def setup(story):
 
     @story.on([
         option.Equal('LIST_TASKS_NEW_FIRST'),
-        text.text.EqualCaseIgnore('list'),
-        text.text.EqualCaseIgnore('todo'),
+        text.Match('^list(( all)? tasks)?', flags=re.IGNORECASE),
+        text.EqualCaseIgnore('todo'),
     ])
     def list_of_tasks_story():
         @story.part()
