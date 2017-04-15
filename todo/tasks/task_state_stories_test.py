@@ -43,6 +43,7 @@ async def test_change_state_of_task_by_postback(
 @pytest.mark.parametrize(('init_state', 'command', 'should_get_answer', 'should_get_state'), [
     ('done', 'open last', ':ok: Task `{}` was opened', 'open'),
     ('open', 'open last', 'Task `{}` is already opened', 'open'),
+    ('open', 'start', ':ok: Task `{}` was started', 'in progress'),
     ('open', 'start last', ':ok: Task `{}` was started', 'in progress'),
     ('open', 'start task', ':ok: Task `{}` was started', 'in progress'),
     ('in progress', 'start last', 'Task `{}` is already in progress', 'in progress'),

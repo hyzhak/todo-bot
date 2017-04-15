@@ -438,8 +438,8 @@ def setup(story):
                                 user=ctx['user'])
 
     @story.on([
-        text.EqualCaseIgnore('start task'),
         text.Match('start last(?: task)?', flags=re.IGNORECASE),
+        text.Match('^start( task)?$', flags=re.IGNORECASE),
     ])
     def start_last_task_story():
         @story.part()
