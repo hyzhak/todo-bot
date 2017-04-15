@@ -82,6 +82,23 @@ async def test_add_task_on_postback_message(build_context):
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize('command', [
+    'add new task',
+    'add task'
+])
+async def test_add_task_on_text_message(build_context, command):
+    async with build_context() as ctx:
+        await ctx.dialog([
+            # Alice:
+            command,
+
+            # Bob:
+            'Please enter the name of your task (max 140 symbols).\n'
+            ':information_source: You can also enumerate tasks by comma (get laptop, charger, passport).',
+        ])
+
+
+@pytest.mark.asyncio
 async def test_cancel_add_task_on_postback_message(build_context):
     async with build_context() as ctx:
         await ctx.dialog([

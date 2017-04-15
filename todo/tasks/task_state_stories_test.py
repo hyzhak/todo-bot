@@ -41,12 +41,17 @@ async def test_change_state_of_task_by_postback(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(('init_state', 'command', 'should_get_answer', 'should_get_state'), [
+    ('done', 'reopen', ':ok: Task `{}` was opened', 'open'),
     ('done', 'open last', ':ok: Task `{}` was opened', 'open'),
     ('open', 'open last', 'Task `{}` is already opened', 'open'),
+    ('open', 'start', ':ok: Task `{}` was started', 'in progress'),
     ('open', 'start last', ':ok: Task `{}` was started', 'in progress'),
+    ('open', 'start task', ':ok: Task `{}` was started', 'in progress'),
     ('in progress', 'start last', 'Task `{}` is already in progress', 'in progress'),
+    ('in progress', 'stop', ':ok: Task `{}` was stopped', 'open'),
     ('in progress', 'stop last', ':ok: Task `{}` was stopped', 'open'),
     ('open', 'stop last', 'Task `{}` is already stopped', 'open'),
+    ('in progress', 'done', ':ok: Task `{}` was done', 'done'),
     ('in progress', 'done last', ':ok: Task `{}` was done', 'done'),
     ('done', 'done last', 'Task `{}` is already done', 'done'),
 ])

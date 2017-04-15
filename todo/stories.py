@@ -57,8 +57,8 @@ def setup(story):
 
     @story.on([
         option.Equal('LIST_TASKS_NEW_FIRST'),
-        text.text.EqualCaseIgnore('list'),
-        text.text.EqualCaseIgnore('todo'),
+        text.Match('^list(( all)? tasks)?', flags=re.IGNORECASE),
+        text.EqualCaseIgnore('todo'),
     ])
     def list_of_tasks_story():
         @story.part()
@@ -106,7 +106,7 @@ def setup(story):
         text.Match('drop last', flags=re.IGNORECASE),
         text.Match('forget about last', flags=re.IGNORECASE),
         text.Match('kill last', flags=re.IGNORECASE),
-        text.Match('remove last', flags=re.IGNORECASE),
+        text.Match('remove (last|next)', flags=re.IGNORECASE),
     ])
     def remove_last_job_story():
         @story.part()
@@ -214,9 +214,11 @@ def setup(story):
         @story.case([
             option.Equal('CONFIRM_REMOVE_ALL'),
             sticker.Like(),
-            text.Match('(.*) remove all (.*)', flags=re.IGNORECASE),
+            text.Match('confirm', flags=re.IGNORECASE),
             text.Match('ok', flags=re.IGNORECASE),
-            text.Match('sure (.*)', flags=re.IGNORECASE),
+            text.Match('(.*)remove(.*)', flags=re.IGNORECASE),
+            text.Match('sure(.*)', flags=re.IGNORECASE),
+            text.Match('yeah', flags=re.IGNORECASE),
             text.Match('yes', flags=re.IGNORECASE),
         ])
         def confirm_to_remove_all():
@@ -337,6 +339,8 @@ def setup(story):
     @story.on([
         option.Equal('LAST_TASK_DETAILS'),
         text.Match('last(?: task)?', flags=re.IGNORECASE),
+        text.Match('next (details|task)', flags=re.IGNORECASE),
+        text.Match('^(task )?details', flags=re.IGNORECASE),
     ])
     def last_task_story():
         @story.part()
@@ -348,7 +352,7 @@ def setup(story):
                 await story.ask('There is no last task yet. Please add few.',
                                 user=ctx['user'],
                                 quick_replies=[{
-                                    'title': emoji.emojize('Add New Task', use_aliases=True),
+                                    'title': 'Add New Task',
                                     'payload': 'ADD_NEW_TASK'
                                 }])
 

@@ -89,9 +89,6 @@ def setup(story):
             await story.ask(
                 'Task `{}` is already in progress'.format(task.description),
                 quick_replies=[{
-                    'title': 'stop',
-                    'payload': 'DONE_TASK_{}'.format(task._id),
-                }, {
                     'title': 'done',
                     'payload': 'DONE_TASK_{}'.format(task._id),
                 }, {
@@ -421,7 +418,10 @@ def setup(story):
 
     # match "<do> last (task)"
 
-    @story.on(text.Match('open last(?: task)?', flags=re.IGNORECASE))
+    @story.on([
+        text.Match('^(re)?open$', flags=re.IGNORECASE),
+        text.Match('open last(?: task)?', flags=re.IGNORECASE),
+    ])
     def open_last_task_story():
         @story.part()
         async def try_to_open_last_task(ctx):
@@ -437,7 +437,10 @@ def setup(story):
                                 ],
                                 user=ctx['user'])
 
-    @story.on(text.Match('start last(?: task)?', flags=re.IGNORECASE))
+    @story.on([
+        text.Match('start last(?: task)?', flags=re.IGNORECASE),
+        text.Match('^start( task)?$', flags=re.IGNORECASE),
+    ])
     def start_last_task_story():
         @story.part()
         async def try_to_start_last_task(ctx):
@@ -453,7 +456,10 @@ def setup(story):
                                 ],
                                 user=ctx['user'])
 
-    @story.on(text.Match('stop last(?: task)?', flags=re.IGNORECASE))
+    @story.on([
+        text.EqualCaseIgnore('stop'),
+        text.Match('stop last(?: task)?', flags=re.IGNORECASE),
+    ])
     def stop_last_task_story():
         @story.part()
         async def try_to_stop_last_task(ctx):
@@ -469,7 +475,10 @@ def setup(story):
                                 ],
                                 user=ctx['user'])
 
-    @story.on(text.Match('done last(?: task)?', flags=re.IGNORECASE))
+    @story.on([
+        text.EqualCaseIgnore('done'),
+        text.Match('done last(?: task)?', flags=re.IGNORECASE),
+    ])
     def done_last_task_story():
         @story.part()
         async def try_to_done_last_task(ctx):

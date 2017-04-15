@@ -3,6 +3,7 @@ from botstory.middlewares import any, option, text
 import datetime
 import emoji
 import logging
+import re
 
 from todo import orm, sense
 from todo.tasks import task_story_helper, tasks_document
@@ -88,7 +89,10 @@ def setup(story):
         else:
             raise NotImplemented()
 
-    @story.on(receive=option.Equal('ADD_NEW_TASK'))
+    @story.on([
+        option.Equal('ADD_NEW_TASK'),
+        text.Match('^add( new)? task', flags=re.IGNORECASE),
+    ])
     def request_new_task():
         @story.part()
         async def ask_task_title(ctx):
