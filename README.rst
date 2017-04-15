@@ -24,3 +24,4 @@ Stack
 `:ship:` `Docker Container <https://www.docker.com/>`_ for Mongo and Python
 
 `:tractor:` `Travic-CI <https://travis-ci.org/>`_ - test and coverage
+d
