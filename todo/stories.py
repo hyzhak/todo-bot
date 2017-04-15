@@ -20,6 +20,25 @@ logger = logging.getLogger(__name__)
 
 logger.debug('parse stories')
 
+SHORT_HELP = 'Short Help:\n' \
+             '===========\n' \
+             '\n' \
+             ':white_check_mark: Please give me few names of tasks (command: add new task)\n' \
+             ':white_check_mark: In any time when you work with your task you can change its status ' \
+             'from open :arrow_right: in progress :arrow_right: done ' \
+             '(commands: start, stop, done, reopen)\n' \
+             ':white_check_mark: list all your tasks (command: list)\n' \
+             ':white_check_mark: details about task (command: last details)\n' \
+             ':white_check_mark: work with last task (command: start last, stop last, done last, ' \
+             'reopen last, last task, remove last)\n' \
+             ':white_check_mark: change all tasks at once (commands: start all, stop all, ' \
+             'done all, reopen all, remove all)\n' \
+             '\n' \
+             'All my source could be found here: ' \
+             'https://github.com/botstory/todo-bot/, feedback and PRs are welcomed!'
+
+SHORT_HELP_EMOJI = emoji.emojize(SHORT_HELP, use_aliases=True)
+
 
 def setup(story):
     pagination_list.setup(story)
@@ -34,7 +53,12 @@ def setup(story):
         @story.part()
         async def greetings(message):
             logger.info('greetings')
-            await story.ask('<Motivate user to act>',
+            await story.say('Nice to see you here!\n'
+                            'My goal is to help you with your list of tasks.',
+                            user=message['user'])
+            await story.say(SHORT_HELP_EMOJI,
+                            user=message['user'])
+            await story.ask('let\'s begin!',
                             quick_replies=[{
                                 'title': 'add new task',
                                 'payload': 'ADD_NEW_TASK',
@@ -355,6 +379,28 @@ def setup(story):
                                     'title': 'Add New Task',
                                     'payload': 'ADD_NEW_TASK'
                                 }])
+
+    @story.on([
+        option.Equal('ABOUT_ME'),
+        text.Equal('?'),
+        text.Equal('/?'),
+        text.EqualCaseIgnore('-h'),
+        text.EqualCaseIgnore('--help'),
+        text.Match('help( me)?', flags=re.IGNORECASE),
+        text.EqualCaseIgnore('what can I do here?'),
+    ])
+    def about_me_story():
+        @story.part()
+        async def say_about_me(ctx):
+            await story.ask(SHORT_HELP_EMOJI,
+                            user=ctx['user'],
+                            quick_replies=[{
+                                'title': 'add new task',
+                                'payload': 'ADD_NEW_TASK',
+                            }, {
+                                'title': 'list tasks',
+                                'payload': 'LIST_TASKS_NEW_FIRST',
+                            }])
 
     @story.on(receive=sticker.Like())
     def like_story():
