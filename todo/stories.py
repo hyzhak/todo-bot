@@ -35,7 +35,7 @@ SHORT_HELP = 'Short Help:\n' \
              ':white_check_mark: change all tasks at once (commands: start all, stop all, ' \
              'done all, reopen all, remove all)\n' \
              '\n' \
-             'All my source could be found here: ' \
+             'All my source could be found here:\n' \
              'https://github.com/botstory/todo-bot/, feedback and PRs are welcomed!'
 
 SHORT_HELP_EMOJI = emoji.emojize(SHORT_HELP, use_aliases=True)
