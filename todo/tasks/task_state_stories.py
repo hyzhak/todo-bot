@@ -89,9 +89,6 @@ def setup(story):
             await story.ask(
                 'Task `{}` is already in progress'.format(task.description),
                 quick_replies=[{
-                    'title': 'stop',
-                    'payload': 'DONE_TASK_{}'.format(task._id),
-                }, {
                     'title': 'done',
                     'payload': 'DONE_TASK_{}'.format(task._id),
                 }, {
