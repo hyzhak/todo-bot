@@ -5,6 +5,7 @@ import datetime
 import emoji
 import logging
 import os
+import random
 import re
 
 from todo import orm, pagination_list, reflection
@@ -406,84 +407,16 @@ def setup(story):
     def like_story():
         @story.part()
         async def test_message(ctx):
-            await story.list_elements(
-                elements=[{
-                    'title': '#100',  # (*) required
-                    # 'image_url': 'https://peterssendreceiveapp.ngrok.io/img/collection.png',
-                    'subtitle': 'See all our colors',
-                    # 'default_action': {
-                    #     'type': 'web_url',
-                    #     'url': 'https://peterssendreceiveapp.ngrok.io/shop_collection',
-                    #     'messenger_extensions': True,
-                    #     'webview_height_ratio': 'tall',
-                    #     'fallback_url': 'https://peterssendreceiveapp.ngrok.io/'
-                    # },
-                    'buttons': [{
-                        'title': 'Open Task #100',
-                        'type': 'postback',
-                        'payload': 'payload'
-                    }]
-                }, {
-                    'title': '#101',
-                    # 'image_url': 'https://peterssendreceiveapp.ngrok.io/img/white-t-shirt.png',
-                    'subtitle': '100% Cotton, 200% Comfortable',
-                    # 'default_action': {
-                    #     'type': 'web_url',
-                    #     'url': 'https://peterssendreceiveapp.ngrok.io/view?item=100',
-                    #     'messenger_extensions': True,
-                    #     'webview_height_ratio': 'tall',
-                    #     'fallback_url': 'https://peterssendreceiveapp.ngrok.io/'
-                    # },
-                    'buttons': [{
-                        'title': 'Open Task #101',
-                        'type': 'postback',
-                        'payload': 'payload'
-                    }]
-                }, {
-                    'title': '#102',
-                    # 'image_url': 'https://peterssendreceiveapp.ngrok.io/img/blue-t-shirt.png',
-                    'subtitle': '100% Cotton, 200% Comfortable',
-                    # 'default_action': {
-                    #     'type': 'web_url',
-                    #     'url': 'https://peterssendreceiveapp.ngrok.io/view?item=101',
-                    #     'messenger_extensions': True,
-                    #     'webview_height_ratio': 'tall',
-                    #     'fallback_url': 'https://peterssendreceiveapp.ngrok.io/'
-                    # },
-                    'buttons': [{
-                        'title': 'Open Task #102',
-                        'type': 'postback',
-                        'payload': 'payload'
-                    }]
-                }, {
-                    'title': '#103',
-                    # 'image_url': 'https://peterssendreceiveapp.ngrok.io/img/black-t-shirt.png',
-                    'subtitle': '100% Cotton, 200% Comfortable',
-                    # 'default_action': {
-                    #     'type': 'web_url',
-                    #     'url': 'https://peterssendreceiveapp.ngrok.io/view?item=102',
-                    #     'messenger_extensions': True,
-                    #     'webview_height_ratio': 'tall',
-                    #     'fallback_url': 'https://peterssendreceiveapp.ngrok.io/'
-                    # },
-                    'buttons': [{
-                        'title': 'Open Task #103',
-                        'type': 'postback',
-                        'payload': 'payload'
-                    }]
-                }],
-                buttons=[
-                    {
-                        'title': 'View More',
-                        'type': 'postback',
-                        'payload': 'payload'
-                    }
-                ],
-                options={
-                    'top_element_style': 'compact',
-                },
-                user=ctx['user'],
-            )
+            msgs = [':wink:', ':heart_eyes:', ':smirk:', ':wink:', ':metal:', 'Thanks!', 'I like you too!']
+            await story.ask(emoji.emojize(random.choice(msgs), use_aliases=True),
+                            quick_replies=[{
+                                'title': 'add new task',
+                                'payload': 'ADD_NEW_TASK',
+                            }, {
+                                'title': 'list tasks',
+                                'payload': 'LIST_TASKS_NEW_FIRST',
+                            }],
+                            user=ctx['user'])
 
     task_creation_stories.setup(story)
 
