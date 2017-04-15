@@ -380,6 +380,28 @@ def setup(story):
                                     'payload': 'ADD_NEW_TASK'
                                 }])
 
+    @story.on([
+        option.Equal('ABOUT_ME'),
+        text.Equal('?'),
+        text.Equal('/?'),
+        text.EqualCaseIgnore('-h'),
+        text.EqualCaseIgnore('--help'),
+        text.Match('help( me)?', flags=re.IGNORECASE),
+        text.EqualCaseIgnore('what can I do here?'),
+    ])
+    def about_me_story():
+        @story.part()
+        async def say_about_me(ctx):
+            await story.ask(SHORT_HELP_EMOJI,
+                            user=ctx['user'],
+                            quick_replies=[{
+                                'title': 'add new task',
+                                'payload': 'ADD_NEW_TASK',
+                            }, {
+                                'title': 'list tasks',
+                                'payload': 'LIST_TASKS_NEW_FIRST',
+                            }])
+
     @story.on(receive=sticker.Like())
     def like_story():
         @story.part()
