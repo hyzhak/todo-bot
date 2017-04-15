@@ -418,7 +418,10 @@ def setup(story):
 
     # match "<do> last (task)"
 
-    @story.on(text.Match('open last(?: task)?', flags=re.IGNORECASE))
+    @story.on([
+        text.Match('^(re)?open$', flags=re.IGNORECASE),
+        text.Match('open last(?: task)?', flags=re.IGNORECASE),
+    ])
     def open_last_task_story():
         @story.part()
         async def try_to_open_last_task(ctx):
