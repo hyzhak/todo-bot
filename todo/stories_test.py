@@ -450,6 +450,7 @@ async def test_remove_all_job_answer_in_different_way(build_context, answer, rem
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('command', [
+    'details',
     'last task',
     'last',
     'next details',
