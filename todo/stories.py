@@ -108,19 +108,19 @@ def setup(story):
         text.Match('kill last', flags=re.IGNORECASE),
         text.Match('remove (last|next)', flags=re.IGNORECASE),
     ])
-    def remove_last_job_story():
+    def remove_last_task_story():
         @story.part()
-        async def remove_last_job(ctx):
-            logger.info('remove last job')
+        async def remove_last_task(ctx):
+            logger.info('remove last task')
 
             try:
                 last_task = await task_story_helper.last_task(ctx)
                 desc = last_task.description
-                logger.debug('going to remove job `{}`'.format(desc))
+                logger.debug('going to remove task `{}`'.format(desc))
                 await tasks_document.TaskDocument.objects({
                     '_id': last_task._id,
                 }).delete_one()
-                msg = emoji.emojize(':ok: job `{}` was removed'.format(desc), use_aliases=True)
+                msg = emoji.emojize(':ok: task `{}` was removed'.format(desc), use_aliases=True)
                 logger.info(msg)
                 await story.ask(msg,
                                 quick_replies=[{
@@ -195,7 +195,7 @@ def setup(story):
         text.Match('kill all(?: tasks)?', flags=re.IGNORECASE),
         text.Match('remove all(?: tasks)?', flags=re.IGNORECASE),
     ])
-    def remove_all_jobs_story():
+    def remove_all_tasks_story():
         @story.part()
         async def ask_whether_user_really_want_to_remove_all_tasks(ctx):
             logger.info('ask whether remove all tasks or not')
@@ -223,7 +223,7 @@ def setup(story):
         ])
         def confirm_to_remove_all():
             @story.part()
-            async def remove_all_jobs(ctx):
+            async def remove_all_tasks(ctx):
                 logger.info('remove all tasks')
                 tasks_count = await tasks_document.TaskDocument.objects({
                     'user_id': ctx['user']['_id'],

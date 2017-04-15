@@ -328,7 +328,7 @@ async def test_ask_again_if_we_can_find_what_to_remove(build_context):
 @pytest.mark.parametrize('command',
                          ['delete last', 'drop last', 'forget about last', 'kill last', 'remove last', 'remove next',
                           env.build_postback('REMOVE_LAST_TASK')])
-async def test_remove_last_added_job(build_context, command):
+async def test_remove_last_added_task(build_context, command):
     async with build_context() as ctx:
         await ctx.add_test_tasks()
 
@@ -336,7 +336,7 @@ async def test_remove_last_added_job(build_context, command):
             # Alice:
             command,
             # Bob:
-            ':ok: job `go to work` was removed'
+            ':ok: task `go to work` was removed'
         ])
 
         res_lists = await tasks.TaskDocument.objects.find({
@@ -387,7 +387,7 @@ async def test_remove_last_warn_if_we_do_not_have_any_tickets_now(build_context)
 @pytest.mark.parametrize('command',
                          ['delete all', 'delete all tasks', 'delete all jobs',
                           env.build_postback('REMOVE_ALL_TASKS')])
-async def test_remove_all_job(build_context, command):
+async def test_remove_all_task(build_context, command):
     async with build_context() as ctx:
         await ctx.add_test_tasks()
 
@@ -421,7 +421,7 @@ async def test_remove_all_job(build_context, command):
                           ({'text': 'qwerty'}, False),
                           ({'text': '', 'quick_reply': {'payload': 'REFUSE_REMOVE_ALL'}}, False),
                           ])
-async def test_remove_all_job_answer_in_different_way(build_context, answer, removed):
+async def test_remove_all_tasks_answer_in_different_way(build_context, answer, removed):
     async with build_context() as ctx:
         await ctx.add_test_tasks()
 
