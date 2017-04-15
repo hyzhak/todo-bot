@@ -351,7 +351,7 @@ def setup(story):
                 await story.ask('There is no last task yet. Please add few.',
                                 user=ctx['user'],
                                 quick_replies=[{
-                                    'title': emoji.emojize('Add New Task', use_aliases=True),
+                                    'title': 'Add New Task',
                                     'payload': 'ADD_NEW_TASK'
                                 }])
 
