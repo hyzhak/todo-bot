@@ -452,6 +452,8 @@ async def test_remove_all_job_answer_in_different_way(build_context, answer, rem
 @pytest.mark.parametrize('command', [
     'last task',
     'last',
+    'next details',
+    'next task',
     env.build_postback('LAST_TASK_DETAILS'),
 ])
 async def test_show_task_details_on_last_task(build_context, command):

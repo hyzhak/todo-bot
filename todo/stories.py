@@ -339,6 +339,7 @@ def setup(story):
     @story.on([
         option.Equal('LAST_TASK_DETAILS'),
         text.Match('last(?: task)?', flags=re.IGNORECASE),
+        text.Match('next (details|task)', flags=re.IGNORECASE),
     ])
     def last_task_story():
         @story.part()
