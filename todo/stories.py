@@ -106,7 +106,7 @@ def setup(story):
         text.Match('drop last', flags=re.IGNORECASE),
         text.Match('forget about last', flags=re.IGNORECASE),
         text.Match('kill last', flags=re.IGNORECASE),
-        text.Match('remove last', flags=re.IGNORECASE),
+        text.Match('remove (last|next)', flags=re.IGNORECASE),
     ])
     def remove_last_job_story():
         @story.part()
