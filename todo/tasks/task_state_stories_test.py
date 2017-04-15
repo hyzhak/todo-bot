@@ -48,6 +48,7 @@ async def test_change_state_of_task_by_postback(
     ('open', 'start last', ':ok: Task `{}` was started', 'in progress'),
     ('open', 'start task', ':ok: Task `{}` was started', 'in progress'),
     ('in progress', 'start last', 'Task `{}` is already in progress', 'in progress'),
+    ('in progress', 'stop', ':ok: Task `{}` was stopped', 'open'),
     ('in progress', 'stop last', ':ok: Task `{}` was stopped', 'open'),
     ('open', 'stop last', 'Task `{}` is already stopped', 'open'),
     ('in progress', 'done', ':ok: Task `{}` was done', 'done'),

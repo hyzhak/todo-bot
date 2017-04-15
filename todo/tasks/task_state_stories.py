@@ -456,7 +456,10 @@ def setup(story):
                                 ],
                                 user=ctx['user'])
 
-    @story.on(text.Match('stop last(?: task)?', flags=re.IGNORECASE))
+    @story.on([
+        text.EqualCaseIgnore('stop'),
+        text.Match('stop last(?: task)?', flags=re.IGNORECASE),
+    ])
     def stop_last_task_story():
         @story.part()
         async def try_to_stop_last_task(ctx):
