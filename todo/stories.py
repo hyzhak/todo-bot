@@ -407,7 +407,7 @@ def setup(story):
     def like_story():
         @story.part()
         async def test_message(ctx):
-            msgs = [':wink:', ':heart_eyes:', ':smirk:', ':wink:', ':metal:', 'Thanks!', 'I like you too!']
+            msgs = [':wink:', ':heart_eyes:', ':smirk:', ':wink:', 'Thanks!', 'I like you too!']
             await story.ask(emoji.emojize(random.choice(msgs), use_aliases=True),
                             quick_replies=[{
                                 'title': 'add new task',
